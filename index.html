@@ -278,13 +278,13 @@
       }
 
       // Update on-screen totals
-      document.getElementById('minionEyeTotal').textContent       = totalEye;
-      document.getElementById('minionOrangeTotal').textContent    = totalOrange;
-      document.getElementById('minionAbyssTotal').textContent     = totalAbyss;
-      document.getElementById('minionHeavenTotal').textContent    = totalHeaven;
-      document.getElementById('minionGlueTotal').textContent      = totalGlue;
-      document.getElementById('minionBtadTotal').textContent      = totalBTad;
-      document.getElementById('minionDgCrystalTotal').textContent = totalCrystal;
+      document.getElementById('minionEyeTotal').textContent       = totalEye.toLocaleString();
+      document.getElementById('minionOrangeTotal').textContent    = totalOrange.toLocaleString();
+      document.getElementById('minionAbyssTotal').textContent     = totalAbyss.toLocaleString();
+      document.getElementById('minionHeavenTotal').textContent    = totalHeaven.toLocaleString();
+      document.getElementById('minionGlueTotal').textContent      = totalGlue.toLocaleString();
+      document.getElementById('minionBtadTotal').textContent      = totalBTad.toLocaleString();
+      document.getElementById('minionDgCrystalTotal').textContent = totalCrystal.toLocaleString();
     }
 
     // Attach a "change" event to each slot's dropdown so totals recalc automatically
