@@ -45,72 +45,34 @@
     .upgrade-select:hover {
       border-color: #c9ada7;
     }
+    .calculator-section {
+      margin-bottom: 30px;
+    }
+    .horizontal-slots {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .snail-row {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 15px;
+    }
   </style>
 </head>
 <body>
-  <!-- ===== HTML Structure ===== -->
-  <h1>Minion Gear Calculator</h1>
+  <!-- Snail Gear Section -->
+  <div class="calculator-section">
+    <h1>Snail Gear Calculator</h1>
+    <div class="snail-row" id="snail-row-1"></div>
+    <div class="snail-row" id="snail-row-2"></div>
+  </div>
 
-  <!-- 6 Slots for Minion Gear Selection -->
-  <div class="slot-container">
-    <label>Slot 1:</label>
-    <select id="slot1" class="upgrade-select">
-      <option value="Red">Red</option>
-      <option value="+1">+1</option>
-      <option value="+2">+2</option>
-      <option value="+3">+3</option>
-      <option value="+4">+4</option>
-    </select>
-  </div>
-  <div class="slot-container">
-    <label>Slot 2:</label>
-    <select id="slot2" class="upgrade-select">
-      <option value="Red">Red</option>
-      <option value="+1">+1</option>
-      <option value="+2">+2</option>
-      <option value="+3">+3</option>
-      <option value="+4">+4</option>
-    </select>
-  </div>
-  <div class="slot-container">
-    <label>Slot 3:</label>
-    <select id="slot3" class="upgrade-select">
-      <option value="Red">Red</option>
-      <option value="+1">+1</option>
-      <option value="+2">+2</option>
-      <option value="+3">+3</option>
-      <option value="+4">+4</option>
-    </select>
-  </div>
-  <div class="slot-container">
-    <label>Slot 4:</label>
-    <select id="slot4" class="upgrade-select">
-      <option value="Red">Red</option>
-      <option value="+1">+1</option>
-      <option value="+2">+2</option>
-      <option value="+3">+3</option>
-      <option value="+4">+4</option>
-    </select>
-  </div>
-  <div class="slot-container">
-    <label>Slot 5:</label>
-    <select id="slot5" class="upgrade-select">
-      <option value="Red">Red</option>
-      <option value="+1">+1</option>
-      <option value="+2">+2</option>
-      <option value="+3">+3</option>
-      <option value="+4">+4</option>
-    </select>
-  </div>
-  <div class="slot-container">
-    <label>Slot 6:</label>
-    <select id="slot6" class="upgrade-select">
-      <option value="Red">Red</option>
-      <option value="+1">+1</option>
-      <option value="+2">+2</option>
-      <option value="+3">+3</option>
-      <option value="+4">+4</option>
-    </select>
+  <!-- Minion Gear Section -->
+  <div class="calculator-section">
+    <h1>Minion Gear Calculator</h1>
+    <div class="horizontal-slots" id="minion-slots"></div>
   </div>
 
   <!-- Display Totals -->
@@ -173,6 +135,51 @@
         glue: 520, b_tad: 890000, dg_crystal: 1
       }
     };
+
+    // Helper function to create slot elements
+    function createSlotElement(id, label) {
+      const container = document.createElement('div');
+      container.className = 'slot-container';
+      
+      const labelEl = document.createElement('label');
+      labelEl.textContent = `Slot ${label}:`;
+      
+      const select = document.createElement('select');
+      select.id = id;
+      select.className = 'upgrade-select';
+      
+      // Add options
+      const options = ['Red', '+1', '+2', '+3', '+4'];
+      options.forEach(value => {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = value;
+        select.appendChild(option);
+      });
+      
+      container.appendChild(labelEl);
+      container.appendChild(select);
+      return container;
+    }
+
+    // Generate Snail Gear slots
+    const snailRow1 = document.getElementById('snail-row-1');
+    const snailRow2 = document.getElementById('snail-row-2');
+    
+    // First row (slots 1-6)
+    for (let i = 1; i <= 6; i++) {
+      snailRow1.appendChild(createSlotElement(`snail${i}`, i));
+    }
+    // Second row (slots 7-12)
+    for (let i = 7; i <= 12; i++) {
+      snailRow2.appendChild(createSlotElement(`snail${i}`, i));
+    }
+
+    // Generate Minion Gear slots
+    const minionSlots = document.getElementById('minion-slots');
+    for (let i = 1; i <= 6; i++) {
+      minionSlots.appendChild(createSlotElement(`slot${i}`, i));
+    }
 
     // This function sums up costs across all 6 "slots" and updates the displayed totals.
     function calculateTotals() {
