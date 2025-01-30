@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Minion Gear Calculator</title>
+  <style>
+    /* ===== Inline CSS ===== */
+    body {
+      margin: 20px;
+      font-family: sans-serif;
+    }
+    h1, h2 {
+      margin-bottom: 10px;
+    }
+    .slot-container {
+      margin-bottom: 10px;
+    }
+    label {
+      display: inline-block;
+      width: 60px;
+    }
+    #totals p {
+      margin: 4px 0;
+    }
+    .upgrade-select {
+      min-width: 60px;
+    }
+  </style>
+</head>
+<body>
+  <!-- ===== HTML Structure ===== -->
+  <h1>Minion Gear Calculator</h1>
+
+  <!-- 6 Slots for Minion Gear Selection -->
+  <div class="slot-container">
+    <label>Slot 1:</label>
+    <select id="slot1" class="upgrade-select">
+      <option value="Red">Red</option>
+      <option value="+1">+1</option>
+      <option value="+2">+2</option>
+      <option value="+3">+3</option>
+      <option value="+4">+4</option>
+      <option value="+5">+5</option>
+    </select>
+  </div>
+  <div class="slot-container">
+    <label>Slot 2:</label>
+    <select id="slot2" class="upgrade-select">
+      <option value="Red">Red</option>
+      <option value="+1">+1</option>
+      <option value="+2">+2</option>
+      <option value="+3">+3</option>
+      <option value="+4">+4</option>
+      <option value="+5">+5</option>
+    </select>
+  </div>
+  <div class="slot-container">
+    <label>Slot 3:</label>
+    <select id="slot3" class="upgrade-select">
+      <option value="Red">Red</option>
+      <option value="+1">+1</option>
+      <option value="+2">+2</option>
+      <option value="+3">+3</option>
+      <option value="+4">+4</option>
+      <option value="+5">+5</option>
+    </select>
+  </div>
+  <div class="slot-container">
+    <label>Slot 4:</label>
+    <select id="slot4" class="upgrade-select">
+      <option value="Red">Red</option>
+      <option value="+1">+1</option>
+      <option value="+2">+2</option>
+      <option value="+3">+3</option>
+      <option value="+4">+4</option>
+      <option value="+5">+5</option>
+    </select>
+  </div>
+  <div class="slot-container">
+    <label>Slot 5:</label>
+    <select id="slot5" class="upgrade-select">
+      <option value="Red">Red</option>
+      <option value="+1">+1</option>
+      <option value="+2">+2</option>
+      <option value="+3">+3</option>
+      <option value="+4">+4</option>
+      <option value="+5">+5</option>
+    </select>
+  </div>
+  <div class="slot-container">
+    <label>Slot 6:</label>
+    <select id="slot6" class="upgrade-select">
+      <option value="Red">Red</option>
+      <option value="+1">+1</option>
+      <option value="+2">+2</option>
+      <option value="+3">+3</option>
+      <option value="+4">+4</option>
+      <option value="+5">+5</option>
+    </select>
+  </div>
+
+  <!-- Display Totals -->
+  <h2>Totals</h2>
+  <div id="totals">
+    <p>Eye of Blasphemy: <span id="eyeTotal"></span></p>
+    <p>Orange: <span id="orangeTotal"></span></p>
+    <p>Abyss Wing: <span id="abyssTotal"></span></p>
+    <p>Heaven Wing: <span id="heavenTotal"></span></p>
+    <p>Glue: <span id="glueTotal"></span></p>
+    <p>B-tad: <span id="btadTotal"></span></p>
+    <p>DG Crystal: <span id="dgCrystalTotal"></span></p>
+  </div>
+
+  <script>
+    /* ===== Inline JavaScript ===== */
+
+    // 1. Define your Minion Gear data (cumulative costs, if that's what you use).
+    //    "dgNeeded" is a boolean; "dgLevel" indicates which Amulet level is required.
+    const MINION_GEAR = {
+      "Red": {
+        eye: 1, orange: 0, abyss: 1, heaven: 0, glue: 300, b_tad: 120000,
+        dgNeeded: false, dgLevel: null
+      },
+      "+1": {
+        eye: 0, orange: 0, abyss: 0, heaven: 0, glue: 500, b_tad: 160000,
+        dgNeeded: true, dgLevel: "0"
+      },
+      "+2": {
+        eye: 0, orange: 0, abyss: 0, heaven: 0, glue: 750, b_tad: 250000,
+        dgNeeded: true, dgLevel: "+1"
+      },
+      "+3": {
+        eye: 0, orange: 0, abyss: 0, heaven: 0, glue: 1050, b_tad: 360000,
+        dgNeeded: true, dgLevel: "+2"
+      },
+      "+4": {
+        eye: 0, orange: 0, abyss: 0, heaven: 0, glue: 1400, b_tad: 490000,
+        dgNeeded: true, dgLevel: "+3"
+      },
+      "+5": {
+        eye: 0, orange: 0, abyss: 0, heaven: 0, glue: 2000, b_tad: 600000,
+        dgNeeded: true, dgLevel: "+4"
+      }
+    };
+
+    // 2. Define your Amulet data (cumulative costs).
+    //    For example, if the game always requires 1 crystal for +1 and above:
+    const AMULET = {
+      "0": {
+        eye: 0, orange: 0, abyss: 0, heaven: 0,
+        glue: 0, b_tad: 0, dg_crystal: 0
+      },
+      "+1": {
+        eye: 1, orange: 100, abyss: 1, heaven: 1,
+        glue: 60, b_tad: 120000, dg_crystal: 1
+      },
+      "+2": {
+        eye: 1, orange: 200, abyss: 1, heaven: 1,
+        glue: 100, b_tad: 210000, dg_crystal: 1
+      },
+      "+3": {
+        eye: 1, orange: 300, abyss: 1, heaven: 1,
+        glue: 160, b_tad: 320000, dg_crystal: 1
+      },
+      "+4": {
+        eye: 1, orange: 400, abyss: 1, heaven: 1,
+        glue: 250, b_tad: 450000, dg_crystal: 1
+      }
+    };
+
+    // This function sums up costs across all 6 "slots" and updates the displayed totals.
+    function calculateTotals() {
+      let totalEye = 0,
+          totalOrange = 0,
+          totalAbyss = 0,
+          totalHeaven = 0,
+          totalGlue = 0,
+          totalBTad = 0,
+          totalCrystal = 0;
+
+      // Loop over 6 gear slots
+      for (let i = 1; i <= 6; i++) {
+        const selectEl = document.getElementById('slot' + i);
+        if (!selectEl) continue;  // just in case
+        const upgrade = selectEl.value; // "Red", "+1", "+2", etc.
+
+        const mg = MINION_GEAR[upgrade];
+        if (!mg) continue; // if undefined
+
+        // 1) Add Minion Gear base cost
+        totalEye     += mg.eye;
+        totalOrange  += mg.orange;
+        totalAbyss   += mg.abyss;
+        totalHeaven  += mg.heaven;
+        totalGlue    += mg.glue;
+        totalBTad    += mg.b_tad;
+
+        // 2) If it requires a Demon God Amulet, add that cost too
+        if (mg.dgNeeded) {
+          const amLevel = mg.dgLevel;         // e.g. "0" or "+1" etc.
+          const amData = AMULET[amLevel];     // lookup in AMULET table
+          totalEye     += amData.eye;
+          totalOrange  += amData.orange;
+          totalAbyss   += amData.abyss;
+          totalHeaven  += amData.heaven;
+          totalGlue    += amData.glue;
+          totalBTad    += amData.b_tad;
+          totalCrystal += amData.dg_crystal;
+        }
+      }
+
+      // Update on-screen totals
+      document.getElementById('eyeTotal').textContent       = totalEye;
+      document.getElementById('orangeTotal').textContent    = totalOrange;
+      document.getElementById('abyssTotal').textContent     = totalAbyss;
+      document.getElementById('heavenTotal').textContent    = totalHeaven;
+      document.getElementById('glueTotal').textContent      = totalGlue;
+      document.getElementById('btadTotal').textContent      = totalBTad;
+      document.getElementById('dgCrystalTotal').textContent = totalCrystal;
+    }
+
+    // Attach a "change" event to each slot's dropdown so totals recalc automatically
+    for (let i = 1; i <= 6; i++) {
+      const selectEl = document.getElementById('slot' + i);
+      if (selectEl) {
+        selectEl.addEventListener('change', calculateTotals);
+      }
+    }
+
+    // Calculate totals once on page load
+    calculateTotals();
+  </script>
+</body>
+</html>
