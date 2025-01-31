@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <title>Gear Calculator</title>
     <style>
-      /* Keeping existing CSS */
       body {
         margin: 20px;
         font-family: "Arial", sans-serif;
@@ -96,7 +95,6 @@
         transition: all 0.2s;
       }
 
-      /* Add responsive design */
       @media (max-width: 768px) {
         .totals-column {
           width: 90%;
@@ -124,22 +122,17 @@
     </style>
   </head>
   <body>
-    <!-- Snail Gear Section -->
     <div class="calculator-section">
       <h1>Snail Gear Calculator</h1>
       <button id="resetSnail" class="reset-button">Reset Snail Gear</button>
       <div class="snail-row" id="snail-row-1"></div>
       <div class="snail-row" id="snail-row-2"></div>
     </div>
-
-    <!-- Minion Gear Section -->
     <div class="calculator-section">
       <h1>Minion Gear Calculator</h1>
       <button id="resetMinion" class="reset-button">Reset Minion Gear</button>
       <div class="horizontal-slots" id="minion-slots"></div>
     </div>
-
-    <!-- Display Totals -->
     <h2>Totals</h2>
     <div id="totals">
       <div class="totals-column">
@@ -165,7 +158,6 @@
     </div>
 
     <script>
-      // Keep existing constants (SNAIL_GEAR, MINION_GEAR, AMULET, WILL_AMULET)
       const SNAIL_GEAR = {
         Red: {
           eoh: 1,
@@ -173,7 +165,7 @@
           heaven: 0,
           glue: 300,
           b_tad: 120000,
-          willNeeded: false, // 0 means no
+          willNeeded: false,
           willLevel: null,
         },
         "+1": {
@@ -182,7 +174,7 @@
           heaven: 0,
           glue: 800,
           b_tad: 280000,
-          willNeeded: true, // 1 means yes
+          willNeeded: true,
           willLevel: "0",
         },
         "+2": {
@@ -381,7 +373,6 @@
         },
       };
 
-      // Helper function to create slot elements
       function createSlotElement(id, isSnail = false) {
         const container = document.createElement("div");
         container.className = "slot-container";
@@ -390,7 +381,6 @@
         select.id = id;
         select.className = "upgrade-select";
 
-        // Add options based on gear type
         const options = isSnail
           ? ["Red", "+1", "+2", "+3", "+4", "+5", "+6"]
           : ["Red", "+1", "+2", "+3", "+4"];
@@ -406,20 +396,16 @@
         return container;
       }
 
-      // Generate Snail Gear slots
       const snailRow1 = document.getElementById("snail-row-1");
       const snailRow2 = document.getElementById("snail-row-2");
 
-      // First row (slots 1-6)
       for (let i = 1; i <= 6; i++) {
         snailRow1.appendChild(createSlotElement(`snail${i}`, true));
       }
-      // Second row (slots 7-12)
       for (let i = 7; i <= 12; i++) {
         snailRow2.appendChild(createSlotElement(`snail${i}`, true));
       }
 
-      // Generate Minion Gear slots
       const minionSlots = document.getElementById("minion-slots");
       for (let i = 1; i <= 6; i++) {
         minionSlots.appendChild(createSlotElement(`slot${i}`, false));
@@ -434,7 +420,6 @@
           totalBTad = 0,
           totalCrystal = 0;
 
-        // Loop over 6 gear slots
         for (let i = 1; i <= 6; i++) {
           const selectEl = document.getElementById("slot" + i);
           if (!selectEl) continue;
@@ -467,7 +452,6 @@
           }
         }
 
-        // Update minion totals
         document.getElementById("minionEyeTotal").textContent =
           totalEye.toLocaleString();
         document.getElementById("minionOrangeTotal").textContent =
@@ -493,7 +477,6 @@
           totalBTad = 0,
           totalWillCrystal = 0;
 
-        // Loop through all snail slots
         for (let i = 1; i <= 12; i++) {
           const selectEl = document.getElementById("snail" + i);
           if (!selectEl) continue;
@@ -551,7 +534,7 @@ function resetSnailGear() {
       }
     }
     calculateSnailTotals();
-    saveToLocalStorage(); // Add this line to save the reset state
+    saveToLocalStorage();
   }
 
   function resetMinionGear() {
@@ -562,35 +545,14 @@ function resetSnailGear() {
       }
     }
     calculateMinionTotals();
-    saveToLocalStorage(); // Add this line to save the reset state
+    saveToLocalStorage();
   }
 
-      // Add event listeners for all slots
-      function initializeEventListeners() {
-        // Minion gear listeners
-        for (let i = 1; i <= 6; i++) {
-          const selectEl = document.getElementById("slot" + i);
-          if (selectEl) {
-            selectEl.addEventListener("change", calculateMinionTotals);
-          }
-        }
-
-        // Snail gear listeners
-        for (let i = 1; i <= 12; i++) {
-          const selectEl = document.getElementById("snail" + i);
-          if (selectEl) {
-            selectEl.addEventListener("change", calculateSnailTotals);
-          }
-        }
-        document.getElementById("resetSnail").addEventListener("click", resetSnailGear);
-        document.getElementById("resetMinion").addEventListener("click", resetMinionGear);
-      }
       
       function saveToLocalStorage() {
         const snailSettings = {};
         const minionSettings = {};
         
-        // Save snail gear settings
         for (let i = 1; i <= 12; i++) {
           const selectEl = document.getElementById("snail" + i);
           if (selectEl) {
@@ -598,7 +560,6 @@ function resetSnailGear() {
           }
         }
         
-        // Save minion gear settings
         for (let i = 1; i <= 6; i++) {
           const selectEl = document.getElementById("slot" + i);
           if (selectEl) {
@@ -614,26 +575,24 @@ function resetSnailGear() {
         const snailSettings = JSON.parse(localStorage.getItem('snailGearSettings') || '{}');
         const minionSettings = JSON.parse(localStorage.getItem('minionGearSettings') || '{}');
         
-        // Load snail gear settings
         for (let i = 1; i <= 12; i++) {
           const selectEl = document.getElementById("snail" + i);
           if (selectEl) {
-            selectEl.value = snailSettings[i] || "Red"; // Default to "Red" if no saved value
+            selectEl.value = snailSettings[i] || "Red";
           }
         }
         
-        // Load minion gear settings
         for (let i = 1; i <= 6; i++) {
           const selectEl = document.getElementById("slot" + i);
           if (selectEl) {
-            selectEl.value = minionSettings[i] || "Red"; // Default to "Red" if no saved value
+            selectEl.value = minionSettings[i] || "Red";
           }
         }
         
         calculateSnailTotals();
         calculateMinionTotals();
       }
-      
+     
       function initializeEventListeners() {
         // Minion gear listeners
         for (let i = 1; i <= 6; i++) {
