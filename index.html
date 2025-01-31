@@ -1,244 +1,432 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Minion Gear Calculator</title>
-  <style>
-    /* ===== Enhanced CSS Styling ===== */
-    body {
-      margin: 20px;
-      font-family: 'Arial', sans-serif;
-      background-color: #f4f4f9;
-      color: #333;
-    }
-    h1, h2 {
-      margin-bottom: 10px;
-      color: #4a4e69;
-      text-align: center;
-    }
-    .slot-container {
-      margin: 8px;
-      padding: 10px;
-      background-color: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-    #totals {
-      display: flex;
-      justify-content: space-around;
-      margin: 20px auto;
-      max-width: 1000px;
-    }
-    .totals-column {
-      background-color: #fff;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-      width: 45%;
-    }
-    .totals-column h3 {
-      color: #22223b;
-      text-align: center;
-      margin-bottom: 15px;
-      font-size: 1.3em;
-    }
-    .totals-column p {
-      margin: 12px 0;
-      font-size: 16px;
-      color: #4a4e69;
-      display: flex;
-      justify-content: space-between;
-      padding: 8px;
-      border-bottom: 1px solid #f0f0f0;
-    }
-    .totals-column span {
-      font-weight: bold;
-      color: #22223b;
-    }
-    .upgrade-select {
-      width: 100%;
-      padding: 8px;
-      border: 1px solid #9a8c98;
-      border-radius: 4px;
-      background-color: #f2e9e4;
-      color: #22223b;
-      font-size: 14px;
-    }
-    .upgrade-select:hover {
-      border-color: #c9ada7;
-    }
-    .calculator-section {
-      margin-bottom: 30px;
-    }
-    .horizontal-slots {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    .snail-row {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-bottom: 15px;
-    }
-    .overlay-container {
-      position: relative;
-    }
-    .overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 10;
-    }
-    .coming-soon {
-      color: yellow;
-      font-size: 48px;
-      font-weight: bold;
-      transform: rotate(-30deg);
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-    }
-  </style>
-</head>
-<body>
-  <!-- Snail Gear Section -->
-  <div class="calculator-section overlay-container">
-    <div class="overlay">
-      <div class="coming-soon">COMING SOON</div>
-    </div>
-    <h1>Snail Gear Calculator</h1>
-    <div class="snail-row" id="snail-row-1"></div>
-    <div class="snail-row" id="snail-row-2"></div>
-  </div>
-
-  <!-- Minion Gear Section -->
-  <div class="calculator-section">
-    <h1>Minion Gear Calculator</h1>
-    <div class="horizontal-slots" id="minion-slots"></div>
-  </div>
-
-  <!-- Display Totals -->
-  <h2>Totals</h2>
-  <div id="totals">
-    <div class="totals-column">
-      <h3>Snail Gear Totals</h3>
-      <p>Eye of Horus: <span id="eyeTotal"></span></p>
-      <p>Orange: <span id="orangeTotal"></span></p>
-      <p>Abyss Wing: <span id="abyssTotal"></span></p>
-      <p>Heaven Wing: <span id="heavenTotal"></span></p>
-      <p>Glue: <span id="glueTotal"></span></p>
-      <p>B-tad: <span id="btadTotal"></span></p>
-    </div>
-    <div class="totals-column">
-      <h3>Minion Gear Totals</h3>
-      <p>Eye of Blasphemy: <span id="minionEyeTotal"></span></p>
-      <p>Orange: <span id="minionOrangeTotal"></span></p>
-      <p>Abyss Wing: <span id="minionAbyssTotal"></span></p>
-      <p>Heaven Wing: <span id="minionHeavenTotal"></span></p>
-      <p>Glue: <span id="minionGlueTotal"></span></p>
-      <p>B-tad: <span id="minionBtadTotal"></span></p>
-      <p>DG Crystal: <span id="minionDgCrystalTotal"></span></p>
-    </div>
-  </div>
-
-  <script>
-    /* ===== Inline JavaScript ===== */
-
-    // 1. Define your Minion Gear data (cumulative costs, if that's what you use).
-    //    "dgNeeded" is a boolean; "dgLevel" indicates which Amulet level is required.
-    const MINION_GEAR = {
-      "Red": {
-        eye: 1, orange: 0, abyss: 1, heaven: 0, glue: 300, b_tad: 120000,
-        dgNeeded: false, dgLevel: null
-      },
-      "+1": {
-        eye: 1, orange: 0, abyss: 1, heaven: 0, glue: 800, b_tad: 280000,
-        dgNeeded: true, dgLevel: "0"
-      },
-      "+2": {
-        eye: 1, orange: 0, abyss: 1, heaven: 0, glue: 1550, b_tad: 530000,
-        dgNeeded: true, dgLevel: "+1"
-      },
-      "+3": {
-        eye: 1, orange: 0, abyss: 1, heaven: 0, glue: 2600, b_tad: 890000,
-        dgNeeded: true, dgLevel: "+2"
-      },
-      "+4": {
-        eye: 1, orange: 0, abyss: 1, heaven: 0, glue: 4000, b_tad: 1380000,
-        dgNeeded: true, dgLevel: "+3"
+  <head>
+    <meta charset="UTF-8" />
+    <title>Gear Calculator</title>
+    <style>
+      /* Keeping existing CSS */
+      body {
+        margin: 20px;
+        font-family: "Arial", sans-serif;
+        background-color: #f4f4f9;
+        color: #333;
       }
-    };
-
-    // 2. Define your Amulet data (cumulative costs).
-    //    For example, if the game always requires 1 crystal for +1 and above:
-    const AMULET = {
-      "0": {
-        eye: 1, orange: 0, abyss: 1, heaven: 1,
-        glue: 60, b_tad: 120000, dg_crystal: 1
-      },
-      "+1": {
-        eye: 2, orange: 100, abyss: 2, heaven: 2,
-        glue: 160, b_tad: 280000, dg_crystal: 1
-      },
-      "+2": {
-        eye: 3, orange: 300, abyss: 3, heaven: 3,
-        glue: 310, b_tad: 530000, dg_crystal: 1
-      },
-      "+3": {
-        eye: 4, orange: 600, abyss: 4, heaven: 4,
-        glue: 520, b_tad: 890000, dg_crystal: 1
+      h1,
+      h2 {
+        margin-bottom: 10px;
+        color: #4a4e69;
+        text-align: center;
       }
-    };
+      .slot-container {
+        margin: 8px;
+        padding: 10px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      #totals {
+        display: flex;
+        justify-content: space-around;
+        margin: 20px auto;
+        max-width: 1000px;
+      }
+      .totals-column {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        width: 45%;
+      }
+      .totals-column h3 {
+        color: #22223b;
+        text-align: center;
+        margin-bottom: 15px;
+        font-size: 1.3em;
+      }
+      .totals-column p {
+        margin: 12px 0;
+        font-size: 16px;
+        color: #4a4e69;
+        display: flex;
+        justify-content: space-between;
+        padding: 8px;
+        border-bottom: 1px solid #f0f0f0;
+      }
+      .totals-column span {
+        font-weight: bold;
+        color: #22223b;
+      }
+      .upgrade-select {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #9a8c98;
+        border-radius: 4px;
+        background-color: #f2e9e4;
+        color: #22223b;
+        font-size: 14px;
+      }
+      .upgrade-select:hover {
+        border-color: #c9ada7;
+      }
+      .calculator-section {
+        margin-bottom: 30px;
+      }
+      .horizontal-slots {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      .snail-row {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 15px;
+      }
+      .slot-container {
+        position: relative;
+        transition: transform 0.2s;
+      }
 
-    // Helper function to create slot elements
-    function createSlotElement(id, label) {
-      const container = document.createElement('div');
-      container.className = 'slot-container';
-      
-      const select = document.createElement('select');
-      select.id = id;
-      select.className = 'upgrade-select';
-      
-      // Add options
-      const options = ['Red', '+1', '+2', '+3', '+4'];
-      options.forEach(value => {
-        const option = document.createElement('option');
-        option.value = value;
-        option.textContent = value;
-        select.appendChild(option);
-      });
-      
-      container.appendChild(select);
-      return container;
-    }
+      .slot-container:hover {
+        transform: translateY(-2px);
+      }
 
-    // Generate Snail Gear slots
-    const snailRow1 = document.getElementById('snail-row-1');
-    const snailRow2 = document.getElementById('snail-row-2');
-    
-    // First row (slots 1-6)
-    for (let i = 1; i <= 6; i++) {
-      snailRow1.appendChild(createSlotElement(`snail${i}`, i));
-    }
-    // Second row (slots 7-12)
-    for (let i = 7; i <= 12; i++) {
-      snailRow2.appendChild(createSlotElement(`snail${i}`, i));
-    }
+      .upgrade-select {
+        cursor: pointer;
+        transition: all 0.2s;
+      }
 
-    // Generate Minion Gear slots
-    const minionSlots = document.getElementById('minion-slots');
-    for (let i = 1; i <= 6; i++) {
-      minionSlots.appendChild(createSlotElement(`slot${i}`, i));
-    }
+      /* Add responsive design */
+      @media (max-width: 768px) {
+        .totals-column {
+          width: 90%;
+          margin: 10px auto;
+        }
+        #totals {
+          flex-direction: column;
+        }
+      }
+      .reset-button {
+        display: block;
+        margin: 10px auto;
+        padding: 8px 16px;
+        background-color: #f2e9e4;
+        color: #22223b;
+        border: 1px solid #9a8c98;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
 
-    // This function sums up costs across all 6 "slots" and updates the displayed totals.
-    function calculateTotals() {
-      let totalEye = 0,
+      .reset-button:hover {
+        border-color: #c9ada7;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Snail Gear Section -->
+    <div class="calculator-section">
+      <h1>Snail Gear Calculator</h1>
+      <button id="resetSnail" class="reset-button">Reset Snail Gear</button>
+      <div class="snail-row" id="snail-row-1"></div>
+      <div class="snail-row" id="snail-row-2"></div>
+    </div>
+
+    <!-- Minion Gear Section -->
+    <div class="calculator-section">
+      <h1>Minion Gear Calculator</h1>
+      <button id="resetMinion" class="reset-button">Reset Minion Gear</button>
+      <div class="horizontal-slots" id="minion-slots"></div>
+    </div>
+
+    <!-- Display Totals -->
+    <h2>Totals</h2>
+    <div id="totals">
+      <div class="totals-column">
+        <h3>Snail Gear Totals</h3>
+        <p>Eye of Horus: <span id="eyeTotal">0</span></p>
+        <p>Orange: <span id="orangeTotal">0</span></p>
+        <p>Abyss Wing: <span id="abyssTotal">0</span></p>
+        <p>Heaven Wing: <span id="heavenTotal">0</span></p>
+        <p>Glue: <span id="glueTotal">0</span></p>
+        <p>B-tad: <span id="btadTotal">0</span></p>
+        <p>Will Crystal: <span id="willCrystalTotal">0</span></p>
+      </div>
+      <div class="totals-column">
+        <h3>Minion Gear Totals</h3>
+        <p>Eye of Blasphemy: <span id="minionEyeTotal">0</span></p>
+        <p>Orange: <span id="minionOrangeTotal">0</span></p>
+        <p>Abyss Wing: <span id="minionAbyssTotal">0</span></p>
+        <p>Heaven Wing: <span id="minionHeavenTotal">0</span></p>
+        <p>Glue: <span id="minionGlueTotal">0</span></p>
+        <p>B-tad: <span id="minionBtadTotal">0</span></p>
+        <p>DG Crystal: <span id="minionDgCrystalTotal">0</span></p>
+      </div>
+    </div>
+
+    <script>
+      // Keep existing constants (SNAIL_GEAR, MINION_GEAR, AMULET, WILL_AMULET)
+      const SNAIL_GEAR = {
+        Red: {
+          eoh: 1,
+          abyss: 1,
+          heaven: 0,
+          glue: 300,
+          b_tad: 120000,
+          willNeeded: false, // 0 means no
+          willLevel: null,
+        },
+        "+1": {
+          eoh: 1,
+          abyss: 1,
+          heaven: 0,
+          glue: 800,
+          b_tad: 280000,
+          willNeeded: true, // 1 means yes
+          willLevel: "0",
+        },
+        "+2": {
+          eoh: 1,
+          abyss: 1,
+          heaven: 0,
+          glue: 1550,
+          b_tad: 530000,
+          willNeeded: true,
+          willLevel: "1",
+        },
+        "+3": {
+          eoh: 1,
+          abyss: 1,
+          heaven: 0,
+          glue: 2600,
+          b_tad: 890000,
+          willNeeded: true,
+          willLevel: "2",
+        },
+        "+4": {
+          eoh: 1,
+          abyss: 1,
+          heaven: 0,
+          glue: 4000,
+          b_tad: 1380000,
+          willNeeded: true,
+          willLevel: "3",
+        },
+        "+5": {
+          eoh: 1,
+          abyss: 1,
+          heaven: 0,
+          glue: 5800,
+          b_tad: 2020000,
+          willNeeded: true,
+          willLevel: "4",
+        },
+        "+6": {
+          eoh: 1,
+          abyss: 1,
+          heaven: 0,
+          glue: 8050,
+          b_tad: 2830000,
+          willNeeded: true,
+          willLevel: "5",
+        },
+      };
+
+      const MINION_GEAR = {
+        Red: {
+          eye: 1,
+          orange: 0,
+          abyss: 1,
+          heaven: 0,
+          glue: 300,
+          b_tad: 120000,
+          dgNeeded: false,
+          dgLevel: null,
+        },
+        "+1": {
+          eye: 1,
+          orange: 0,
+          abyss: 1,
+          heaven: 0,
+          glue: 800,
+          b_tad: 280000,
+          dgNeeded: true,
+          dgLevel: "0",
+        },
+        "+2": {
+          eye: 1,
+          orange: 0,
+          abyss: 1,
+          heaven: 0,
+          glue: 1550,
+          b_tad: 530000,
+          dgNeeded: true,
+          dgLevel: "+1",
+        },
+        "+3": {
+          eye: 1,
+          orange: 0,
+          abyss: 1,
+          heaven: 0,
+          glue: 2600,
+          b_tad: 890000,
+          dgNeeded: true,
+          dgLevel: "+2",
+        },
+        "+4": {
+          eye: 1,
+          orange: 0,
+          abyss: 1,
+          heaven: 0,
+          glue: 4000,
+          b_tad: 1380000,
+          dgNeeded: true,
+          dgLevel: "+3",
+        },
+      };
+
+      const AMULET = {
+        0: {
+          eye: 1,
+          orange: 0,
+          abyss: 1,
+          heaven: 1,
+          glue: 60,
+          b_tad: 120000,
+          dg_crystal: 1,
+        },
+        "+1": {
+          eye: 2,
+          orange: 100,
+          abyss: 2,
+          heaven: 2,
+          glue: 160,
+          b_tad: 280000,
+          dg_crystal: 1,
+        },
+        "+2": {
+          eye: 3,
+          orange: 300,
+          abyss: 3,
+          heaven: 3,
+          glue: 310,
+          b_tad: 530000,
+          dg_crystal: 1,
+        },
+        "+3": {
+          eye: 4,
+          orange: 600,
+          abyss: 4,
+          heaven: 4,
+          glue: 520,
+          b_tad: 890000,
+          dg_crystal: 1,
+        },
+      };
+
+      const WILL_AMULET = {
+        0: {
+          eoh: 1,
+          will_crystal: 1,
+          abyss: 1,
+          heaven: 1,
+          glue: 60,
+          orange: 0,
+          b_tad: 120000,
+        },
+        1: {
+          eoh: 2,
+          will_crystal: 1,
+          abyss: 2,
+          heaven: 2,
+          glue: 160,
+          orange: 100,
+          b_tad: 280000,
+        },
+        2: {
+          eoh: 3,
+          will_crystal: 1,
+          abyss: 3,
+          heaven: 3,
+          glue: 310,
+          orange: 300,
+          b_tad: 530000,
+        },
+        3: {
+          eoh: 4,
+          will_crystal: 1,
+          abyss: 4,
+          heaven: 4,
+          glue: 520,
+          orange: 600,
+          b_tad: 890000,
+        },
+        4: {
+          eoh: 5,
+          will_crystal: 1,
+          abyss: 5,
+          heaven: 5,
+          glue: 800,
+          orange: 1000,
+          b_tad: 1380000,
+        },
+        5: {
+          eoh: 6,
+          will_crystal: 1,
+          abyss: 6,
+          heaven: 6,
+          glue: 1160,
+          orange: 1500,
+          b_tad: 2020000,
+        },
+      };
+
+      // Helper function to create slot elements
+      function createSlotElement(id, isSnail = false) {
+        const container = document.createElement("div");
+        container.className = "slot-container";
+
+        const select = document.createElement("select");
+        select.id = id;
+        select.className = "upgrade-select";
+
+        // Add options based on gear type
+        const options = isSnail
+          ? ["Red", "+1", "+2", "+3", "+4", "+5", "+6"]
+          : ["Red", "+1", "+2", "+3", "+4"];
+
+        options.forEach((value) => {
+          const option = document.createElement("option");
+          option.value = value;
+          option.textContent = value;
+          select.appendChild(option);
+        });
+
+        container.appendChild(select);
+        return container;
+      }
+
+      // Generate Snail Gear slots
+      const snailRow1 = document.getElementById("snail-row-1");
+      const snailRow2 = document.getElementById("snail-row-2");
+
+      // First row (slots 1-6)
+      for (let i = 1; i <= 6; i++) {
+        snailRow1.appendChild(createSlotElement(`snail${i}`, true));
+      }
+      // Second row (slots 7-12)
+      for (let i = 7; i <= 12; i++) {
+        snailRow2.appendChild(createSlotElement(`snail${i}`, true));
+      }
+
+      // Generate Minion Gear slots
+      const minionSlots = document.getElementById("minion-slots");
+      for (let i = 1; i <= 6; i++) {
+        minionSlots.appendChild(createSlotElement(`slot${i}`, false));
+      }
+
+      function calculateMinionTotals() {
+        let totalEye = 0,
           totalOrange = 0,
           totalAbyss = 0,
           totalHeaven = 0,
@@ -246,57 +434,159 @@
           totalBTad = 0,
           totalCrystal = 0;
 
-      // Loop over 6 gear slots
-      for (let i = 1; i <= 6; i++) {
-        const selectEl = document.getElementById('slot' + i);
-        if (!selectEl) continue;  // just in case
-        const upgrade = selectEl.value; // "Red", "+1", "+2", etc.
+        // Loop over 6 gear slots
+        for (let i = 1; i <= 6; i++) {
+          const selectEl = document.getElementById("slot" + i);
+          if (!selectEl) continue;
 
-        const mg = MINION_GEAR[upgrade];
-        if (!mg) continue; // if undefined
+          const upgrade = selectEl.value;
+          const mg = MINION_GEAR[upgrade];
+          if (!mg) continue;
 
-        // 1) Add Minion Gear base cost
-        totalEye     += mg.eye;
-        totalOrange  += mg.orange;
-        totalAbyss   += mg.abyss;
-        totalHeaven  += mg.heaven;
-        totalGlue    += mg.glue;
-        totalBTad    += mg.b_tad;
+          // Add Minion Gear base cost
+          totalEye += mg.eye;
+          totalOrange += mg.orange;
+          totalAbyss += mg.abyss;
+          totalHeaven += mg.heaven;
+          totalGlue += mg.glue;
+          totalBTad += mg.b_tad;
 
-        // 2) If it requires a Demon God Amulet, add that cost too
-        if (mg.dgNeeded) {
-          const amLevel = mg.dgLevel;         // e.g. "0" or "+1" etc.
-          const amData = AMULET[amLevel];     // lookup in AMULET table
-          totalEye     += amData.eye;
-          totalOrange  += amData.orange;
-          totalAbyss   += amData.abyss;
-          totalHeaven  += amData.heaven;
-          totalGlue    += amData.glue;
-          totalBTad    += amData.b_tad;
-          totalCrystal += amData.dg_crystal;
+          // If it requires a Demon God Amulet, add that cost too
+          if (mg.dgNeeded) {
+            const amLevel = mg.dgLevel;
+            const amData = AMULET[amLevel];
+            if (amData) {
+              totalEye += amData.eye;
+              totalOrange += amData.orange;
+              totalAbyss += amData.abyss;
+              totalHeaven += amData.heaven;
+              totalGlue += amData.glue;
+              totalBTad += amData.b_tad;
+              totalCrystal += amData.dg_crystal;
+            }
+          }
         }
+
+        // Update minion totals
+        document.getElementById("minionEyeTotal").textContent =
+          totalEye.toLocaleString();
+        document.getElementById("minionOrangeTotal").textContent =
+          totalOrange.toLocaleString();
+        document.getElementById("minionAbyssTotal").textContent =
+          totalAbyss.toLocaleString();
+        document.getElementById("minionHeavenTotal").textContent =
+          totalHeaven.toLocaleString();
+        document.getElementById("minionGlueTotal").textContent =
+          totalGlue.toLocaleString();
+        document.getElementById("minionBtadTotal").textContent =
+          totalBTad.toLocaleString();
+        document.getElementById("minionDgCrystalTotal").textContent =
+          totalCrystal.toLocaleString();
       }
 
-      // Update on-screen totals
-      document.getElementById('minionEyeTotal').textContent       = totalEye.toLocaleString();
-      document.getElementById('minionOrangeTotal').textContent    = totalOrange.toLocaleString();
-      document.getElementById('minionAbyssTotal').textContent     = totalAbyss.toLocaleString();
-      document.getElementById('minionHeavenTotal').textContent    = totalHeaven.toLocaleString();
-      document.getElementById('minionGlueTotal').textContent      = totalGlue.toLocaleString();
-      document.getElementById('minionBtadTotal').textContent      = totalBTad.toLocaleString();
-      document.getElementById('minionDgCrystalTotal').textContent = totalCrystal.toLocaleString();
-    }
+      function calculateSnailTotals() {
+        let totalEoH = 0,
+          totalOrange = 0,
+          totalAbyss = 0,
+          totalHeaven = 0,
+          totalGlue = 0,
+          totalBTad = 0,
+          totalWillCrystal = 0;
 
-    // Attach a "change" event to each slot's dropdown so totals recalc automatically
-    for (let i = 1; i <= 6; i++) {
-      const selectEl = document.getElementById('slot' + i);
-      if (selectEl) {
-        selectEl.addEventListener('change', calculateTotals);
+        // Loop through all snail slots
+        for (let i = 1; i <= 12; i++) {
+          const selectEl = document.getElementById("snail" + i);
+          if (!selectEl) continue;
+
+          const upgrade = selectEl.value;
+          const sgData = SNAIL_GEAR[upgrade];
+          if (!sgData) continue;
+
+          // Add snail gear costs
+          totalEoH += sgData.eoh;
+          totalAbyss += sgData.abyss;
+          totalHeaven += sgData.heaven;
+          totalGlue += sgData.glue;
+          totalBTad += sgData.b_tad;
+
+          // Check if a Will Amulet is needed
+          if (sgData.willNeeded) {
+            const willLevel = sgData.willLevel;
+            const waData = WILL_AMULET[willLevel];
+            if (waData) {
+              totalEoH += waData.eoh;
+              totalOrange += waData.orange;
+              totalAbyss += waData.abyss;
+              totalHeaven += waData.heaven;
+              totalGlue += waData.glue;
+              totalBTad += waData.b_tad;
+              totalWillCrystal += waData.will_crystal;
+            }
+          }
+        }
+
+        // Update snail totals
+        document.getElementById("eyeTotal").textContent =
+          totalEoH.toLocaleString();
+        document.getElementById("orangeTotal").textContent =
+          totalOrange.toLocaleString();
+        document.getElementById("abyssTotal").textContent =
+          totalAbyss.toLocaleString();
+        document.getElementById("heavenTotal").textContent =
+          totalHeaven.toLocaleString();
+        document.getElementById("glueTotal").textContent =
+          totalGlue.toLocaleString();
+        document.getElementById("btadTotal").textContent =
+          totalBTad.toLocaleString();
+        document.getElementById("willCrystalTotal").textContent =
+          totalWillCrystal.toLocaleString();
       }
-    }
 
-    // Calculate totals once on page load
-    calculateTotals();
-  </script>
-</body>
+      function resetSnailGear() {
+        for (let i = 1; i <= 12; i++) {
+          const selectEl = document.getElementById("snail" + i);
+          if (selectEl) {
+            selectEl.value = "Red";
+          }
+        }
+        calculateSnailTotals();
+      }
+
+      function resetMinionGear() {
+        for (let i = 1; i <= 6; i++) {
+          const selectEl = document.getElementById("slot" + i);
+          if (selectEl) {
+            selectEl.value = "Red";
+          }
+        }
+        calculateMinionTotals();
+      }
+
+      // Add event listeners for all slots
+      function initializeEventListeners() {
+        // Minion gear listeners
+        for (let i = 1; i <= 6; i++) {
+          const selectEl = document.getElementById("slot" + i);
+          if (selectEl) {
+            selectEl.addEventListener("change", calculateMinionTotals);
+          }
+        }
+
+        // Snail gear listeners
+        for (let i = 1; i <= 12; i++) {
+          const selectEl = document.getElementById("snail" + i);
+          if (selectEl) {
+            selectEl.addEventListener("change", calculateSnailTotals);
+          }
+        }
+        document.getElementById("resetSnail").addEventListener("click", resetSnailGear);
+        document.getElementById("resetMinion").addEventListener("click", resetMinionGear);
+      }
+
+      // Initialize calculations and listeners
+      initializeEventListeners();
+      calculateMinionTotals();
+      calculateSnailTotals();
+    </script>
+  </body>
 </html>
