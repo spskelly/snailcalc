@@ -542,25 +542,28 @@
           totalWillCrystal.toLocaleString();
       }
 
-      function resetSnailGear() {
-        for (let i = 1; i <= 12; i++) {
-          const selectEl = document.getElementById("snail" + i);
-          if (selectEl) {
-            selectEl.value = "Red";
-          }
-        }
-        calculateSnailTotals();
+      
+function resetSnailGear() {
+    for (let i = 1; i <= 12; i++) {
+      const selectEl = document.getElementById("snail" + i);
+      if (selectEl) {
+        selectEl.value = "Red";
       }
+    }
+    calculateSnailTotals();
+    saveToLocalStorage(); // Add this line to save the reset state
+  }
 
-      function resetMinionGear() {
-        for (let i = 1; i <= 6; i++) {
-          const selectEl = document.getElementById("slot" + i);
-          if (selectEl) {
-            selectEl.value = "Red";
-          }
-        }
-        calculateMinionTotals();
+  function resetMinionGear() {
+    for (let i = 1; i <= 6; i++) {
+      const selectEl = document.getElementById("slot" + i);
+      if (selectEl) {
+        selectEl.value = "Red";
       }
+    }
+    calculateMinionTotals();
+    saveToLocalStorage(); // Add this line to save the reset state
+  }
 
       // Add event listeners for all slots
       function initializeEventListeners() {
@@ -581,6 +584,85 @@
         }
         document.getElementById("resetSnail").addEventListener("click", resetSnailGear);
         document.getElementById("resetMinion").addEventListener("click", resetMinionGear);
+      }
+      
+      function saveToLocalStorage() {
+        const snailSettings = {};
+        const minionSettings = {};
+        
+        // Save snail gear settings
+        for (let i = 1; i <= 12; i++) {
+          const selectEl = document.getElementById("snail" + i);
+          if (selectEl) {
+            snailSettings[i] = selectEl.value;
+          }
+        }
+        
+        // Save minion gear settings
+        for (let i = 1; i <= 6; i++) {
+          const selectEl = document.getElementById("slot" + i);
+          if (selectEl) {
+            minionSettings[i] = selectEl.value;
+          }
+        }
+        
+        localStorage.setItem('snailGearSettings', JSON.stringify(snailSettings));
+        localStorage.setItem('minionGearSettings', JSON.stringify(minionSettings));
+      }
+      
+      function loadFromLocalStorage() {
+        const snailSettings = JSON.parse(localStorage.getItem('snailGearSettings') || '{}');
+        const minionSettings = JSON.parse(localStorage.getItem('minionGearSettings') || '{}');
+        
+        // Load snail gear settings
+        for (let i = 1; i <= 12; i++) {
+          const selectEl = document.getElementById("snail" + i);
+          if (selectEl) {
+            selectEl.value = snailSettings[i] || "Red"; // Default to "Red" if no saved value
+          }
+        }
+        
+        // Load minion gear settings
+        for (let i = 1; i <= 6; i++) {
+          const selectEl = document.getElementById("slot" + i);
+          if (selectEl) {
+            selectEl.value = minionSettings[i] || "Red"; // Default to "Red" if no saved value
+          }
+        }
+        
+        calculateSnailTotals();
+        calculateMinionTotals();
+      }
+      
+      function initializeEventListeners() {
+        // Minion gear listeners
+        for (let i = 1; i <= 6; i++) {
+          const selectEl = document.getElementById("slot" + i);
+          if (selectEl) {
+            selectEl.addEventListener("change", () => {
+              calculateMinionTotals();
+              saveToLocalStorage();
+            });
+          }
+        }
+      
+        // Snail gear listeners
+        for (let i = 1; i <= 12; i++) {
+          const selectEl = document.getElementById("snail" + i);
+          if (selectEl) {
+            selectEl.addEventListener("change", () => {
+              calculateSnailTotals();
+              saveToLocalStorage();
+            });
+          }
+        }
+      
+        // Reset button listeners
+        document.getElementById("resetSnail").addEventListener("click", resetSnailGear);
+        document.getElementById("resetMinion").addEventListener("click", resetMinionGear);
+        
+        // Load saved settings on page load
+        loadFromLocalStorage();
       }
 
       // Initialize calculations and listeners
