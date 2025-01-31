@@ -1,0 +1,116 @@
+
+body {
+    margin: 20px;
+    font-family: "Arial", sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
+  }
+  h1,
+  h2 {
+    margin-bottom: 10px;
+    color: #4a4e69;
+    text-align: center;
+  }
+  .slot-container {
+    margin: 8px;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  #totals {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px auto;
+    max-width: 1000px;
+  }
+  .totals-column {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    width: 45%;
+  }
+  .totals-column h3 {
+    color: #22223b;
+    text-align: center;
+    margin-bottom: 15px;
+    font-size: 1.3em;
+  }
+  .totals-column p {
+    margin: 12px 0;
+    font-size: 16px;
+    color: #4a4e69;
+    display: flex;
+    justify-content: space-between;
+    padding: 8px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .totals-column span {
+    font-weight: bold;
+    color: #22223b;
+  }
+  .upgrade-select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #9a8c98;
+    border-radius: 4px;
+    background-color: #f2e9e4;
+    color: #22223b;
+    font-size: 14px;
+  }
+  .upgrade-select:hover {
+    border-color: #c9ada7;
+  }
+  .calculator-section {
+    margin-bottom: 30px;
+  }
+  .horizontal-slots {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .snail-row {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+  }
+  .slot-container {
+    position: relative;
+    transition: transform 0.2s;
+  }
+
+  .slot-container:hover {
+    transform: translateY(-2px);
+  }
+
+  .upgrade-select {
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  @media (max-width: 768px) {
+    .totals-column {
+      width: 90%;
+      margin: 10px auto;
+    }
+    #totals {
+      flex-direction: column;
+    }
+  }
+  .reset-button {
+    display: block;
+    margin: 10px auto;
+    padding: 8px 16px;
+    background-color: #f2e9e4;
+    color: #22223b;
+    border: 1px solid #9a8c98;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .reset-button:hover {
+    border-color: #c9ada7;
+  }
