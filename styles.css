@@ -1,116 +1,178 @@
-
+/* Base styles */
 body {
-    margin: 20px;
-    font-family: "Arial", sans-serif;
-    background-color: #f4f4f9;
-    color: #333;
+  margin: 20px;
+  font-family: "Arial", sans-serif;
+  background-color: #f4f4f9;
+  color: #333;
+  padding: 0 15px;
+}
+
+h1, h2 {
+  margin-bottom: 10px;
+  color: #4a4e69;
+  text-align: center;
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+/* Layout containers */
+.calculator-section {
+  margin-bottom: 30px;
+  max-width: 1200px;
+  margin: 0 auto 30px;
+}
+
+.horizontal-slots {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 15px;
+  justify-content: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.snail-row {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 15px;
+  justify-content: center;
+  max-width: 1200px;
+  margin: 0 auto 15px;
+}
+
+/* Slot styling */
+.slot-container {
+  margin: 8px;
+  padding: 15px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+  transition: transform 0.2s;
+  min-width: 0;
+}
+
+.slot-container:hover {
+  transform: translateY(-2px);
+}
+
+/* Totals section */
+#totals {
+  display: flex;
+  justify-content: space-around;
+  margin: 20px auto;
+  max-width: 1000px;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.totals-column {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+  flex: 1 1 300px;
+  min-width: 280px;
+}
+
+.totals-column h3 {
+  color: #22223b;
+  text-align: center;
+  margin-bottom: 15px;
+  font-size: clamp(1.1rem, 3vw, 1.3rem);
+}
+
+.totals-column p {
+  margin: 12px 0;
+  font-size: clamp(14px, 2vw, 16px);
+  color: #4a4e69;
+  display: flex;
+  justify-content: space-between;
+  padding: 8px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.totals-column span {
+  font-weight: bold;
+  color: #22223b;
+}
+
+/* Form elements */
+.upgrade-select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #9a8c98;
+  border-radius: 4px;
+  background-color: #f2e9e4;
+  color: #22223b;
+  font-size: clamp(14px, 2vw, 16px);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.upgrade-select:hover {
+  border-color: #c9ada7;
+}
+
+.reset-button {
+  display: block;
+  margin: 15px auto;
+  padding: 12px 24px;
+  background-color: #f2e9e4;
+  color: #22223b;
+  border: 1px solid #9a8c98;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: clamp(14px, 2vw, 16px);
+}
+
+.reset-button:hover {
+  border-color: #c9ada7;
+  background-color: #e6dcd7;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  body {
+    margin: 10px;
+    font-size: 16px; /* Base font size for mobile */
   }
-  h1,
-  h2 {
-    margin-bottom: 10px;
-    color: #4a4e69;
-    text-align: center;
-  }
-  .slot-container {
-    margin: 8px;
-    padding: 10px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  #totals {
-    display: flex;
-    justify-content: space-around;
-    margin: 20px auto;
-    max-width: 1000px;
-  }
-  .totals-column {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-    width: 45%;
-  }
-  .totals-column h3 {
-    color: #22223b;
-    text-align: center;
-    margin-bottom: 15px;
-    font-size: 1.3em;
-  }
-  .totals-column p {
-    margin: 12px 0;
-    font-size: 16px;
-    color: #4a4e69;
-    display: flex;
-    justify-content: space-between;
-    padding: 8px;
-    border-bottom: 1px solid #f0f0f0;
-  }
-  .totals-column span {
-    font-weight: bold;
-    color: #22223b;
-  }
-  .upgrade-select {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #9a8c98;
-    border-radius: 4px;
-    background-color: #f2e9e4;
-    color: #22223b;
-    font-size: 14px;
-  }
-  .upgrade-select:hover {
-    border-color: #c9ada7;
-  }
-  .calculator-section {
-    margin-bottom: 30px;
-  }
-  .horizontal-slots {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
+  
+  .horizontal-slots,
   .snail-row {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    margin-bottom: 15px;
-  }
-  .slot-container {
-    position: relative;
-    transition: transform 0.2s;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
   }
 
-  .slot-container:hover {
-    transform: translateY(-2px);
+  .slot-container {
+    margin: 5px;
+    padding: 12px;
+  }
+
+  .totals-column {
+    width: 100%;
+    margin: 10px 0;
+    padding: 15px;
+  }
+
+  .totals-column p {
+    font-size: 16px; /* Larger font size for totals text */
+  }
+
+  .totals-column span {
+    font-size: 16px; /* Larger font size for total numbers */
   }
 
   .upgrade-select {
-    cursor: pointer;
-    transition: all 0.2s;
+    font-size: 16px; /* Larger font size for dropdowns */
   }
 
-  @media (max-width: 768px) {
-    .totals-column {
-      width: 90%;
-      margin: 10px auto;
-    }
-    #totals {
-      flex-direction: column;
-    }
-  }
   .reset-button {
-    display: block;
-    margin: 10px auto;
-    padding: 8px 16px;
-    background-color: #f2e9e4;
-    color: #22223b;
-    border: 1px solid #9a8c98;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s;
+    font-size: 16px; /* Larger font size for buttons */
   }
 
-  .reset-button:hover {
-    border-color: #c9ada7;
+  #totals {
+    flex-direction: column;
+    margin: 15px auto;
   }
+}

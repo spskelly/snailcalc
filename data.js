@@ -134,7 +134,7 @@ const AMULET = {
     heaven: 2,
     glue: 160,
     b_tad: 280000,
-    dg_crystal: 1,
+    dg_crystal: 2,
   },
   "+2": {
     eye: 3,
@@ -143,7 +143,7 @@ const AMULET = {
     heaven: 3,
     glue: 310,
     b_tad: 530000,
-    dg_crystal: 1,
+    dg_crystal: 3,
   },
   "+3": {
     eye: 4,
@@ -152,7 +152,7 @@ const AMULET = {
     heaven: 4,
     glue: 520,
     b_tad: 890000,
-    dg_crystal: 1,
+    dg_crystal: 4,
   },
 };
 
@@ -168,7 +168,7 @@ const WILL_AMULET = {
   },
   1: {
     eoh: 2,
-    will_crystal: 1,
+    will_crystal: 2,
     abyss: 2,
     heaven: 2,
     glue: 160,
@@ -177,7 +177,7 @@ const WILL_AMULET = {
   },
   2: {
     eoh: 3,
-    will_crystal: 1,
+    will_crystal: 3,
     abyss: 3,
     heaven: 3,
     glue: 310,
@@ -186,7 +186,7 @@ const WILL_AMULET = {
   },
   3: {
     eoh: 4,
-    will_crystal: 1,
+    will_crystal: 4,
     abyss: 4,
     heaven: 4,
     glue: 520,
@@ -195,7 +195,7 @@ const WILL_AMULET = {
   },
   4: {
     eoh: 5,
-    will_crystal: 1,
+    will_crystal: 5,
     abyss: 5,
     heaven: 5,
     glue: 800,
@@ -204,7 +204,7 @@ const WILL_AMULET = {
   },
   5: {
     eoh: 6,
-    will_crystal: 1,
+    will_crystal: 6,
     abyss: 6,
     heaven: 6,
     glue: 1160,
