@@ -62,6 +62,15 @@ const SNAIL_GEAR = {
     willNeeded: true,
     willLevel: "5",
   },
+  "+7": {
+    eoh: 1,
+    abyss: 1,
+    heaven: 0,
+    glue: 10850,
+    b_tad: 3830000,
+    willNeeded: true,
+    willLevel: "5",
+  },
 };
 
 const MINION_GEAR = {
@@ -210,5 +219,14 @@ const WILL_AMULET = {
     glue: 1160,
     orange: 1500,
     b_tad: 2020000,
+  },
+  6: {
+    eoh: 7,
+    will_crystal: 7,
+    abyss: 7,
+    heaven: 7,
+    glue: 1610,
+    orange: 2100,
+    b_tad: 2830000,
   },
 };
