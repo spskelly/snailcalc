@@ -1,4 +1,13 @@
 const SNAIL_GEAR = {
+  None: {
+    eoh: 0,
+    abyss: 0,
+    heaven: 0,
+    glue: 0,
+    b_tad: 0,
+    willNeeded: false,
+    willLevel: null,
+  },
   Orange: {
     eoh: 0,
     abyss: 0,

@@ -7,7 +7,7 @@ function createSlotElement(id, isSnail = false) {
   select.className = "upgrade-select";
 
   const options = isSnail
-    ? ["Orange","Red", "+1", "+2", "+3", "+4", "+5", "+6","+7","+8","+9"]
+    ? ["None","Orange","Red", "+1", "+2", "+3", "+4", "+5", "+6","+7","+8","+9"]
     : ["Red", "+1", "+2", "+3", "+4"];
 
   options.forEach((value) => {
@@ -23,12 +23,16 @@ function createSlotElement(id, isSnail = false) {
 
 const snailRow1 = document.getElementById("snail-row-1");
 const snailRow2 = document.getElementById("snail-row-2");
+const snailRow3 = document.getElementById("snail-row-3");
 
 for (let i = 1; i <= 6; i++) {
   snailRow1.appendChild(createSlotElement(`snail${i}`, true));
 }
 for (let i = 7; i <= 12; i++) {
   snailRow2.appendChild(createSlotElement(`snail${i}`, true));
+}
+for (let i = 13; i <= 18; i++) {
+  snailRow3.appendChild(createSlotElement(`snail${i}`, true));
 }
 
 const minionSlots = document.getElementById("minion-slots");
@@ -102,7 +106,7 @@ function calculateSnailTotals() {
     totalBTad = 0,
     totalWillCrystal = 0;
 
-  for (let i = 1; i <= 12; i++) {
+  for (let i = 1; i <= 18; i++) {
     const selectEl = document.getElementById("snail" + i);
     if (!selectEl) continue;
 
@@ -148,7 +152,7 @@ function calculateSnailTotals() {
 }
 
 function resetSnailGear() {
-  for (let i = 1; i <= 12; i++) {
+  for (let i = 1; i <= 18; i++) {
     const selectEl = document.getElementById("snail" + i);
     if (selectEl) {
       selectEl.value = "Red";
@@ -173,7 +177,7 @@ function saveToLocalStorage() {
   const snailSettings = {};
   const minionSettings = {};
 
-  for (let i = 1; i <= 12; i++) {
+  for (let i = 1; i <= 18; i++) {
     const selectEl = document.getElementById("snail" + i);
     if (selectEl) {
       snailSettings[i] = selectEl.value;
@@ -199,7 +203,7 @@ function loadFromLocalStorage() {
     localStorage.getItem("minionGearSettings") || "{}"
   );
 
-  for (let i = 1; i <= 12; i++) {
+  for (let i = 1; i <= 18; i++) {
     const selectEl = document.getElementById("snail" + i);
     if (selectEl) {
       selectEl.value = snailSettings[i] || "Red";
@@ -230,7 +234,7 @@ function initializeEventListeners() {
   }
 
   // Snail gear listeners
-  for (let i = 1; i <= 12; i++) {
+  for (let i = 1; i <= 18; i++) {
     const selectEl = document.getElementById("snail" + i);
     if (selectEl) {
       selectEl.addEventListener("change", () => {
