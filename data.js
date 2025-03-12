@@ -1,4 +1,14 @@
 const SNAIL_GEAR = {
+  Orange: {
+    eoh: 0,
+    abyss: 0,
+    heaven: 0,
+    glue: 100,
+    b_tad: 24000,
+    willNeeded: false,
+    willLevel: null,
+
+  },
   Red: {
     eoh: 1,
     abyss: 1,
@@ -69,7 +79,25 @@ const SNAIL_GEAR = {
     glue: 10850,
     b_tad: 3830000,
     willNeeded: true,
-    willLevel: "5",
+    willLevel: "6",
+  },
+  "+8": {
+    eoh: 1,
+    abyss: 1,
+    heaven: 0,
+    glue: 14450,
+    b_tad: 5030000,
+    willNeeded: true,
+    willLevel: "7",
+  },
+  "+9": {
+    eoh: 1,
+    abyss: 1,
+    heaven: 0,
+    glue: 18950,
+    b_tad: 6530000,
+    willNeeded: true,
+    willLevel: "8",
   },
 };
 
@@ -228,5 +256,23 @@ const WILL_AMULET = {
     glue: 1610,
     orange: 2100,
     b_tad: 2830000,
+  },
+  7: {
+    eoh: 8,
+    will_crystal: 8,
+    abyss: 8,
+    heaven: 8,
+    glue: 2170,
+    orange: 2800,
+    b_tad: 3830000,
+  },
+  8: {
+    eoh: 9,
+    will_crystal: 9,
+    abyss: 9,
+    heaven: 9,
+    glue: 2890,
+    orange: 3600,
+    b_tad: 5030000,
   },
 };

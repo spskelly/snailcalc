@@ -7,7 +7,7 @@ function createSlotElement(id, isSnail = false) {
   select.className = "upgrade-select";
 
   const options = isSnail
-    ? ["Red", "+1", "+2", "+3", "+4", "+5", "+6","+7"]
+    ? ["Orange","Red", "+1", "+2", "+3", "+4", "+5", "+6","+7","+8","+9"]
     : ["Red", "+1", "+2", "+3", "+4"];
 
   options.forEach((value) => {
