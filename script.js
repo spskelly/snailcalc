@@ -453,10 +453,26 @@ function saveMinionPreset(slot) {
 
 function loadMinionPreset(slot) {
   const preset = JSON.parse(localStorage.getItem("minionPreset" + slot) || "{}");
+  // Remove change listeners temporarily
+  const selects = [];
   for (let i = 1; i <= 12; i++) {
     const selectEl = document.getElementById("slot" + i);
-    if (selectEl) selectEl.value = preset[i] || "None";
+    if (selectEl) {
+      // Clone node to remove all listeners
+      const newSelect = selectEl.cloneNode(true);
+      selectEl.parentNode.replaceChild(newSelect, selectEl);
+      newSelect.value = preset[i] || "None";
+      selects.push(newSelect);
+    }
   }
+  // Now re-add the event listeners
+  selects.forEach(select => {
+    select.addEventListener("change", () => {
+      calculateMinionTotals();
+      saveToLocalStorage();
+      renderMinionMainTable();
+    });
+  });
   calculateMinionTotals();
   saveToLocalStorage();
   renderMinionMainTable();
@@ -481,24 +497,6 @@ function getMinionPresetTotals(slot) {
   return total;
 }
 
-function getMinionPresetTotals(slot) {
-  const preset = JSON.parse(localStorage.getItem("minionPreset" + slot) || "{}");
-  let total = { eye: 0, orange: 0, abyss: 0, heaven: 0, glue: 0, b_tad: 0, dg_crystal: 0 };
-  for (let i = 1; i <= 6; i++) {
-    const upgrade = preset[i] || "None";
-    const gearData = calculateMinionCumulativeCost(upgrade);
-    if (gearData) {
-      total.eye += gearData.eye;
-      total.orange += gearData.orange;
-      total.abyss += gearData.abyss;
-      total.heaven += gearData.heaven;
-      total.glue += gearData.glue;
-      total.b_tad += gearData.b_tad;
-      total.dg_crystal += gearData.dg_crystal;
-    }
-  }
-  return total;
-}
 
 function getSnailPresetTotals(slot) {
   const preset = JSON.parse(localStorage.getItem("snailPreset" + slot) || "{}");
