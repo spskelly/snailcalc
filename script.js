@@ -1,3 +1,173 @@
+// Helper function to calculate cumulative amulet costs
+function calculateAmuletCumulativeCost(amuletLevel, amuletData) {
+  if (amuletLevel === "Red") {
+    return amuletData["Red"];
+  }
+  
+  // For +N amulets, sum all costs from Red to +N
+  const amuletPath = ["Red", "+1", "+2", "+3", "+4", "+5", "+6", "+7", "+8"];
+  const targetIndex = amuletPath.indexOf(amuletLevel);
+  if (targetIndex === -1) return { abyss: 0, heaven: 0, eoh: 0, eye: 0, glue: 0, orange: 0, b_tad: 0, will_crystal: 0, dg_crystal: 0 };
+  
+  let totalCost = { abyss: 0, heaven: 0, eoh: 0, eye: 0, glue: 0, orange: 0, b_tad: 0, will_crystal: 0, dg_crystal: 0 };
+  
+  for (let i = 0; i <= targetIndex; i++) {
+    const level = amuletPath[i];
+    const cost = amuletData[level];
+    if (cost) {
+      totalCost.abyss += cost.abyss || 0;
+      totalCost.heaven += cost.heaven || 0;
+      totalCost.eoh += cost.eoh || 0;
+      totalCost.eye += cost.eye || 0;
+      totalCost.glue += cost.glue || 0;
+      totalCost.orange += cost.orange || 0;
+      totalCost.b_tad += cost.b_tad || 0;
+      totalCost.will_crystal += cost.will_crystal || 0;
+      totalCost.dg_crystal += cost.dg_crystal || 0;
+    }
+  }
+  
+  return totalCost;
+}
+
+// Helper function to calculate cumulative costs for snail gear
+function calculateSnailCumulativeCost(targetLevel) {
+  const targetIndex = SNAIL_UPGRADE_PATH.indexOf(targetLevel);
+  if (targetIndex === -1) return { eoh: 0, orange: 0, abyss: 0, heaven: 0, glue: 0, b_tad: 0, will_crystal: 0 };
+  
+  let totalCost = { eoh: 0, orange: 0, abyss: 0, heaven: 0, glue: 0, b_tad: 0, will_crystal: 0 };
+  
+  // Handle Time Wanderer as a unique item (not part of upgrade sequence)
+  if (targetLevel === "Time Wanderer") {
+    const gearCost = SNAIL_GEAR_INCREMENTAL["Time Wanderer"];
+    totalCost.eoh += gearCost.eoh;
+    totalCost.glue += gearCost.glue;
+    totalCost.b_tad += gearCost.b_tad;
+    return totalCost;
+  }
+  
+  // Handle +1 as a special case (doesn't follow normal progression)
+  if (targetLevel === "+1") {
+    const gearCost = SNAIL_GEAR_INCREMENTAL["+1"];
+    const redGearCost = SNAIL_GEAR_INCREMENTAL["Red"];
+    const amuletCost = calculateAmuletCumulativeCost("Red", WILL_AMULET_INCREMENTAL);
+    
+    // +1 requires: 2x Red gear + +1 materials + Red amulet
+    totalCost.eoh += (redGearCost.eoh * 2) + gearCost.eoh + amuletCost.eoh;
+    totalCost.glue += (redGearCost.glue * 2) + gearCost.glue + amuletCost.glue;
+    totalCost.b_tad += (redGearCost.b_tad * 2) + gearCost.b_tad + amuletCost.b_tad;
+    totalCost.orange += amuletCost.orange;
+    totalCost.abyss += amuletCost.abyss;
+    totalCost.heaven += amuletCost.heaven;
+    totalCost.will_crystal += amuletCost.will_crystal;
+    
+    return totalCost;
+  }
+  
+  // For +2 and above, follow normal progression but skip +1 special case
+  if (targetLevel.startsWith("+") && parseInt(targetLevel.substring(1)) > 1) {
+    // Start with +1 costs
+    totalCost = calculateSnailCumulativeCost("+1");
+    
+    // Add costs from +2 to target level
+    const levelNum = parseInt(targetLevel.substring(1));
+    for (let i = 2; i <= levelNum; i++) {
+      const level = "+" + i;
+      const gearCost = SNAIL_GEAR_INCREMENTAL[level];
+      const requiredAmuletLevel = "+" + (i - 1);
+      const amuletCost = calculateAmuletCumulativeCost(requiredAmuletLevel, WILL_AMULET_INCREMENTAL);
+      
+      // Add gear costs
+      totalCost.eoh += gearCost.eoh;
+      totalCost.glue += gearCost.glue;
+      totalCost.b_tad += gearCost.b_tad;
+      
+      // Add amulet costs
+      totalCost.eoh += amuletCost.eoh;
+      totalCost.orange += amuletCost.orange;
+      totalCost.abyss += amuletCost.abyss;
+      totalCost.heaven += amuletCost.heaven;
+      totalCost.glue += amuletCost.glue;
+      totalCost.b_tad += amuletCost.b_tad;
+      totalCost.will_crystal += amuletCost.will_crystal;
+    }
+    
+    return totalCost;
+  }
+  
+  // For base levels (Orange, Red), sum normally
+  for (let i = 1; i <= targetIndex; i++) {
+    const level = SNAIL_UPGRADE_PATH[i];
+    if (level === "Time Wanderer" || level.startsWith("+")) continue;
+    
+    const gearCost = SNAIL_GEAR_INCREMENTAL[level];
+    totalCost.eoh += gearCost.eoh;
+    totalCost.glue += gearCost.glue;
+    totalCost.b_tad += gearCost.b_tad;
+  }
+  
+  return totalCost;
+}
+
+// Helper function to calculate cumulative costs for minion gear
+function calculateMinionCumulativeCost(targetLevel) {
+  const targetIndex = MINION_UPGRADE_PATH.indexOf(targetLevel);
+  if (targetIndex === -1) return { eye: 0, orange: 0, abyss: 0, heaven: 0, glue: 0, b_tad: 0, dg_crystal: 0 };
+  
+  let totalCost = { eye: 0, orange: 0, abyss: 0, heaven: 0, glue: 0, b_tad: 0, dg_crystal: 0 };
+  
+  // Sum gear costs up to target level
+  for (let i = 1; i <= targetIndex; i++) {
+    const level = MINION_UPGRADE_PATH[i];
+    const gearCost = MINION_GEAR_INCREMENTAL[level];
+    
+    // Add gear costs
+    totalCost.eye += gearCost.eye;
+    totalCost.glue += gearCost.glue;
+    totalCost.b_tad += gearCost.b_tad;
+    totalCost.abyss += gearCost.abyss;
+    
+    // Add amulet costs only for + levels (gear level N requires amulet level N-1)
+    if (level.startsWith("+")) {
+      const levelNum = parseInt(level.substring(1));
+      let requiredAmuletLevel;
+      
+      if (levelNum === 1) {
+        requiredAmuletLevel = "Red"; // +1 gear requires Red amulet
+      } else {
+        requiredAmuletLevel = "+" + (levelNum - 1); // +N gear requires +(N-1) amulet
+      }
+      
+      // Use cumulative amulet costs
+      const amuletCost = calculateAmuletCumulativeCost(requiredAmuletLevel, DEMON_GOD_AMULET_INCREMENTAL);
+      if (amuletCost) {
+        totalCost.eye += amuletCost.eye;
+        totalCost.orange += amuletCost.orange;
+        totalCost.abyss += amuletCost.abyss;
+        totalCost.heaven += amuletCost.heaven;
+        totalCost.glue += amuletCost.glue;
+        totalCost.b_tad += amuletCost.b_tad;
+        totalCost.dg_crystal += amuletCost.dg_crystal;
+      }
+    }
+  }
+  
+  return totalCost;
+}
+
+// Legacy objects for compatibility with existing dropdown creation
+const SNAIL_GEAR = {};
+const MINION_GEAR = {};
+
+// Populate legacy objects with keys for dropdown options
+SNAIL_UPGRADE_PATH.forEach(level => {
+  SNAIL_GEAR[level] = calculateSnailCumulativeCost(level);
+});
+
+MINION_UPGRADE_PATH.forEach(level => {
+  MINION_GEAR[level] = calculateMinionCumulativeCost(level);
+});
+
 function createSlotElement(id, isSnail = false) {
   const container = document.createElement("div");
   container.className = "slot-container";
@@ -51,7 +221,7 @@ function calculateMinionTotals() {
   for (let i = 1; i <= 6; i++) {
     const selectEl = document.getElementById("slot" + i);
     const upgrade = selectEl.value;
-    const gearData = MINION_GEAR[upgrade]; // Directly look up the cumulative data
+    const gearData = calculateMinionCumulativeCost(upgrade); // Use new calculation function
 
     if (gearData) {
       totalEye += gearData.eye;
@@ -85,7 +255,7 @@ function calculateSnailTotals() {
   for (let i = 1; i <= 18; i++) {
     const selectEl = document.getElementById("snail" + i);
     const upgrade = selectEl.value;
-    const gearData = SNAIL_GEAR[upgrade]; // Directly look up the cumulative data
+    const gearData = calculateSnailCumulativeCost(upgrade); // Use new calculation function
 
     if (gearData) {
       totalEoH += gearData.eoh;
