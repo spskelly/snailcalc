@@ -6,9 +6,8 @@ function createSlotElement(id, isSnail = false) {
   select.id = id;
   select.className = "upgrade-select";
 
-  const options = isSnail
-    ? ["None","Orange","Red", "+1", "+2", "+3", "+4", "+5", "+6","+7","+8","+9"]
-    : ["Red", "+1", "+2", "+3", "+4"];
+  // Use the keys from our data objects to create the options
+  const options = isSnail ? Object.keys(SNAIL_GEAR) : Object.keys(MINION_GEAR);
 
   options.forEach((value) => {
     const option = document.createElement("option");
@@ -47,54 +46,31 @@ function calculateMinionTotals() {
     totalHeaven = 0,
     totalGlue = 0,
     totalBTad = 0,
-    totalCrystal = 0;
+    totalDgCrystal = 0;
 
   for (let i = 1; i <= 6; i++) {
     const selectEl = document.getElementById("slot" + i);
-    if (!selectEl) continue;
-
     const upgrade = selectEl.value;
-    const mg = MINION_GEAR[upgrade];
-    if (!mg) continue;
+    const gearData = MINION_GEAR[upgrade]; // Directly look up the cumulative data
 
-    // Add Minion Gear base cost
-    totalEye += mg.eye;
-    totalOrange += mg.orange;
-    totalAbyss += mg.abyss;
-    totalHeaven += mg.heaven;
-    totalGlue += mg.glue;
-    totalBTad += mg.b_tad;
-
-    // If it requires a Demon God Amulet, add that cost too
-    if (mg.dgNeeded) {
-      const amLevel = mg.dgLevel;
-      const amData = AMULET[amLevel];
-      if (amData) {
-        totalEye += amData.eye;
-        totalOrange += amData.orange;
-        totalAbyss += amData.abyss;
-        totalHeaven += amData.heaven;
-        totalGlue += amData.glue;
-        totalBTad += amData.b_tad;
-        totalCrystal += amData.dg_crystal;
-      }
+    if (gearData) {
+      totalEye += gearData.eye;
+      totalOrange += gearData.orange;
+      totalAbyss += gearData.abyss;
+      totalHeaven += gearData.heaven;
+      totalGlue += gearData.glue;
+      totalBTad += gearData.b_tad;
+      totalDgCrystal += gearData.dg_crystal;
     }
   }
 
-  document.getElementById("minionEyeTotal").textContent =
-    totalEye.toLocaleString();
-  document.getElementById("minionOrangeTotal").textContent =
-    totalOrange.toLocaleString();
-  document.getElementById("minionAbyssTotal").textContent =
-    totalAbyss.toLocaleString();
-  document.getElementById("minionHeavenTotal").textContent =
-    totalHeaven.toLocaleString();
-  document.getElementById("minionGlueTotal").textContent =
-    totalGlue.toLocaleString();
-  document.getElementById("minionBtadTotal").textContent =
-    totalBTad.toLocaleString();
-  document.getElementById("minionDgCrystalTotal").textContent =
-    totalCrystal.toLocaleString();
+  document.getElementById("minionEyeTotal").textContent = totalEye.toLocaleString();
+  document.getElementById("minionOrangeTotal").textContent = totalOrange.toLocaleString();
+  document.getElementById("minionAbyssTotal").textContent = totalAbyss.toLocaleString();
+  document.getElementById("minionHeavenTotal").textContent = totalHeaven.toLocaleString();
+  document.getElementById("minionGlueTotal").textContent = totalGlue.toLocaleString();
+  document.getElementById("minionBtadTotal").textContent = totalBTad.toLocaleString();
+  document.getElementById("minionDgCrystalTotal").textContent = totalDgCrystal.toLocaleString();
 }
 
 function calculateSnailTotals() {
@@ -108,54 +84,34 @@ function calculateSnailTotals() {
 
   for (let i = 1; i <= 18; i++) {
     const selectEl = document.getElementById("snail" + i);
-    if (!selectEl) continue;
-
     const upgrade = selectEl.value;
-    const sgData = SNAIL_GEAR[upgrade];
-    if (!sgData) continue;
+    const gearData = SNAIL_GEAR[upgrade]; // Directly look up the cumulative data
 
-    // Add snail gear costs
-    totalEoH += sgData.eoh;
-    totalAbyss += sgData.abyss;
-    totalHeaven += sgData.heaven;
-    totalGlue += sgData.glue;
-    totalBTad += sgData.b_tad;
-
-    // Check if a Will Amulet is needed
-    if (sgData.willNeeded) {
-      const willLevel = sgData.willLevel;
-      const waData = WILL_AMULET[willLevel];
-      if (waData) {
-        totalEoH += waData.eoh;
-        totalOrange += waData.orange;
-        totalAbyss += waData.abyss;
-        totalHeaven += waData.heaven;
-        totalGlue += waData.glue;
-        totalBTad += waData.b_tad;
-        totalWillCrystal += waData.will_crystal;
-      }
+    if (gearData) {
+      totalEoH += gearData.eoh;
+      totalOrange += gearData.orange;
+      totalAbyss += gearData.abyss;
+      totalHeaven += gearData.heaven;
+      totalGlue += gearData.glue;
+      totalBTad += gearData.b_tad;
+      totalWillCrystal += gearData.will_crystal;
     }
   }
 
-  // Update snail totals
   document.getElementById("eyeTotal").textContent = totalEoH.toLocaleString();
-  document.getElementById("orangeTotal").textContent =
-    totalOrange.toLocaleString();
-  document.getElementById("abyssTotal").textContent =
-    totalAbyss.toLocaleString();
-  document.getElementById("heavenTotal").textContent =
-    totalHeaven.toLocaleString();
+  document.getElementById("orangeTotal").textContent = totalOrange.toLocaleString();
+  document.getElementById("abyssTotal").textContent = totalAbyss.toLocaleString();
+  document.getElementById("heavenTotal").textContent = totalHeaven.toLocaleString();
   document.getElementById("glueTotal").textContent = totalGlue.toLocaleString();
   document.getElementById("btadTotal").textContent = totalBTad.toLocaleString();
-  document.getElementById("willCrystalTotal").textContent =
-    totalWillCrystal.toLocaleString();
+  document.getElementById("willCrystalTotal").textContent = totalWillCrystal.toLocaleString();
 }
 
 function resetSnailGear() {
   for (let i = 1; i <= 18; i++) {
     const selectEl = document.getElementById("snail" + i);
     if (selectEl) {
-      selectEl.value = "Red";
+      selectEl.value = "None";
     }
   }
   calculateSnailTotals();
@@ -166,7 +122,7 @@ function resetMinionGear() {
   for (let i = 1; i <= 6; i++) {
     const selectEl = document.getElementById("slot" + i);
     if (selectEl) {
-      selectEl.value = "Red";
+      selectEl.value = "None";
     }
   }
   calculateMinionTotals();
@@ -179,16 +135,12 @@ function saveToLocalStorage() {
 
   for (let i = 1; i <= 18; i++) {
     const selectEl = document.getElementById("snail" + i);
-    if (selectEl) {
-      snailSettings[i] = selectEl.value;
-    }
+    if (selectEl) snailSettings[i] = selectEl.value;
   }
 
   for (let i = 1; i <= 6; i++) {
     const selectEl = document.getElementById("slot" + i);
-    if (selectEl) {
-      minionSettings[i] = selectEl.value;
-    }
+    if (selectEl) minionSettings[i] = selectEl.value;
   }
 
   localStorage.setItem("snailGearSettings", JSON.stringify(snailSettings));
@@ -196,67 +148,36 @@ function saveToLocalStorage() {
 }
 
 function loadFromLocalStorage() {
-  const snailSettings = JSON.parse(
-    localStorage.getItem("snailGearSettings") || "{}"
-  );
-  const minionSettings = JSON.parse(
-    localStorage.getItem("minionGearSettings") || "{}"
-  );
+  const snailSettings = JSON.parse(localStorage.getItem("snailGearSettings") || "{}");
+  const minionSettings = JSON.parse(localStorage.getItem("minionGearSettings") || "{}");
 
   for (let i = 1; i <= 18; i++) {
     const selectEl = document.getElementById("snail" + i);
-    if (selectEl) {
-      selectEl.value = snailSettings[i] || "Red";
-    }
+    if (selectEl) selectEl.value = snailSettings[i] || "None";
   }
 
   for (let i = 1; i <= 6; i++) {
     const selectEl = document.getElementById("slot" + i);
-    if (selectEl) {
-      selectEl.value = minionSettings[i] || "Red";
-    }
+    if (selectEl) selectEl.value = minionSettings[i] || "None";
   }
 
   calculateSnailTotals();
   calculateMinionTotals();
 }
 
-function initializeEventListeners() {
-  // Minion gear listeners
-  for (let i = 1; i <= 6; i++) {
-    const selectEl = document.getElementById("slot" + i);
-    if (selectEl) {
-      selectEl.addEventListener("change", () => {
-        calculateMinionTotals();
-        saveToLocalStorage();
-      });
-    }
-  }
+function addEventListeners() {
+  document.querySelectorAll(".upgrade-select").forEach(select => {
+    select.addEventListener("change", () => {
+      calculateSnailTotals();
+      calculateMinionTotals();
+      saveToLocalStorage();
+    });
+  });
 
-  // Snail gear listeners
-  for (let i = 1; i <= 18; i++) {
-    const selectEl = document.getElementById("snail" + i);
-    if (selectEl) {
-      selectEl.addEventListener("change", () => {
-        calculateSnailTotals();
-        saveToLocalStorage();
-      });
-    }
-  }
-
-  // Reset button listeners
-  document
-    .getElementById("resetSnail")
-    .addEventListener("click", resetSnailGear);
-  document
-    .getElementById("resetMinion")
-    .addEventListener("click", resetMinionGear);
-
-  // Load saved settings on page load
-  loadFromLocalStorage();
+  document.getElementById("resetSnail").addEventListener("click", resetSnailGear);
+  document.getElementById("resetMinion").addEventListener("click", resetMinionGear);
 }
 
-// Initialize calculations and listeners
-initializeEventListeners();
-calculateMinionTotals();
-calculateSnailTotals();
+// Initial setup
+loadFromLocalStorage();
+addEventListeners();
