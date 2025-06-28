@@ -8,37 +8,65 @@
   <body>
     <div class="calculator-section">
       <h1>Snail Gear Calculator</h1>
-      <button id="resetSnail" class="reset-button">Reset Snail Gear</button>
-      <div class="snail-row" id="snail-row-1"></div>
-      <div class="snail-row" id="snail-row-2"></div>
-      <div class="snail-row" id="snail-row-3"></div>
+      <div class="button-row">
+        <button id="resetSnail" class="reset-button">Reset</button>
+        <div class="preset-group">
+          <div class="preset-set">
+            <span class="preset-label">Preset 1:</span>
+            <button id="saveSnailPreset1" class="preset-button">Save</button>
+            <button id="loadSnailPreset1" class="preset-button">Load</button>
+          </div>
+          <div class="preset-set">
+            <span class="preset-label">Preset 2:</span>
+            <button id="saveSnailPreset2" class="preset-button">Save</button>
+            <button id="loadSnailPreset2" class="preset-button">Load</button>
+          </div>
+          <div class="preset-set">
+            <span class="preset-label">Preset 3:</span>
+            <button id="saveSnailPreset3" class="preset-button">Save</button>
+            <button id="loadSnailPreset3" class="preset-button">Load</button>
+          </div>
+        </div>
+      </div>
+      <div class="snail-label equipped-label">Equipped</div>
+      <div class="snail-row equipped-row" id="snail-row-1"></div>
+      <div class="snail-row equipped-row" id="snail-row-2"></div>
+      <div class="snail-label unequipped-label">Unequipped</div>
+      <div class="snail-row unequipped-row" id="snail-row-3"></div>
+      <div class="totals-column" id="snail-totals">
+        <h3>Snail Gear Costs</h3>
+        <div id="snailMainTable"></div>
+      </div>
     </div>
     <div class="calculator-section">
       <h1>Minion Gear Calculator</h1>
-      <button id="resetMinion" class="reset-button">Reset Minion Gear</button>
-      <div class="horizontal-slots" id="minion-slots"></div>
-    </div>
-    <h2>Totals</h2>
-    <div id="totals">
-      <div class="totals-column">
-        <h3>Snail Gear Totals</h3>
-        <p>Snail Eye (EoH): <span id="eyeTotal">0</span></p>
-        <p>Orange: <span id="orangeTotal">0</span></p> <!-- Added this line -->
-        <p>Abyss Wing: <span id="abyssTotal">0</span></p>
-        <p>Heaven Wing: <span id="heavenTotal">0</span></p>
-        <p>Glue: <span id="glueTotal">0</span></p>
-        <p>B-tad: <span id="btadTotal">0</span></p>
-        <p>Crystal of Will: <span id="willCrystalTotal">0</span></p>
+      <div class="button-row">
+        <button id="resetMinion" class="reset-button">Reset</button>
+        <div class="preset-group">
+          <div class="preset-set">
+            <span class="preset-label">Preset 1:</span>
+            <button id="saveMinionPreset1" class="preset-button">Save</button>
+            <button id="loadMinionPreset1" class="preset-button">Load</button>
+          </div>
+          <div class="preset-set">
+            <span class="preset-label">Preset 2:</span>
+            <button id="saveMinionPreset2" class="preset-button">Save</button>
+            <button id="loadMinionPreset2" class="preset-button">Load</button>
+          </div>
+          <div class="preset-set">
+            <span class="preset-label">Preset 3:</span>
+            <button id="saveMinionPreset3" class="preset-button">Save</button>
+            <button id="loadMinionPreset3" class="preset-button">Load</button>
+          </div>
+        </div>
       </div>
-      <div class="totals-column">
-        <h3>Minion Gear Totals</h3>
-        <p>Minion Eye (EoB): <span id="minionEyeTotal">0</span></p>
-        <p>Orange: <span id="minionOrangeTotal">0</span></p>
-        <p>Abyss Wing: <span id="minionAbyssTotal">0</span></p>
-        <p>Heaven Wing: <span id="minionHeavenTotal">0</span></p>
-        <p>Glue: <span id="minionGlueTotal">0</span></p>
-        <p>B-tad: <span id="minionBtadTotal">0</span></p>
-        <p>Demon God Crystal: <span id="minionDgCrystalTotal">0</span></p>
+      <div class="minion-label equipped-label">Equipped</div>
+      <div class="horizontal-slots equipped-row" id="minion-row-1"></div>
+      <div class="minion-label unequipped-label">Unequipped</div>
+      <div class="horizontal-slots unequipped-row" id="minion-row-2"></div>
+      <div class="totals-column" id="minion-totals">
+        <h3>Minion Gear Costs</h3>
+        <div id="minionMainTable"></div>
       </div>
     </div>
     <script src="data.js"></script>
