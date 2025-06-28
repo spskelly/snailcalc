@@ -238,13 +238,7 @@ function calculateMinionTotals() {
     }
   }
 
-  document.getElementById("minionEyeTotal").textContent = totalEye.toLocaleString();
-  document.getElementById("minionOrangeTotal").textContent = totalOrange.toLocaleString();
-  document.getElementById("minionAbyssTotal").textContent = totalAbyss.toLocaleString();
-  document.getElementById("minionHeavenTotal").textContent = totalHeaven.toLocaleString();
-  document.getElementById("minionGlueTotal").textContent = totalGlue.toLocaleString();
-  document.getElementById("minionBtadTotal").textContent = totalBTad.toLocaleString();
-  document.getElementById("minionDgCrystalTotal").textContent = totalDgCrystal.toLocaleString();
+  // Removed old totals display
 }
 
 function calculateSnailTotals() {
@@ -272,13 +266,7 @@ function calculateSnailTotals() {
     }
   }
 
-  document.getElementById("eyeTotal").textContent = totalEoH.toLocaleString();
-  document.getElementById("orangeTotal").textContent = totalOrange.toLocaleString();
-  document.getElementById("abyssTotal").textContent = totalAbyss.toLocaleString();
-  document.getElementById("heavenTotal").textContent = totalHeaven.toLocaleString();
-  document.getElementById("glueTotal").textContent = totalGlue.toLocaleString();
-  document.getElementById("btadTotal").textContent = totalBTad.toLocaleString();
-  document.getElementById("willCrystalTotal").textContent = totalWillCrystal.toLocaleString();
+  // Removed old totals display
 }
 
 function resetSnailGear() {
@@ -339,6 +327,99 @@ function loadFromLocalStorage() {
   calculateMinionTotals();
 }
 
+// Render main cost tables for snail and minion
+function renderSnailMainTable() {
+  const tableDiv = document.getElementById("snailMainTable");
+  if (!tableDiv) return;
+  const headers = ["Resource", "Current", "Preset 1", "Preset 2", "Preset 3"];
+  const rows = [
+    ["Snail Eye (EoH)", "eoh"],
+    ["Orange", "orange"],
+    ["Abyss Wing", "abyss"],
+    ["Heaven Wing", "heaven"],
+    ["Glue", "glue"],
+    ["B-tad", "b_tad"],
+    ["Crystal of Will", "will_crystal"]
+  ];
+  // Current
+  let current = { eoh: 0, orange: 0, abyss: 0, heaven: 0, glue: 0, b_tad: 0, will_crystal: 0 };
+  for (let i = 1; i <= 18; i++) {
+    const selectEl = document.getElementById("snail" + i);
+    const upgrade = selectEl ? selectEl.value : "None";
+    const gearData = calculateSnailCumulativeCost(upgrade);
+    if (gearData) {
+      current.eoh += gearData.eoh;
+      current.orange += gearData.orange;
+      current.abyss += gearData.abyss;
+      current.heaven += gearData.heaven;
+      current.glue += gearData.glue;
+      current.b_tad += gearData.b_tad;
+      current.will_crystal += gearData.will_crystal;
+    }
+  }
+  // Presets
+  const presets = [1, 2, 3].map(getSnailPresetTotals);
+  let html = '<table class="cost-table"><tr>';
+  headers.forEach(h => html += `<th>${h}</th>`);
+  html += "</tr>";
+  rows.forEach(([label, key]) => {
+    html += `<tr><td>${label}</td>`;
+    html += `<td>${current[key] ? current[key].toLocaleString() : "0"}</td>`;
+    for (let i = 0; i < 3; i++) {
+      html += `<td>${presets[i][key] ? presets[i][key].toLocaleString() : "0"}</td>`;
+    }
+    html += "</tr>";
+  });
+  html += "</table>";
+  tableDiv.innerHTML = html;
+}
+
+function renderMinionMainTable() {
+  const tableDiv = document.getElementById("minionMainTable");
+  if (!tableDiv) return;
+  const headers = ["Resource", "Current", "Preset 1", "Preset 2", "Preset 3"];
+  const rows = [
+    ["Minion Eye (EoB)", "eye"],
+    ["Orange", "orange"],
+    ["Abyss Wing", "abyss"],
+    ["Heaven Wing", "heaven"],
+    ["Glue", "glue"],
+    ["B-tad", "b_tad"],
+    ["Demon God Crystal", "dg_crystal"]
+  ];
+  // Current
+  let current = { eye: 0, orange: 0, abyss: 0, heaven: 0, glue: 0, b_tad: 0, dg_crystal: 0 };
+  for (let i = 1; i <= 12; i++) {
+    const selectEl = document.getElementById("slot" + i);
+    const upgrade = selectEl ? selectEl.value : "None";
+    const gearData = calculateMinionCumulativeCost(upgrade);
+    if (gearData) {
+      current.eye += gearData.eye;
+      current.orange += gearData.orange;
+      current.abyss += gearData.abyss;
+      current.heaven += gearData.heaven;
+      current.glue += gearData.glue;
+      current.b_tad += gearData.b_tad;
+      current.dg_crystal += gearData.dg_crystal;
+    }
+  }
+  // Presets
+  const presets = [1, 2, 3].map(getMinionPresetTotals);
+  let html = '<table class="cost-table"><tr>';
+  headers.forEach(h => html += `<th>${h}</th>`);
+  html += "</tr>";
+  rows.forEach(([label, key]) => {
+    html += `<tr><td>${label}</td>`;
+    html += `<td>${current[key] ? current[key].toLocaleString() : "0"}</td>`;
+    for (let i = 0; i < 3; i++) {
+      html += `<td>${presets[i][key] ? presets[i][key].toLocaleString() : "0"}</td>`;
+    }
+    html += "</tr>";
+  });
+  html += "</table>";
+  tableDiv.innerHTML = html;
+}
+
 function saveSnailPreset(slot) {
   const preset = {};
   for (let i = 1; i <= 18; i++) {
@@ -346,7 +427,7 @@ function saveSnailPreset(slot) {
     if (selectEl) preset[i] = selectEl.value;
   }
   localStorage.setItem("snailPreset" + slot, JSON.stringify(preset));
-  renderSnailCompareTable();
+  renderSnailMainTable();
 }
 
 function loadSnailPreset(slot) {
@@ -357,7 +438,7 @@ function loadSnailPreset(slot) {
   }
   calculateSnailTotals();
   saveToLocalStorage();
-  renderSnailCompareTable();
+  renderSnailMainTable();
 }
 
 function saveMinionPreset(slot) {
@@ -367,7 +448,7 @@ function saveMinionPreset(slot) {
     if (selectEl) preset[i] = selectEl.value;
   }
   localStorage.setItem("minionPreset" + slot, JSON.stringify(preset));
-  renderMinionCompareTable();
+  renderMinionMainTable();
 }
 
 function loadMinionPreset(slot) {
@@ -378,7 +459,7 @@ function loadMinionPreset(slot) {
   }
   calculateMinionTotals();
   saveToLocalStorage();
-  renderMinionCompareTable();
+  renderMinionMainTable();
 }
 
 function getMinionPresetTotals(slot) {
@@ -500,13 +581,19 @@ function addEventListeners() {
       calculateSnailTotals();
       calculateMinionTotals();
       saveToLocalStorage();
-      renderSnailCompareTable();
-      renderMinionCompareTable();
+      renderSnailMainTable();
+      renderMinionMainTable();
     });
   });
 
-  document.getElementById("resetSnail").addEventListener("click", resetSnailGear);
-  document.getElementById("resetMinion").addEventListener("click", resetMinionGear);
+  document.getElementById("resetSnail").addEventListener("click", () => {
+    resetSnailGear();
+    renderSnailMainTable();
+  });
+  document.getElementById("resetMinion").addEventListener("click", () => {
+    resetMinionGear();
+    renderMinionMainTable();
+  });
 
   // Snail Preset Buttons
   for (let i = 1; i <= 3; i++) {
@@ -520,36 +607,8 @@ function addEventListeners() {
   }
 }
 
-function addAccordionListeners() {
-  // Snail accordion
-  const snailToggle = document.getElementById("snailAccordionToggle");
-  const snailContent = document.getElementById("snailAccordionContent");
-  if (snailToggle && snailContent) {
-    snailToggle.addEventListener("click", () => {
-      if (snailContent.style.display === "none" || snailContent.style.display === "") {
-        snailContent.style.display = "block";
-      } else {
-        snailContent.style.display = "none";
-      }
-    });
-  }
-  // Minion accordion
-  const minionToggle = document.getElementById("minionAccordionToggle");
-  const minionContent = document.getElementById("minionAccordionContent");
-  if (minionToggle && minionContent) {
-    minionToggle.addEventListener("click", () => {
-      if (minionContent.style.display === "none" || minionContent.style.display === "") {
-        minionContent.style.display = "block";
-      } else {
-        minionContent.style.display = "none";
-      }
-    });
-  }
-}
-
 // Initial setup
 loadFromLocalStorage();
 addEventListeners();
-addAccordionListeners();
-renderSnailCompareTable();
-renderMinionCompareTable();
+renderSnailMainTable();
+renderMinionMainTable();
