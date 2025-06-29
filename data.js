@@ -52,4 +52,26 @@ const DEMON_GOD_AMULET_INCREMENTAL = {
 
 // Define upgrade paths for cumulative calculation
 const SNAIL_UPGRADE_PATH = ["None", "Orange", "Red", "+1", "+2", "+3", "+4", "+5", "+6", "+7", "+8", "+9", "Time Wanderer"];
+
+// Amulet options for snail gear slots
+const SNAIL_AMULET_OPTIONS = [
+  "Amulet (Red)",
+  "Amulet +1",
+  "Amulet +2",
+  "Amulet +3",
+  "Amulet +4",
+  "Amulet +5",
+  "Amulet +6",
+  "Amulet +7",
+  "Amulet +8"
+];
 const MINION_UPGRADE_PATH = ["None", "Red", "+1", "+2", "+3", "+4", "+5"];
+
+// Amulet options for minion gear slots (up to +4)
+const MINION_AMULET_OPTIONS = [
+  "Amulet (Red)",
+  "Amulet +1",
+  "Amulet +2",
+  "Amulet +3",
+  "Amulet +4"
+];
