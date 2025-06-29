@@ -7,6 +7,25 @@ body {
   padding: 0 15px;
 }
 
+/* Toggle section button for expand/collapse */
+.toggle-section-btn {
+  margin-left: 10px;
+  padding: 2px 10px;
+  font-size: 1.1em;
+  background: #f2e9e4;
+  border: 1px solid #9a8c98;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #4a4e69;
+  font-weight: bold;
+  transition: background 0.2s, border 0.2s;
+  vertical-align: middle;
+}
+.toggle-section-btn:hover {
+  background: #e6dcd7;
+  border-color: #c9ada7;
+}
+
 h1, h2 {
   margin-bottom: 10px;
   color: #4a4e69;
