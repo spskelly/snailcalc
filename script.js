@@ -695,6 +695,24 @@ function addEventListeners() {
     });
   }
 
+  // Expand/collapse for unequipped minion section
+  const toggleMinionBtn = document.getElementById("toggleMinionUnequipped");
+  const minionUnequippedRow = document.getElementById("minion-row-2");
+  if (toggleMinionBtn && minionUnequippedRow) {
+    toggleMinionBtn.addEventListener("click", () => {
+      const isExpanded = toggleMinionBtn.getAttribute("aria-expanded") === "true";
+      if (isExpanded) {
+        minionUnequippedRow.style.display = "none";
+        toggleMinionBtn.textContent = "+";
+        toggleMinionBtn.setAttribute("aria-expanded", "false");
+      } else {
+        minionUnequippedRow.style.display = "";
+        toggleMinionBtn.textContent = "−";
+        toggleMinionBtn.setAttribute("aria-expanded", "true");
+      }
+    });
+  }
+
   document.getElementById("resetSnail").addEventListener("click", () => {
     resetSnailGear();
     renderSnailMainTable();
