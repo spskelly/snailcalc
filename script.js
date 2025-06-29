@@ -200,7 +200,7 @@ for (let i = 1; i <= 6; i++) {
 for (let i = 7; i <= 12; i++) {
   snailRow2.appendChild(createSlotElement(`snail${i}`, true));
 }
-for (let i = 13; i <= 18; i++) {
+for (let i = 13; i <= 24; i++) {
   snailRow3.appendChild(createSlotElement(`snail${i}`, true));
 }
 
@@ -250,7 +250,7 @@ function calculateSnailTotals() {
     totalBTad = 0,
     totalWillCrystal = 0;
 
-  for (let i = 1; i <= 18; i++) {
+  for (let i = 1; i <= 24; i++) {
     const selectEl = document.getElementById("snail" + i);
     const upgrade = selectEl.value;
     const gearData = calculateSnailCumulativeCost(upgrade); // Use new calculation function
@@ -270,7 +270,7 @@ function calculateSnailTotals() {
 }
 
 function resetSnailGear() {
-  for (let i = 1; i <= 18; i++) {
+  for (let i = 1; i <= 24; i++) {
     const selectEl = document.getElementById("snail" + i);
     if (selectEl) {
       selectEl.value = "None";
@@ -295,7 +295,7 @@ function saveToLocalStorage() {
   const snailSettings = {};
   const minionSettings = {};
 
-  for (let i = 1; i <= 18; i++) {
+  for (let i = 1; i <= 24; i++) {
     const selectEl = document.getElementById("snail" + i);
     if (selectEl) snailSettings[i] = selectEl.value;
   }
@@ -313,7 +313,7 @@ function loadFromLocalStorage() {
   const snailSettings = JSON.parse(localStorage.getItem("snailGearSettings") || "{}");
   const minionSettings = JSON.parse(localStorage.getItem("minionGearSettings") || "{}");
 
-  for (let i = 1; i <= 18; i++) {
+  for (let i = 1; i <= 24; i++) {
     const selectEl = document.getElementById("snail" + i);
     if (selectEl) selectEl.value = snailSettings[i] || "None";
   }
@@ -343,7 +343,7 @@ function renderSnailMainTable() {
   ];
   // Current
   let current = { eoh: 0, orange: 0, abyss: 0, heaven: 0, glue: 0, b_tad: 0, will_crystal: 0 };
-  for (let i = 1; i <= 18; i++) {
+  for (let i = 1; i <= 24; i++) {
     const selectEl = document.getElementById("snail" + i);
     const upgrade = selectEl ? selectEl.value : "None";
     const gearData = calculateSnailCumulativeCost(upgrade);
@@ -422,7 +422,7 @@ function renderMinionMainTable() {
 
 function saveSnailPreset(slot) {
   const preset = {};
-  for (let i = 1; i <= 18; i++) {
+  for (let i = 1; i <= 24; i++) {
     const selectEl = document.getElementById("snail" + i);
     if (selectEl) preset[i] = selectEl.value;
   }
@@ -432,7 +432,7 @@ function saveSnailPreset(slot) {
 
 function loadSnailPreset(slot) {
   const preset = JSON.parse(localStorage.getItem("snailPreset" + slot) || "{}");
-  for (let i = 1; i <= 18; i++) {
+  for (let i = 1; i <= 24; i++) {
     const selectEl = document.getElementById("snail" + i);
     if (selectEl) selectEl.value = preset[i] || "None";
   }
@@ -501,7 +501,7 @@ function getMinionPresetTotals(slot) {
 function getSnailPresetTotals(slot) {
   const preset = JSON.parse(localStorage.getItem("snailPreset" + slot) || "{}");
   let total = { eoh: 0, orange: 0, abyss: 0, heaven: 0, glue: 0, b_tad: 0, will_crystal: 0 };
-  for (let i = 1; i <= 18; i++) {
+  for (let i = 1; i <= 24; i++) {
     const upgrade = preset[i] || "None";
     const gearData = calculateSnailCumulativeCost(upgrade);
     if (gearData) {
@@ -583,6 +583,24 @@ function addEventListeners() {
       renderMinionMainTable();
     });
   });
+
+  // Expand/collapse for unequipped snail section
+  const toggleBtn = document.getElementById("toggleUnequipped");
+  const unequippedRow = document.getElementById("snail-row-3");
+  if (toggleBtn && unequippedRow) {
+    toggleBtn.addEventListener("click", () => {
+      const isExpanded = toggleBtn.getAttribute("aria-expanded") === "true";
+      if (isExpanded) {
+        unequippedRow.style.display = "none";
+        toggleBtn.textContent = "+";
+        toggleBtn.setAttribute("aria-expanded", "false");
+      } else {
+        unequippedRow.style.display = "";
+        toggleBtn.textContent = "−";
+        toggleBtn.setAttribute("aria-expanded", "true");
+      }
+    });
+  }
 
   document.getElementById("resetSnail").addEventListener("click", () => {
     resetSnailGear();
