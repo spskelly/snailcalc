@@ -915,8 +915,12 @@ function calculateAndRenderRocketCabinSummary(cabinKey) {
     return tiers;
   }
 
-  // Get all material names for this cabin
-  const materialNames = Object.values(cabin.materials).sort();
+  // Always use A, B, C, D, E order for summary
+  const materialOrder = ["A", "B", "C", "D", "E"];
+  // Map to display names using cabin.materials
+  const materialNames = materialOrder
+    .filter(matKey => cabin.materials[matKey])
+    .map(matKey => ({ key: matKey, name: cabin.materials[matKey] }));
 
   // Calculate totals for current and all 3 presets
   const currentTiers = getDeviceTiers("current");
@@ -945,11 +949,11 @@ function calculateAndRenderRocketCabinSummary(cabinKey) {
   // Build the HTML table for the summary
   let html = '<table class="cost-table"><tr><th>Material</th><th>Current</th><th>Preset 1</th><th>Preset 2</th><th>Preset 3</th></tr>';
 
-  materialNames.forEach(materialName => {
-    html += `<tr><td>${materialName}</td>`;
-    html += `<td>${currentTotals[materialName] ? currentTotals[materialName].toLocaleString() : "0"}</td>`;
+  materialNames.forEach(({ key, name }) => {
+    html += `<tr><td>${name}</td>`;
+    html += `<td>${currentTotals[name] ? currentTotals[name].toLocaleString() : "0"}</td>`;
     for (let i = 0; i < 3; i++) {
-      html += `<td>${presetTotals[i][materialName] ? presetTotals[i][materialName].toLocaleString() : "0"}</td>`;
+      html += `<td>${presetTotals[i][name] ? presetTotals[i][name].toLocaleString() : "0"}</td>`;
     }
     html += "</tr>";
   });
