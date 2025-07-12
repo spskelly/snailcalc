@@ -53,3 +53,57 @@ const DEMON_GOD_AMULET_INCREMENTAL = {
 // Define upgrade paths for cumulative calculation
 const SNAIL_UPGRADE_PATH = ["None", "Orange", "Red", "+1", "+2", "+3", "+4", "+5", "+6", "+7", "+8", "+9", "Time Wanderer"];
 const MINION_UPGRADE_PATH = ["None", "Red", "+1", "+2", "+3", "+4", "+5"];
+
+
+const ROCKET_DATA = {
+  "Rebel": {
+    title: "Rebel Cabin",
+    materials: {
+      "A": "Rebel Deck Plate", "B": "Rebel Lens", "C": "Rebel Radio", "D": "Rebel Polyester", "E": "Rebel Nano Chip"
+    },
+    devices: {
+      "Photonic Communicator":  { "A": 40, "B": 40, "C": 40, "D": 0, "E": 0, "Btad": 50000 },
+      "Prismatic Armor":        { "A": 40, "B": 40, "C": 0, "D": 40, "E": 0, "Btad": 50000 },
+      "Auto-reload Device":     { "A": 40, "B": 0, "C": 40, "D": 40, "E": 0, "Btad": 50000 },
+      "Biochemical MOD Module": { "A": 0, "B": 40, "C": 40, "D": 40, "E": 0, "Btad": 50000 },
+      "Anti-gravity Device":    { "A": 100, "B": 100, "C": 0, "D": 0, "E": 5, "Btad": 100000 },
+      "Dark Matter Reactor":    { "A": 0, "B": 0, "C": 100, "D": 100, "E": 5, "Btad": 100000 },
+      "Steel Hall":             { "A": 200, "B": 0, "C": 200, "D": 0, "E": 50, "Btad": 150000 },
+      "Silence Hall":           { "A": 0, "B": 200, "C": 0, "D": 200, "E": 50, "Btad": 150000 }
+    }
+  },
+  "Demon God": {
+    title: "Demon God Cabin",
+    materials: {
+      "A": "Demon God Bearing", "B": "Demon God Gear", "C": "Demon God Chip", "D": "Demon God Prism", "E": "Demon God Engine"
+    },
+    devices: {
+      "Particle Accelerator": { "A": 40, "B": 40, "C": 40, "D": 0, "E": 0, "Btad": 50000 },
+      "Assist System":        { "A": 40, "B": 40, "C": 0, "D": 40, "E": 0, "Btad": 50000 },
+      "Orbit Assimilator":    { "A": 40, "B": 0, "C": 40, "D": 40, "E": 0, "Btad": 50000 },
+      "Gravity Propeller":    { "A": 0, "B": 40, "C": 40, "D": 40, "E": 0, "Btad": 50000 },
+      "Demon God Matrix":     { "A": 100, "B": 100, "C": 0, "D": 0, "E": 5, "Btad": 100000 },
+      "Curvature Engine":     { "A": 0, "B": 0, "C": 100, "D": 100, "E": 5, "Btad": 100000 },
+      "Apocalypse Hall":      { "A": 200, "B": 0, "C": 200, "D": 0, "E": 50, "Btad": 150000 },
+      "Eternal Hall":         { "A": 0, "B": 200, "C": 0, "D": 200, "E": 50, "Btad": 150000 }
+    }
+  },
+  "Earths Will": {
+    title: "Earth's Will Cabin",
+    materials: {
+      "A": "Earth's Will Mindwave E", "B": "Earth's Will Mindwave A", "C": "Earth's Will Mindwave R", "D": "Earth's Will Mindwave T", "E": "Earth's Will Mindwave H"
+    },
+    devices: {
+      "Rainbow Generator":  { "A": 40, "B": 40, "C": 40, "D": 0, "E": 0, "Btad": 50000 },
+      "Gamma Ray":          { "A": 40, "B": 40, "C": 0, "D": 40, "E": 0, "Btad": 50000 },
+      "EMP":                { "A": 40, "B": 0, "C": 40, "D": 40, "E": 0, "Btad": 50000 },
+      "Space-sensing Radar":{ "A": 0, "B": 40, "C": 40, "D": 40, "E": 0, "Btad": 50000 },
+      "Garden of Eden":     { "A": 100, "B": 100, "C": 0, "D": 0, "E": 5, "Btad": 100000 },
+      "Domain Holograph":   { "A": 0, "B": 0, "C": 100, "D": 100, "E": 5, "Btad": 100000 },
+      "Oracle Hall":        { "A": 200, "B": 0, "C": 200, "D": 0, "E": 50, "Btad": 150000 },
+      "Revelation Hall":    { "A": 0, "B": 200, "C": 0, "D": 200, "E": 50, "Btad": 150000 }
+    }
+  }
+};
+
+const ROCKET_TIER_PATH = ["None", "T1", "T2", "T3", "T4", "T5"];
