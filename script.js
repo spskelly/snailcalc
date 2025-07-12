@@ -734,8 +734,288 @@ function addEventListeners() {
   }
 }
 
+
+
 // Initial setup
-loadFromLocalStorage();
-addEventListeners();
-renderSnailMainTable();
-renderMinionMainTable();
+document.addEventListener("DOMContentLoaded", () => {
+  // Existing setup
+  loadFromLocalStorage();
+  addEventListeners(); // Note: This only adds listeners for snail/minion gear
+  renderSnailMainTable();
+  renderMinionMainTable();
+
+  // New Rocket Cabin Setup
+  createAllRocketCabinsUI();
+  renderAllRocketCabinSummaries();
+  
+  // Add event listeners for the new rocket dropdowns (per-cabin update)
+  document.querySelectorAll(".rocket-tier-select").forEach(select => {
+    select.addEventListener("change", (e) => {
+      const cabinKey = select.getAttribute("data-cabin");
+      calculateAndRenderRocketCabinSummary(cabinKey);
+    });
+  });
+
+  // Setup the main calculator switcher
+  setupSwitcher();
+});
+
+// --- ROCKET CABIN CALCULATOR ---
+
+/**
+ * Calculates the cumulative cost for a rocket device up to a target tier.
+ * It assumes the recipe cost applies at each tier, requiring materials from the previous tier.
+ * All material costs are converted to their T1 equivalent.
+ */
+function calculateRocketCumulativeCost(deviceRecipe, targetTier) {
+  const tierIndex = ROCKET_TIER_PATH.indexOf(targetTier);
+  const baseCost = { "A": 0, "B": 0, "C": 0, "D": 0, "E": 0 };
+
+  if (tierIndex <= 0 || !deviceRecipe) return baseCost;
+
+  let totalCost = { ...baseCost };
+
+  for (let i = 1; i <= tierIndex; i++) {
+    const t1_equivalent_multiplier = Math.pow(5, i - 1);
+    totalCost["A"] += (deviceRecipe["A"] || 0) * t1_equivalent_multiplier;
+    totalCost["B"] += (deviceRecipe["B"] || 0) * t1_equivalent_multiplier;
+    totalCost["C"] += (deviceRecipe["C"] || 0) * t1_equivalent_multiplier;
+    totalCost["D"] += (deviceRecipe["D"] || 0) * t1_equivalent_multiplier;
+    totalCost["E"] += (deviceRecipe["E"] || 0) * t1_equivalent_multiplier;
+    // Btad removed
+  }
+
+  return totalCost;
+}
+
+/**
+ * Creates the entire UI for all three rocket cabins.
+ */
+function createAllRocketCabinsUI() {
+  const container = document.getElementById("rocket-cabins-container");
+  if (!container) return;
+  container.innerHTML = ''; // Clear previous content
+
+  Object.keys(ROCKET_DATA).forEach(cabinKey => {
+    const cabin = ROCKET_DATA[cabinKey];
+    
+    // Create a wrapper for the cabin
+    const cabinWrapper = document.createElement('div');
+    cabinWrapper.className = 'cabin-section';
+    
+    const title = document.createElement('h2');
+    title.className = 'cabin-title';
+    title.textContent = cabin.title;
+    cabinWrapper.appendChild(title);
+
+    const grid = document.createElement('div');
+    grid.className = 'rocket-selectors-grid';
+
+    Object.keys(cabin.devices).forEach(deviceName => {
+        const selectorDiv = document.createElement("div");
+        selectorDiv.className = "rocket-device-selector";
+        
+        const label = document.createElement("label");
+        label.textContent = deviceName;
+        
+        const select = document.createElement("select");
+        // Unique ID: cabinKey-deviceName
+        select.id = `rocket-${cabinKey}-${deviceName.replace(/\s+/g, '-')}`;
+        select.className = "upgrade-select rocket-tier-select";
+        select.setAttribute("data-cabin", cabinKey);
+
+        // Tier display mapping
+        const tierLabels = {
+          "T1": "T1 (White)",
+          "T2": "T2 (Green)",
+          "T3": "T3 (Blue)",
+          "T4": "T4 (Purple)",
+          "T5": "T5 (Orange)"
+        };
+        ROCKET_TIER_PATH.forEach(tier => {
+            const option = document.createElement("option");
+            option.value = tier;
+            option.textContent = tierLabels[tier] || tier;
+            select.appendChild(option);
+        });
+
+        selectorDiv.appendChild(label);
+        selectorDiv.appendChild(select);
+        grid.appendChild(selectorDiv);
+    });
+    
+    cabinWrapper.appendChild(grid);
+
+    // Add preset and reset buttons (emulate gear calculator UI)
+    const presetGroup = document.createElement("div");
+    presetGroup.className = "preset-group";
+    for (let i = 1; i <= 3; i++) {
+      const presetSet = document.createElement("div");
+      presetSet.className = "preset-set";
+
+      const label = document.createElement("span");
+      label.className = "preset-label";
+      label.textContent = `Preset ${i}:`;
+      presetSet.appendChild(label);
+
+      const saveBtn = document.createElement("button");
+      saveBtn.textContent = "Save";
+      saveBtn.className = "preset-button";
+      saveBtn.addEventListener("click", () => saveRocketCabinPreset(cabinKey, i));
+      presetSet.appendChild(saveBtn);
+
+      const loadBtn = document.createElement("button");
+      loadBtn.textContent = "Load";
+      loadBtn.className = "preset-button";
+      loadBtn.addEventListener("click", () => loadRocketCabinPreset(cabinKey, i));
+      presetSet.appendChild(loadBtn);
+
+      presetGroup.appendChild(presetSet);
+    }
+    cabinWrapper.appendChild(presetGroup);
+
+    const resetBtn = document.createElement("button");
+    resetBtn.textContent = "Reset";
+    resetBtn.className = "reset-button";
+    resetBtn.style.display = "block";
+    resetBtn.style.margin = "15px auto";
+    resetBtn.addEventListener("click", () => resetRocketCabin(cabinKey));
+    cabinWrapper.appendChild(resetBtn);
+
+    // Add per-cabin summary
+    const summaryDiv = document.createElement("div");
+    summaryDiv.className = "totals-column rocket-cabin-totals-summary";
+    summaryDiv.innerHTML = `<h3>Cabin Materials Summary <span style="font-weight:normal;font-size:0.95em;">(T1 materials)</span></h3><div class="rocketMaterialsTable" id="rocketMaterialsTable-${cabinKey}"></div>`;
+    cabinWrapper.appendChild(summaryDiv);
+
+    container.appendChild(cabinWrapper);
+  });
+}
+
+/**
+ * Calculates and renders the total material costs for a single rocket cabin.
+ */
+function calculateAndRenderRocketCabinSummary(cabinKey) {
+  const tableDiv = document.getElementById(`rocketMaterialsTable-${cabinKey}`);
+  if (!tableDiv) return;
+
+  const cabin = ROCKET_DATA[cabinKey];
+  // Helper to get device tiers for a given source (current or preset)
+  function getDeviceTiers(source) {
+    const tiers = {};
+    Object.keys(cabin.devices).forEach(deviceName => {
+      if (source === "current") {
+        const selectEl = document.getElementById(`rocket-${cabinKey}-${deviceName.replace(/\s+/g, '-')}`);
+        tiers[deviceName] = selectEl ? selectEl.value : "None";
+      } else {
+        // source is a preset object
+        tiers[deviceName] = source[deviceName] || "None";
+      }
+    });
+    return tiers;
+  }
+
+  // Get all material names for this cabin
+  const materialNames = Object.values(cabin.materials).sort();
+
+  // Calculate totals for current and all 3 presets
+  const currentTiers = getDeviceTiers("current");
+  const presetTiers = [1, 2, 3].map(i => {
+    const preset = JSON.parse(localStorage.getItem(`rocketCabinPreset${i}-${cabinKey}`) || "{}");
+    return getDeviceTiers(preset);
+  });
+
+  function calcTotals(tiers) {
+    const totals = {};
+    Object.keys(cabin.devices).forEach(deviceName => {
+      const deviceRecipe = cabin.devices[deviceName];
+      const tier = tiers[deviceName] || "None";
+      const deviceCost = calculateRocketCumulativeCost(deviceRecipe, tier);
+      for (const matKey in cabin.materials) {
+        const materialName = cabin.materials[matKey];
+        totals[materialName] = (totals[materialName] || 0) + (deviceCost[matKey] || 0);
+      }
+    });
+    return totals;
+  }
+
+  const currentTotals = calcTotals(currentTiers);
+  const presetTotals = presetTiers.map(calcTotals);
+
+  // Build the HTML table for the summary
+  let html = '<table class="cost-table"><tr><th>Material</th><th>Current</th><th>Preset 1</th><th>Preset 2</th><th>Preset 3</th></tr>';
+
+  materialNames.forEach(materialName => {
+    html += `<tr><td>${materialName}</td>`;
+    html += `<td>${currentTotals[materialName] ? currentTotals[materialName].toLocaleString() : "0"}</td>`;
+    for (let i = 0; i < 3; i++) {
+      html += `<td>${presetTotals[i][materialName] ? presetTotals[i][materialName].toLocaleString() : "0"}</td>`;
+    }
+    html += "</tr>";
+  });
+
+  html += "</table>";
+  tableDiv.innerHTML = html;
+}
+
+/**
+ * Renders all cabin summaries (call after UI creation or any change).
+ */
+function renderAllRocketCabinSummaries() {
+  Object.keys(ROCKET_DATA).forEach(cabinKey => {
+    calculateAndRenderRocketCabinSummary(cabinKey);
+  });
+}
+
+
+// --- Rocket Cabin Preset/Reset Logic ---
+function saveRocketCabinPreset(cabinKey, presetNum) {
+  const preset = {};
+  const cabin = ROCKET_DATA[cabinKey];
+  Object.keys(cabin.devices).forEach(deviceName => {
+    const selectEl = document.getElementById(`rocket-${cabinKey}-${deviceName.replace(/\s+/g, '-')}`);
+    if (selectEl) preset[deviceName] = selectEl.value;
+  });
+  localStorage.setItem(`rocketCabinPreset${presetNum}-${cabinKey}`, JSON.stringify(preset));
+}
+
+function loadRocketCabinPreset(cabinKey, presetNum) {
+  const preset = JSON.parse(localStorage.getItem(`rocketCabinPreset${presetNum}-${cabinKey}`) || "{}");
+  const cabin = ROCKET_DATA[cabinKey];
+  Object.keys(cabin.devices).forEach(deviceName => {
+    const selectEl = document.getElementById(`rocket-${cabinKey}-${deviceName.replace(/\s+/g, '-')}`);
+    if (selectEl) selectEl.value = preset[deviceName] || "None";
+  });
+  calculateAndRenderRocketCabinSummary(cabinKey);
+}
+
+function resetRocketCabin(cabinKey) {
+  const cabin = ROCKET_DATA[cabinKey];
+  Object.keys(cabin.devices).forEach(deviceName => {
+    const selectEl = document.getElementById(`rocket-${cabinKey}-${deviceName.replace(/\s+/g, '-')}`);
+    if (selectEl) selectEl.value = "None";
+  });
+  calculateAndRenderRocketCabinSummary(cabinKey);
+}
+
+// --- Main Switcher Logic ---
+function setupSwitcher() {
+    const gearBtn = document.getElementById('showGearCalc');
+    const rocketBtn = document.getElementById('showRocketCalc');
+    const gearCalc = document.getElementById('gearCalculator');
+    const rocketCalc = document.getElementById('rocketCalculator');
+
+    gearBtn.addEventListener('click', () => {
+        gearCalc.style.display = 'block';
+        rocketCalc.style.display = 'none';
+        gearBtn.classList.add('active');
+        rocketBtn.classList.remove('active');
+    });
+
+    rocketBtn.addEventListener('click', () => {
+        gearCalc.style.display = 'none';
+        rocketCalc.style.display = 'block';
+        rocketBtn.classList.add('active');
+        gearBtn.classList.remove('active');
+    });
+}
