@@ -1021,5 +1021,25 @@ function setupSwitcher() {
         rocketCalc.style.display = 'block';
         rocketBtn.classList.add('active');
         gearBtn.classList.remove('active');
+
+        // Rebuild rocket cabin UI and summaries
+        createAllRocketCabinsUI();
+        renderAllRocketCabinSummaries();
+
+        // Add event listeners for the new rocket dropdowns (per-cabin update)
+        document.querySelectorAll(".rocket-tier-select").forEach(select => {
+          select.addEventListener("change", (e) => {
+            const cabinKey = select.getAttribute("data-cabin");
+            calculateAndRenderRocketCabinSummary(cabinKey);
+          });
+        });
+
+        // Load Preset 1 for each cabin if it exists
+        Object.keys(ROCKET_DATA).forEach(cabinKey => {
+          const preset = localStorage.getItem(`rocketCabinPreset1-${cabinKey}`);
+          if (preset) {
+            loadRocketCabinPreset(cabinKey, 1);
+          }
+        });
     });
 }
