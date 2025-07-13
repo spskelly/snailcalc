@@ -380,3 +380,59 @@ h1, h2 {
   margin: 20px auto;
   max-width: 800px;
 }
+
+/* --- Excess Materials Grid --- */
+.excess-materials-section {
+  margin: 16px 0 8px 0;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #f9f9f9;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  padding-bottom: 8px;
+}
+
+.excess-grid-table {
+  width: 100%;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+  margin: 8px 0 0 0;
+  border-collapse: collapse;
+  font-size: clamp(14px, 2vw, 16px);
+  overflow: hidden;
+}
+.excess-grid-table th,
+.excess-grid-table td {
+  border: 1px solid #e0e0e0;
+  padding: 6px 8px;
+  text-align: right;
+}
+.excess-grid-table th {
+  background: #f2e9e4;
+  color: #4a4e69;
+  font-weight: bold;
+  text-align: center;
+}
+.excess-grid-table td:first-child {
+  text-align: left;
+  font-weight: bold;
+  color: #4a4e69;
+  background: #f9f9f9;
+}
+
+.excess-input {
+  width: 60px;
+  text-align: right;
+  font-size: 1em;
+  padding: 4px 6px;
+  border: 1px solid #9a8c98;
+  border-radius: 4px;
+  background: #f2e9e4;
+  color: #22223b;
+  transition: border 0.2s;
+}
+.excess-input:focus {
+  border-color: #4a4e69;
+  outline: none;
+  background: #fff;
+}

@@ -846,6 +846,109 @@ function createAllRocketCabinsUI() {
     
     cabinWrapper.appendChild(grid);
 
+    // Add collapsible excess materials grid (toggle like unequipped gear)
+    const excessLabel = document.createElement("div");
+    excessLabel.className = "excess-label";
+    excessLabel.style.fontWeight = "bold";
+    excessLabel.style.margin = "8px 0 4px 8px";
+    excessLabel.style.fontSize = "1.1em";
+    excessLabel.style.letterSpacing = "0.5px";
+    excessLabel.style.display = "flex";
+    excessLabel.style.alignItems = "center";
+    excessLabel.style.gap = "8px";
+    excessLabel.textContent = "Excess Materials";
+
+    // Toggle button
+    const toggleBtn = document.createElement("button");
+    toggleBtn.id = `toggleExcess-${cabinKey}`;
+    toggleBtn.className = "toggle-section-btn";
+    toggleBtn.setAttribute("aria-expanded", "false");
+    toggleBtn.setAttribute("aria-controls", `excessGrid-${cabinKey}`);
+    toggleBtn.textContent = "+";
+    excessLabel.appendChild(toggleBtn);
+
+    // Grid container (hidden by default)
+    const gridContainer = document.createElement("div");
+    gridContainer.id = `excessGrid-${cabinKey}`;
+    gridContainer.style.display = "none";
+    gridContainer.style.padding = "8px 12px 12px 12px";
+
+    // Render the grid
+    function renderExcessGrid(excessOverride) {
+      // Get material keys and names
+      const materialOrder = ["A", "B", "C", "D", "E"];
+      const materialNames = materialOrder
+        .filter(matKey => cabin.materials[matKey])
+        .map(matKey => ({ key: matKey, name: cabin.materials[matKey] }));
+      const tiers = ["T1", "T2", "T3", "T4", "T5"];
+      // Load saved values if any, or use override
+      let excessData = {};
+      if (excessOverride) {
+        excessData = excessOverride;
+      } else {
+        try {
+          const saved = localStorage.getItem(`rocketCabinExcess-${cabinKey}`);
+          if (saved) excessData = JSON.parse(saved);
+        } catch {}
+      }
+      // Build table
+      let html = '<table class="excess-grid-table" style="width:auto;border-collapse:collapse;"><tr><th style="min-width:110px"></th>';
+      tiers.forEach(tier => {
+        html += `<th style="padding:2px 6px;">${tier}</th>`;
+      });
+      html += "</tr>";
+      materialNames.forEach(({ key, name }) => {
+        html += `<tr><td style="padding:2px 6px;">${name}</td>`;
+        tiers.forEach(tier => {
+          const val = (excessData[key] && typeof excessData[key][tier] === "number") ? excessData[key][tier] : "";
+          html += `<td style="padding:2px 6px;"><input type="number" min="0" class="excess-input" data-mat="${key}" data-tier="${tier}" value="${val}" style="width:60px;text-align:right;font-size:1em;"></td>`;
+        });
+        html += "</tr>";
+      });
+      html += "</table>";
+      gridContainer.innerHTML = html;
+    }
+    renderExcessGrid();
+
+    // Toggle logic (like unequipped gear)
+    toggleBtn.addEventListener("click", () => {
+      const expanded = toggleBtn.getAttribute("aria-expanded") === "true";
+      if (expanded) {
+        gridContainer.style.display = "none";
+        toggleBtn.textContent = "+";
+        toggleBtn.setAttribute("aria-expanded", "false");
+      } else {
+        gridContainer.style.display = "";
+        toggleBtn.textContent = "−";
+        toggleBtn.setAttribute("aria-expanded", "true");
+      }
+    });
+
+    // Save on input change
+    gridContainer.addEventListener("input", (e) => {
+      if (e.target.classList.contains("excess-input")) {
+        // Gather all values
+        const materialOrder = ["A", "B", "C", "D", "E"];
+        const tiers = ["T1", "T2", "T3", "T4", "T5"];
+        let excessData = {};
+        materialOrder.forEach(matKey => {
+          excessData[matKey] = {};
+          tiers.forEach(tier => {
+            const input = gridContainer.querySelector(`input[data-mat="${matKey}"][data-tier="${tier}"]`);
+            const val = input && input.value ? parseInt(input.value, 10) : 0;
+            excessData[matKey][tier] = isNaN(val) ? 0 : val;
+          });
+        });
+        localStorage.setItem(`rocketCabinExcess-${cabinKey}`, JSON.stringify(excessData));
+        // Update summary
+        calculateAndRenderRocketCabinSummary(cabinKey);
+      }
+    });
+
+    // Insert excess label and grid before summary
+    cabinWrapper.appendChild(excessLabel);
+    cabinWrapper.appendChild(gridContainer);
+
     // Add preset and reset buttons (emulate gear calculator UI)
     const presetGroup = document.createElement("div");
     presetGroup.className = "preset-group";
@@ -924,12 +1027,18 @@ function calculateAndRenderRocketCabinSummary(cabinKey) {
 
   // Calculate totals for current and all 3 presets
   const currentTiers = getDeviceTiers("current");
-  const presetTiers = [1, 2, 3].map(i => {
-    const preset = JSON.parse(localStorage.getItem(`rocketCabinPreset${i}-${cabinKey}`) || "{}");
-    return getDeviceTiers(preset);
-  });
 
-  function calcTotals(tiers) {
+  // Helper to get both device tiers and excess grid from a preset
+  function getPresetData(i) {
+    const presetObj = JSON.parse(localStorage.getItem(`rocketCabinPreset${i}-${cabinKey}`) || "{}");
+    return {
+      tiers: getDeviceTiers(presetObj.devices || {}),
+      excess: presetObj.excess || {}
+    };
+  }
+  const presetData = [1, 2, 3].map(getPresetData);
+
+  function calcTotals(tiers, excessData) {
     const totals = {};
     Object.keys(cabin.devices).forEach(deviceName => {
       const deviceRecipe = cabin.devices[deviceName];
@@ -940,11 +1049,30 @@ function calculateAndRenderRocketCabinSummary(cabinKey) {
         totals[materialName] = (totals[materialName] || 0) + (deviceCost[matKey] || 0);
       }
     });
+    // Add excess materials from grid (if provided)
+    const tierMult = { T1: 1, T2: 5, T3: 25, T4: 125, T5: 625 };
+    for (const matKey in cabin.materials) {
+      const materialName = cabin.materials[matKey];
+      if (excessData && excessData[matKey]) {
+        for (const tier in tierMult) {
+          const val = excessData[matKey][tier] || 0;
+          totals[materialName] = (totals[materialName] || 0) + val * tierMult[tier];
+        }
+      }
+    }
     return totals;
   }
 
-  const currentTotals = calcTotals(currentTiers);
-  const presetTotals = presetTiers.map(calcTotals);
+  // Current totals use currentTiers and current excess grid
+  let currentExcess = {};
+  try {
+    const saved = localStorage.getItem(`rocketCabinExcess-${cabinKey}`);
+    if (saved) currentExcess = JSON.parse(saved);
+  } catch {}
+  const currentTotals = calcTotals(currentTiers, currentExcess);
+
+  // Preset totals use preset device tiers and preset excess grid
+  const presetTotals = presetData.map(pd => calcTotals(pd.tiers, pd.excess));
 
   // Build the HTML table for the summary
   let html = '<table class="cost-table"><tr><th>Material</th><th>Current</th><th>Preset 1</th><th>Preset 2</th><th>Preset 3</th></tr>';
@@ -980,16 +1108,55 @@ function saveRocketCabinPreset(cabinKey, presetNum) {
     const selectEl = document.getElementById(`rocket-${cabinKey}-${deviceName.replace(/\s+/g, '-')}`);
     if (selectEl) preset[deviceName] = selectEl.value;
   });
-  localStorage.setItem(`rocketCabinPreset${presetNum}-${cabinKey}`, JSON.stringify(preset));
+  // Save excess grid as part of preset
+  let excessData = {};
+  try {
+    const saved = localStorage.getItem(`rocketCabinExcess-${cabinKey}`);
+    if (saved) excessData = JSON.parse(saved);
+  } catch {}
+  localStorage.setItem(`rocketCabinPreset${presetNum}-${cabinKey}`, JSON.stringify({ devices: preset, excess: excessData }));
 }
 
 function loadRocketCabinPreset(cabinKey, presetNum) {
-  const preset = JSON.parse(localStorage.getItem(`rocketCabinPreset${presetNum}-${cabinKey}`) || "{}");
+  const presetObj = JSON.parse(localStorage.getItem(`rocketCabinPreset${presetNum}-${cabinKey}`) || "{}");
   const cabin = ROCKET_DATA[cabinKey];
+  // Restore device tiers
+  const preset = presetObj.devices || presetObj;
   Object.keys(cabin.devices).forEach(deviceName => {
     const selectEl = document.getElementById(`rocket-${cabinKey}-${deviceName.replace(/\s+/g, '-')}`);
     if (selectEl) selectEl.value = preset[deviceName] || "None";
   });
+  // Restore excess grid
+  if (presetObj.excess) {
+    localStorage.setItem(`rocketCabinExcess-${cabinKey}`, JSON.stringify(presetObj.excess));
+    // Always re-render grid with restored values
+    const gridContainer = document.getElementById(`excessGrid-${cabinKey}`);
+    if (gridContainer) {
+      // If grid is visible, keep it visible after re-render
+      const wasVisible = gridContainer.style.display !== "none";
+      // Use the same renderExcessGrid logic as in createAllRocketCabinsUI
+      const materialOrder = ["A", "B", "C", "D", "E"];
+      const tiers = ["T1", "T2", "T3", "T4", "T5"];
+      let html = '<table class="excess-grid-table" style="width:auto;border-collapse:collapse;"><tr><th style="min-width:110px"></th>';
+      tiers.forEach(tier => {
+        html += `<th style="padding:2px 6px;">${tier}</th>`;
+      });
+      html += "</tr>";
+      materialOrder.forEach(matKey => {
+        const name = cabin.materials[matKey];
+        html += `<tr><td style="padding:2px 6px;">${name}</td>`;
+        tiers.forEach(tier => {
+          const val = (presetObj.excess[matKey] && typeof presetObj.excess[matKey][tier] === "number") ? presetObj.excess[matKey][tier] : "";
+          html += `<td style="padding:2px 6px;"><input type="number" min="0" class="excess-input" data-mat="${matKey}" data-tier="${tier}" value="${val}" style="width:60px;text-align:right;font-size:1em;"></td>`;
+        });
+        html += "</tr>";
+      });
+      html += "</table>";
+      gridContainer.innerHTML = html;
+      // Restore visibility
+      gridContainer.style.display = wasVisible ? "" : "none";
+    }
+  }
   calculateAndRenderRocketCabinSummary(cabinKey);
 }
 
@@ -999,6 +1166,29 @@ function resetRocketCabin(cabinKey) {
     const selectEl = document.getElementById(`rocket-${cabinKey}-${deviceName.replace(/\s+/g, '-')}`);
     if (selectEl) selectEl.value = "None";
   });
+  // Clear excess grid
+  localStorage.removeItem(`rocketCabinExcess-${cabinKey}`);
+  // Re-render grid if visible
+  const gridContainer = document.getElementById(`excessGrid-${cabinKey}`);
+  if (gridContainer) {
+    const materialOrder = ["A", "B", "C", "D", "E"];
+    const tiers = ["T1", "T2", "T3", "T4", "T5"];
+    let html = '<table class="excess-grid-table" style="width:auto;border-collapse:collapse;"><tr><th style="min-width:110px"></th>';
+    tiers.forEach(tier => {
+      html += `<th style="padding:2px 6px;">${tier}</th>`;
+    });
+    html += "</tr>";
+    materialOrder.forEach(matKey => {
+      const name = cabin.materials[matKey];
+      html += `<tr><td style="padding:2px 6px;">${name}</td>`;
+      tiers.forEach(tier => {
+        html += `<td style="padding:2px 6px;"><input type="number" min="0" class="excess-input" data-mat="${matKey}" data-tier="${tier}" value="" style="width:60px;text-align:right;font-size:1em;"></td>`;
+      });
+      html += "</tr>";
+    });
+    html += "</table>";
+    gridContainer.innerHTML = html;
+  }
   calculateAndRenderRocketCabinSummary(cabinKey);
 }
 
