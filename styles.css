@@ -376,6 +376,26 @@ h1, h2 {
   flex-grow: 1;
   max-width: 180px; /* Increased to prevent text cutoff */
 }
+
+.rocket-tier-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  max-width: fit-content;
+}
+
+.rocket-tier-toggle label {
+  white-space: nowrap;
+  margin-right: 4px;
+}
+
+.rocket-tier-toggle .upgrade-select {
+  width: 140px;
+  min-width: 0;
+  padding: 4px 8px;
+  font-size: 0.98em;
+}
 #rocket-cabin-totals-summary {
   margin: 20px auto;
   max-width: 800px;
