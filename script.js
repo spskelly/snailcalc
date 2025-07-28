@@ -988,7 +988,66 @@ function createAllRocketCabinsUI() {
     // Add per-cabin summary
     const summaryDiv = document.createElement("div");
     summaryDiv.className = "totals-column rocket-cabin-totals-summary";
-    summaryDiv.innerHTML = `<h3>Cabin Materials Summary <span style="font-weight:normal;font-size:0.95em;">(T1 materials)</span></h3><div class="rocketMaterialsTable" id="rocketMaterialsTable-${cabinKey}"></div>`;
+    summaryDiv.innerHTML = `<h3>Cabin Materials Summary <span style="font-weight:normal;font-size:0.95em;">(<span id="rocketTierSummaryLabel-${cabinKey}">T1 materials</span>)</span></h3>`;
+
+    // Create tier toggle dropdown (now inside summaryDiv, just below header)
+    const tierDiv = document.createElement("div");
+    tierDiv.className = "rocket-tier-toggle";
+    tierDiv.style.margin = "0 0 8px 0";
+    tierDiv.style.display = "flex";
+    tierDiv.style.alignItems = "center";
+    tierDiv.style.justifyContent = "flex-end";
+    tierDiv.style.width = "100%";
+
+    const tierLabel = document.createElement("label");
+    tierLabel.textContent = "Display as:";
+    tierLabel.setAttribute("for", `rocketTierDisplay-${cabinKey}`);
+    tierLabel.style.fontWeight = "normal";
+    tierLabel.style.fontSize = "0.98em";
+    tierLabel.style.marginRight = "6px";
+    tierDiv.appendChild(tierLabel);
+
+    const tierSelect = document.createElement("select");
+    tierSelect.id = `rocketTierDisplay-${cabinKey}`;
+    tierSelect.className = "upgrade-select";
+    tierSelect.style.fontSize = "0.98em";
+    tierSelect.style.padding = "2px 8px";
+    tierSelect.style.height = "28px";
+    const tierOptions = [
+      { value: "T1", label: "T1 (White)" },
+      { value: "T2", label: "T2 (Green)" },
+      { value: "T3", label: "T3 (Blue)" },
+      { value: "T4", label: "T4 (Purple)" },
+      { value: "T5", label: "T5 (Orange)" }
+    ];
+    tierOptions.forEach(opt => {
+      const option = document.createElement("option");
+      option.value = opt.value;
+      option.textContent = opt.label;
+      tierSelect.appendChild(option);
+    });
+    // Load saved tier or default to T1
+    let savedTier = "T1";
+    try {
+      const stored = localStorage.getItem(`rocketCabinDisplayTier-${cabinKey}`);
+      if (stored && ["T1","T2","T3","T4","T5"].includes(stored)) savedTier = stored;
+    } catch {}
+    tierSelect.value = savedTier;
+    tierDiv.appendChild(tierSelect);
+
+    // On change, save and re-render summary
+    tierSelect.addEventListener("change", () => {
+      localStorage.setItem(`rocketCabinDisplayTier-${cabinKey}`, tierSelect.value);
+      calculateAndRenderRocketCabinSummary(cabinKey);
+    });
+
+    summaryDiv.appendChild(tierDiv);
+    // Add the summary table container
+    const tableDiv = document.createElement("div");
+    tableDiv.className = "rocketMaterialsTable";
+    tableDiv.id = `rocketMaterialsTable-${cabinKey}`;
+    summaryDiv.appendChild(tableDiv);
+
     cabinWrapper.appendChild(summaryDiv);
 
     container.appendChild(cabinWrapper);
@@ -1001,6 +1060,19 @@ function createAllRocketCabinsUI() {
 function calculateAndRenderRocketCabinSummary(cabinKey) {
   const tableDiv = document.getElementById(`rocketMaterialsTable-${cabinKey}`);
   if (!tableDiv) return;
+
+  // Get selected display tier (default T1)
+  let displayTier = "T1";
+  const tierSelect = document.getElementById(`rocketTierDisplay-${cabinKey}`);
+  if (tierSelect && ["T1","T2","T3","T4","T5"].includes(tierSelect.value)) {
+    displayTier = tierSelect.value;
+  }
+  // Update label in summary header
+  const labelSpan = document.getElementById(`rocketTierSummaryLabel-${cabinKey}`);
+  if (labelSpan) labelSpan.textContent = `${displayTier} materials`;
+
+  // Conversion factors
+  const tierDivisor = { T1: 1, T2: 5, T3: 25, T4: 125, T5: 625 };
 
   const cabin = ROCKET_DATA[cabinKey];
   // Helper to get device tiers for a given source (current or preset)
@@ -1079,9 +1151,12 @@ function calculateAndRenderRocketCabinSummary(cabinKey) {
 
   materialNames.forEach(({ key, name }) => {
     html += `<tr><td>${name}</td>`;
-    html += `<td>${currentTotals[name] ? currentTotals[name].toLocaleString() : "0"}</td>`;
+    // Convert to selected tier and display as integer
+    const currentVal = currentTotals[name] ? Math.floor(currentTotals[name] / tierDivisor[displayTier]) : 0;
+    html += `<td>${currentVal.toLocaleString()}</td>`;
     for (let i = 0; i < 3; i++) {
-      html += `<td>${presetTotals[i][name] ? presetTotals[i][name].toLocaleString() : "0"}</td>`;
+      const presetVal = presetTotals[i][name] ? Math.floor(presetTotals[i][name] / tierDivisor[displayTier]) : 0;
+      html += `<td>${presetVal.toLocaleString()}</td>`;
     }
     html += "</tr>";
   });
