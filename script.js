@@ -867,6 +867,20 @@ function createAllRocketCabinsUI() {
     toggleBtn.textContent = "+";
     excessLabel.appendChild(toggleBtn);
 
+    // Reset Excess button
+    const resetExcessBtn = document.createElement("button");
+    resetExcessBtn.className = "reset-button";
+    resetExcessBtn.textContent = "Reset Excess";
+    resetExcessBtn.style.marginLeft = "12px";
+    resetExcessBtn.style.padding = "4px 14px";
+    resetExcessBtn.style.fontSize = "0.98em";
+    resetExcessBtn.addEventListener("click", () => {
+      localStorage.removeItem(`rocketCabinExcess-${cabinKey}`);
+      renderExcessGrid();
+      calculateAndRenderRocketCabinSummary(cabinKey);
+    });
+    excessLabel.appendChild(resetExcessBtn);
+
     // Grid container (hidden by default)
     const gridContainer = document.createElement("div");
     gridContainer.id = `excessGrid-${cabinKey}`;
