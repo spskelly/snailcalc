@@ -1285,21 +1285,31 @@ function resetRocketCabin(cabinKey) {
 function setupSwitcher() {
     const gearBtn = document.getElementById('showGearCalc');
     const rocketBtn = document.getElementById('showRocketCalc');
+    const steleBtn = document.getElementById('showSteleCalc');
     const gearCalc = document.getElementById('gearCalculator');
     const rocketCalc = document.getElementById('rocketCalculator');
+    const steleCalc = document.getElementById('steleCalculator');
+
+    // Helper to deactivate all
+    function hideAll() {
+        gearCalc.style.display = 'none';
+        rocketCalc.style.display = 'none';
+        steleCalc.style.display = 'none';
+        gearBtn.classList.remove('active');
+        rocketBtn.classList.remove('active');
+        steleBtn.classList.remove('active');
+    }
 
     gearBtn.addEventListener('click', () => {
+        hideAll();
         gearCalc.style.display = 'block';
-        rocketCalc.style.display = 'none';
         gearBtn.classList.add('active');
-        rocketBtn.classList.remove('active');
     });
 
     rocketBtn.addEventListener('click', () => {
-        gearCalc.style.display = 'none';
+        hideAll();
         rocketCalc.style.display = 'block';
         rocketBtn.classList.add('active');
-        gearBtn.classList.remove('active');
 
         // Rebuild rocket cabin UI and summaries
         createAllRocketCabinsUI();
@@ -1320,5 +1330,26 @@ function setupSwitcher() {
             loadRocketCabinPreset(cabinKey, 1);
           }
         });
+    });
+
+    steleBtn.addEventListener('click', async () => {
+        hideAll();
+        steleCalc.style.display = 'block';
+        steleBtn.classList.add('active');
+        // Dynamically import and initialize Stele calculator
+        if (window.initSteleCalculator) {
+            window.initSteleCalculator();
+        } else {
+            try {
+                const mod = await import('./stele.js');
+                if (mod && typeof mod.initSteleCalculator === 'function') {
+                    window.initSteleCalculator = mod.initSteleCalculator;
+                    mod.initSteleCalculator();
+                }
+            } catch (e) {
+                // eslint-disable-next-line no-alert
+                alert('Failed to load Stele Analysis module.');
+            }
+        }
     });
 }

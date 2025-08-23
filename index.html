@@ -11,6 +11,7 @@
     <div class="calculator-switcher">
       <button id="showGearCalc" class="switcher-btn active">Gear Calculator</button>
       <button id="showRocketCalc" class="switcher-btn">Rocket Cabin Calculator</button>
+      <button id="showSteleCalc" class="switcher-btn">Stele Calculator</button>
     </div>
 
     <!-- ===== GEAR CALCULATOR SECTION ===== -->
@@ -99,7 +100,73 @@
       </div>
     </div>
 
+    <!-- ===== STELE LEVEL DISTRIBUTION ANALYSIS SECTION (Initially Hidden) ===== -->
+    <div id="steleCalculator" class="calculator-container" style="display: none;">
+      <div class="calculator-section">
+        <h1>Stele Level Distribution Analysis</h1>
+        <div class="stele-info-blurb tight-info-blurb">
+          This calculator runs 10,000 simulations to estimate the number of tokens needed to reach a selected Stele level, based on the game's token probabilities. Click a Stele level button below to recalculate for that level.
+        </div>
+
+        <div class="controls">
+          <div class="control-group stele-level-buttons-group">
+            <div class="stele-level-btn-row">
+              <button class="stele-level-btn" data-stele="5">Stele 5<br><span class="stele-energy">(1000)</span></button>
+              <button class="stele-level-btn" data-stele="8">Stele 8<br><span class="stele-energy">(2000)</span></button>
+              <button class="stele-level-btn" data-stele="10">Stele 10<br><span class="stele-energy">(3000)</span></button>
+              <button class="stele-level-btn" data-stele="12">Stele 12<br><span class="stele-energy">(4000)</span></button>
+              <button class="stele-level-btn" data-stele="15">Stele 15<br><span class="stele-energy">(6000)</span></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="stele-stats-outer" id="statsGrid" style="display: none;">
+          <div class="stele-stats-row stele-stats-row1">
+            <div class="stat-card">
+              <div class="stat-value blue" id="meanStat">-</div>
+              <div class="stat-label">Mean Tokens</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value orange" id="stdDevStat">-</div>
+              <div class="stat-label">Std Deviation</div>
+            </div>
+          </div>
+          <div class="stele-stats-row stele-stats-row2">
+            <div class="stat-card">
+              <div class="stat-value green" id="minStat">-</div>
+              <div class="stat-label">Minimum</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value purple" id="medianStat">-</div>
+              <div class="stat-label">Median</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value red" id="maxStat">-</div>
+              <div class="stat-label">Maximum</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-container">
+          <canvas id="distributionChart"></canvas>
+        </div>
+
+        <div class="info-panel">
+          <h3 class="stele-prob-heading" style="margin-bottom: 15px; text-align: center;">Recruit Token Probabilities</h3>
+          <div class="stele-prob-row">
+            <div class="stele-prob-item"><span class="stele-prob-label">0 Energy</span><span class="stele-prob-value">53.7%</span></div>
+            <div class="stele-prob-item"><span class="stele-prob-label">15 Energy</span><span class="stele-prob-value">33.1%</span></div>
+            <div class="stele-prob-item"><span class="stele-prob-label">30 Energy</span><span class="stele-prob-value">7.5%</span></div>
+            <div class="stele-prob-item"><span class="stele-prob-label">50 Energy</span><span class="stele-prob-value">5.7%</span></div>
+            <div class="stele-prob-item stele-prob-expected"><span class="stele-prob-label">Expected/token</span><span class="stele-prob-value">10.065</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script src="data.js"></script>
     <script src="script.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script type="module" src="stele.js"></script>
   </body>
 </html>
