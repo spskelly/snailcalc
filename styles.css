@@ -691,8 +691,8 @@ h1, h2 {
   border: 1.5px solid #4CAF50;
 }
 
-/* Tight info blurb for Stele Analysis */
-.tight-info-blurb {
+/* Unified info blurb for all calculators */
+.info-blurb {
   max-width: 800px;
   margin: 0 auto 18px auto;
   text-align: center;
