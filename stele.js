@@ -190,6 +190,9 @@ async function runSteleSimulation(root) {
       await new Promise(resolve => setTimeout(resolve, 1));
     }
   }
+  // Store simulation results for probability/percentile feature
+  root._tokensNeeded = tokensNeeded;
+  root._currentSteleLevel = selectedStele;
   const stats = calculateStats(tokensNeeded);
   const histogramData = createHistogram(tokensNeeded);
   const normalCurve = generateNormalCurve(
@@ -199,6 +202,10 @@ async function runSteleSimulation(root) {
   );
   updateStatsDisplay(stats, root);
   updateChart(histogramData, normalCurve, stats, selectedStele, root);
+  // Update token probability result if input is present
+  if (typeof root._updateTokenProbResult === "function") {
+    root._updateTokenProbResult();
+  }
   // No loading/progress text
 }
 
@@ -213,6 +220,7 @@ export function initSteleCalculator() {
   let selectedStele = 5; // default
 
   function selectStele(level) {
+    const isNewLevel = selectedStele !== level;
     selectedStele = level;
     btnRow.querySelectorAll('.stele-level-btn').forEach(btn => {
       if (parseInt(btn.dataset.stele) === level) {
@@ -221,6 +229,11 @@ export function initSteleCalculator() {
         btn.classList.remove('selected');
       }
     });
+    // Only clear token input and result if the stele level actually changed
+    if (isNewLevel) {
+      if (tokenInput) tokenInput.value = "";
+      if (resultDiv) resultDiv.textContent = "";
+    }
     runSteleSimulation(root);
   }
 
@@ -232,6 +245,54 @@ export function initSteleCalculator() {
 
   // Patch runSteleSimulation to use selectedStele
   root._getSelectedStele = () => selectedStele;
+
+  // --- Token Probability Feature Logic ---
+  const tokenInput = root.querySelector('#steleTokenInput');
+  const checkBtn = root.querySelector('#steleTokenCheckBtn');
+  const resultDiv = root.querySelector('#steleTokenProbResult');
+
+  // Function to compute and display probability/percentile
+  function updateTokenProbResult() {
+    if (!tokenInput || !resultDiv || !root._tokensNeeded || !root._currentSteleLevel) {
+      resultDiv.textContent = "";
+      return;
+    }
+    const val = parseInt(tokenInput.value, 10);
+    if (isNaN(val) || val < 1) {
+      resultDiv.textContent = "";
+      return;
+    }
+    const arr = root._tokensNeeded;
+    const steleLevel = root._currentSteleLevel;
+    // Probability: fraction of runs where tokensNeeded <= val
+    const hits = arr.filter(x => x <= val).length;
+    const prob = hits / arr.length;
+    // Percentile: how many runs required more tokens than val
+    const luckier = arr.filter(x => x > val).length / arr.length;
+    // Format output
+    const probPct = (prob * 100).toFixed(2);
+    const luckPct = (luckier * 100).toFixed(2);
+    let luckStr = "";
+    if (luckier > 0.5) {
+      luckStr = `Reaching Stele ${steleLevel} with ${val} tokens is luckier than ${luckPct}% of outcomes.`;
+    } else if (luckier < 0.5) {
+      luckStr = `Reaching Stele ${steleLevel} with ${val} tokens is unluckier than ${(100 - luckPct).toFixed(2)}% of outcomes.`;
+    } else {
+      luckStr = `Reaching Stele ${steleLevel} with ${val} tokens is exactly median luck.`;
+    }
+    resultDiv.innerHTML =
+      `<div>Chance to reach Stele ${steleLevel} with ${val} tokens: <b>${probPct}%</b></div>` +
+      `<div>${luckStr}</div>`;
+  }
+  // Expose for simulation update
+  root._updateTokenProbResult = updateTokenProbResult;
+
+  if (checkBtn && tokenInput) {
+    checkBtn.addEventListener('click', updateTokenProbResult);
+    tokenInput.addEventListener('keydown', e => {
+      if (e.key === "Enter") updateTokenProbResult();
+    });
+  }
 
   // Initial selection
   selectStele(selectedStele);
