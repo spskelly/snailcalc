@@ -49,12 +49,23 @@ function calculateStats(data) {
   const mean = data.reduce((sum, val) => sum + val, 0) / data.length;
   const variance = data.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / data.length;
   const stdDev = Math.sqrt(variance);
+  // Mode calculation
+  const freq = {};
+  let mode = sorted[0], maxCount = 0;
+  for (const val of data) {
+    freq[val] = (freq[val] || 0) + 1;
+    if (freq[val] > maxCount) {
+      maxCount = freq[val];
+      mode = val;
+    }
+  }
   return {
     mean: mean,
     stdDev: stdDev,
     median: sorted[Math.floor(sorted.length / 2)],
     min: sorted[0],
-    max: sorted[sorted.length - 1]
+    max: sorted[sorted.length - 1],
+    mode: mode
   };
 }
 
@@ -85,10 +96,9 @@ function generateNormalCurve(mean, stdDev, binLabels) {
 }
 
 function updateStatsDisplay(stats, root) {
-  root.querySelector('#meanStat').textContent = Math.round(stats.mean);
   root.querySelector('#stdDevStat').textContent = Math.round(stats.stdDev);
-  root.querySelector('#medianStat').textContent = stats.median;
   root.querySelector('#minStat').textContent = stats.min;
+  root.querySelector('#meanStat').textContent = Math.round(stats.mean);
   root.querySelector('#maxStat').textContent = stats.max;
   root.querySelector('#statsGrid').style.display = 'grid';
 }
@@ -280,9 +290,7 @@ export function initSteleCalculator() {
     } else {
       luckStr = `Reaching Stele ${steleLevel} with ${val} tokens is exactly median luck.`;
     }
-    resultDiv.innerHTML =
-      `<div>Chance to reach Stele ${steleLevel} with ${val} tokens: <b>${probPct}%</b></div>` +
-      `<div>${luckStr}</div>`;
+    resultDiv.innerHTML = luckStr;
   }
   // Expose for simulation update
   root._updateTokenProbResult = updateTokenProbResult;
