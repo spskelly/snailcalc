@@ -9,7 +9,7 @@ let steleChart = null;
 const STELE_REQUIREMENTS = {
   5: 1000,
   8: 2000,
-  10: 3000,
+  10: 2900,
   12: 4000,
   15: 6000
 };
