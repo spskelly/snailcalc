@@ -281,7 +281,6 @@ function buildRecipeCards(recipeIds, isMirac) {
               <option value="2" ${state.stars === 2 ? 'selected' : ''}>2★</option>
               <option value="3" ${state.stars === 3 ? 'selected' : ''}>3★</option>
               <option value="4" ${state.stars === 4 ? 'selected' : ''}>4★</option>
-              <option value="5" ${state.stars === 5 ? 'selected' : ''}>5★</option>
             </select>
           </div>
           <div class="recipe-field">
@@ -1051,10 +1050,6 @@ function updateStewCalculator(root) {
           <div class="stat-value" id="stew-sim-mean">-</div>
           <div class="stat-label">Sim Mean</div>
         </div>
-        <div class="stat-card orange">
-          <div class="stat-value" id="stew-sim-stddev">-</div>
-          <div class="stat-label">Std Deviation</div>
-        </div>
         <div class="stat-card red">
           <div class="stat-value" id="stew-sim-max">-</div>
           <div class="stat-label">Sim Maximum</div>
@@ -1202,7 +1197,6 @@ async function runStewSimulation(root) {
   // Update stats display
   container.querySelector('#stew-sim-min').textContent = sorted[0].toLocaleString();
   container.querySelector('#stew-sim-mean').textContent = Math.round(mean).toLocaleString();
-  container.querySelector('#stew-sim-stddev').textContent = 'N/A';
   container.querySelector('#stew-sim-max').textContent = sorted[numSims - 1].toLocaleString();
   
   const simStats = container.querySelector('#stew-sim-stats');
