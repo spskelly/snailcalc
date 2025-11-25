@@ -134,6 +134,17 @@ const COOKING_RECIPES = {
     miracVeggie: 0,
     miracSpice: 0
   },
+  "marinated_octopus": {
+    name: "Marinated Octopus",
+    defaultStars: 1,
+    defaultPrice: 0,
+    clownMeat: 0,
+    clownVeggie: 0,
+    clownSpice: 0,
+    miracMeat: 9,
+    miracVeggie: 0,
+    miracSpice: 0
+  },
   "engine_cheese_biscuit": {
     name: "Engine Cheese Biscuit",
     defaultStars: 1,
@@ -217,4 +228,5 @@ const RECIPE_ORDER = [
   "spicy_griffon_claw",
   "engine_cheese_biscuit",
   "nuclear_bbq_oyster",
+  "marinated_octopus",
 ];
