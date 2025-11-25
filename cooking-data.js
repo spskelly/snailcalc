@@ -141,7 +141,7 @@ const COOKING_RECIPES = {
     clownMeat: 0,
     clownVeggie: 0,
     clownSpice: 0,
-    miracMeat: 9,
+    miracMeat: 3,
     miracVeggie: 0,
     miracSpice: 0
   },
@@ -153,6 +153,17 @@ const COOKING_RECIPES = {
     clownVeggie: 10,
     clownSpice: 5,
     miracMeat: 0,
+    miracVeggie: 0,
+    miracSpice: 0
+  },
+  "manta_ray_sashimi": {
+    name: "Manta Ray Sashimi",
+    defaultStars: 1,
+    defaultPrice: 0,
+    clownMeat: 0,
+    clownVeggie: 0,
+    clownSpice: 0,
+    miracMeat: 5,
     miracVeggie: 0,
     miracSpice: 0
   },
@@ -229,4 +240,5 @@ const RECIPE_ORDER = [
   "engine_cheese_biscuit",
   "nuclear_bbq_oyster",
   "marinated_octopus",
+  "manta_ray_sashimi",
 ];
