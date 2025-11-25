@@ -700,3 +700,1056 @@ h1, h2 {
   color: #444;
   line-height: 1.5;
 }
+
+/* ============== COOKING CALCULATOR STYLES ============== */
+
+/* Vendor Configuration */
+.vendor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.vendor-card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  border: 1px solid #e0e0e0;
+}
+
+.vendor-card h4 {
+  margin: 0 0 15px 0;
+  color: #4a4e69;
+  font-size: 1.1em;
+  border-bottom: 2px solid #f2e9e4;
+  padding-bottom: 8px;
+}
+
+.vendor-ingredient {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 10px 0;
+  padding: 8px;
+  background: #f9f9f9;
+  border-radius: 6px;
+}
+
+.vendor-ingredient label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  color: #333;
+}
+
+.vendor-ingredient input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.rate-input {
+  width: 55px;
+  padding: 6px 8px;
+  border: 1px solid #9a8c98;
+  border-radius: 4px;
+  text-align: right;
+  font-size: 0.95em;
+  background: #fff;
+}
+
+.rate-input:disabled {
+  background: #e0e0e0;
+  color: #999;
+}
+
+.voucher-config {
+  text-align: center;
+  padding: 15px;
+  background: #f2e9e4;
+  border-radius: 8px;
+  margin-top: 15px;
+}
+
+.voucher-config label {
+  font-weight: bold;
+  color: #4a4e69;
+}
+
+.small-input {
+  width: 70px;
+  padding: 6px 8px;
+  border: 1px solid #9a8c98;
+  border-radius: 4px;
+  text-align: right;
+  font-size: 0.95em;
+  margin: 0 5px;
+}
+
+.tiny-input {
+  width: 50px;
+  padding: 6px 8px;
+  border: 1px solid #9a8c98;
+  border-radius: 4px;
+  text-align: right;
+  font-size: 0.95em;
+  margin: 0 3px;
+}
+
+/* Shop Configuration */
+.shop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 15px;
+}
+
+.shop-item {
+  background: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.06);
+  border: 1px solid #e0e0e0;
+}
+
+.shop-item > label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.shop-item > label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+}
+
+.shop-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.shop-details label {
+  font-size: 0.9em;
+  color: #555;
+}
+
+.fixed-price {
+  font-weight: bold;
+  color: #4a4e69;
+  background: #f2e9e4;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: monospace;
+}
+
+.shop-result {
+  font-weight: bold;
+  font-size: 0.95em;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed #ddd;
+}
+
+.shop-result .positive {
+  color: #2e7d32;
+}
+
+.shop-result .negative {
+  color: #c62828;
+}
+
+/* Recipe Manager */
+.recipe-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 15px;
+}
+
+.recipe-card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+  border: 1px solid #e0e0e0;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.recipe-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+}
+
+.recipe-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  background: #f8f8f8;
+  border-bottom: 1px solid #eee;
+}
+
+.recipe-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.recipe-toggle input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+}
+
+.recipe-name {
+  font-weight: bold;
+  color: #333;
+  font-size: 0.95em;
+}
+
+.vendor-badge {
+  font-size: 0.75em;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.vendor-badge.clown {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.vendor-badge.mirac {
+  background: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.recipe-config {
+  padding: 12px 15px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.recipe-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.recipe-field label {
+  font-size: 0.75em;
+  color: #777;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.recipe-field select,
+.recipe-field input {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.9em;
+  background: #fff;
+}
+
+.recipe-field select {
+  width: 70px;
+}
+
+.recipe-field input[type="number"] {
+  width: 70px;
+  text-align: right;
+}
+
+.recipe-ingredients {
+  margin-left: auto;
+  font-size: 0.85em;
+  color: #666;
+  background: #f5f5f5;
+  padding: 6px 10px;
+  border-radius: 15px;
+  font-family: monospace;
+}
+
+/* Results Dashboard */
+.results-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.results-rankings {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  padding: 20px;
+  height: fit-content;
+}
+
+.results-rankings h3 {
+  margin: 0 0 15px 0;
+  color: #4a4e69;
+  font-size: 1.2em;
+}
+
+.ranking-table-container {
+  position: relative;
+  border-radius: 8px;
+}
+
+#cooking-ranking-table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+#cooking-ranking-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+#cooking-ranking-table thead th {
+  background: #f2e9e4;
+  position: sticky;
+  top: 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.results-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.results-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  padding: 15px;
+}
+
+.results-card h4 {
+  margin: 0 0 12px 0;
+  color: #4a4e69;
+  font-size: 1em;
+  border-bottom: 2px solid #f2e9e4;
+  padding-bottom: 8px;
+}
+
+/* Shop ROI Summary */
+.roi-item {
+  padding: 10px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.roi-item:last-child {
+  border-bottom: none;
+}
+
+.roi-name {
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.roi-details {
+  display: flex;
+  gap: 15px;
+  font-size: 0.85em;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.roi-result {
+  font-weight: bold;
+  font-size: 0.95em;
+}
+
+.roi-result.positive {
+  color: #2e7d32;
+}
+
+.roi-result.negative {
+  color: #c62828;
+}
+
+.roi-total {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 2px solid #f2e9e4;
+  font-size: 1.05em;
+}
+
+.roi-empty {
+  color: #999;
+  font-style: italic;
+  text-align: center;
+  padding: 10px;
+}
+
+/* Strategy Summary */
+.strategy-item {
+  padding: 10px;
+  margin-bottom: 8px;
+  background: #f9f9f9;
+  border-radius: 8px;
+}
+
+.strategy-item.best {
+  background: #e8f5e9;
+  border-left: 4px solid #4caf50;
+}
+
+.strategy-label {
+  font-size: 0.8em;
+  color: #666;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+
+.strategy-value {
+  font-weight: bold;
+  color: #333;
+  font-size: 1.05em;
+}
+
+.strategy-detail {
+  font-size: 0.85em;
+  color: #777;
+}
+
+.strategy-empty {
+  color: #999;
+  font-style: italic;
+  text-align: center;
+  padding: 20px;
+}
+
+/* Mega Stew Values */
+.stew-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.stew-item {
+  text-align: center;
+  padding: 10px;
+  background: #f5f5f5;
+  border-radius: 8px;
+}
+
+.stew-label {
+  display: block;
+  font-size: 0.8em;
+  color: #666;
+  margin-bottom: 3px;
+}
+
+.stew-value {
+  font-weight: bold;
+  color: #333;
+}
+
+.stew-formula {
+  text-align: center;
+  font-family: monospace;
+  font-size: 0.9em;
+  color: #555;
+  background: #f2e9e4;
+  padding: 8px;
+  border-radius: 6px;
+}
+
+/* Ranking Table Enhancements */
+#cooking-ranking-table .stars {
+  color: #ffc107;
+  margin-left: 5px;
+}
+
+#cooking-ranking-table .mirac-row {
+  background: #faf5ff;
+}
+
+/* Section Headers */
+.cooking-section {
+  margin-bottom: 25px;
+}
+
+.cooking-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #f2e9e4;
+}
+
+.cooking-section-header h3 {
+  margin: 0;
+  color: #4a4e69;
+  font-size: 1.15em;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 900px) {
+  .results-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .results-sidebar {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  
+  .results-card {
+    flex: 1 1 280px;
+  }
+}
+
+@media (max-width: 768px) {
+  .vendor-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .shop-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .recipe-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .recipe-config {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .recipe-ingredients {
+    margin-left: 0;
+    margin-top: 10px;
+  }
+  
+  .stew-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .results-sidebar {
+    flex-direction: column;
+  }
+  
+  .results-card {
+    flex: 1 1 auto;
+  }
+}
+
+/* Recipe Sections with Collapse */
+.recipe-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.recipe-section {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.recipe-section-header {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  background: #f2e9e4;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s;
+}
+
+.recipe-section-header:hover {
+  background: #e6dcd7;
+}
+
+.recipe-section-header .section-toggle {
+  font-size: 1.2em;
+  margin-right: 12px;
+  transition: transform 0.3s;
+  color: #4a4e69;
+}
+
+.recipe-section.collapsed .section-toggle {
+  transform: rotate(-90deg);
+}
+
+.recipe-section-header h3 {
+  margin: 0;
+  color: #4a4e69;
+  font-size: 1.1em;
+  flex: 1;
+}
+
+.recipe-section-content {
+  padding: 20px;
+  transition: all 0.3s ease;
+  max-height: 3000px;
+  overflow: visible;
+}
+
+.recipe-section.collapsed .recipe-section-content {
+  max-height: 0;
+  padding: 0 20px;
+  overflow: hidden;
+}
+
+/* Ingredient Filters */
+.ingredient-filters {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  padding: 15px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #e0e0e0;
+}
+
+.ingredient-filters label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  color: #4a4e69;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.ingredient-filters label:hover {
+  background: #fff;
+}
+
+.ingredient-filters input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #4a4e69;
+}
+
+/* Recipe Grid spacing within sections */
+.recipe-section-content .recipe-grid {
+  margin-top: 0;
+}
+
+/* Mega Stew Calculator Section */
+.stew-calculator-section {
+  margin-top: 20px;
+  border-top: 2px solid #f2e9e4;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.stew-section-header {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  background: #f2e9e4;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s;
+}
+
+.stew-section-header:hover {
+  background: #e6dcd7;
+}
+
+.stew-section-header .section-toggle {
+  font-size: 1.2em;
+  margin-right: 12px;
+  transition: transform 0.3s;
+  color: #4a4e69;
+}
+
+.stew-calculator-section.collapsed .section-toggle {
+  transform: rotate(-90deg);
+}
+
+.stew-section-header h4 {
+  margin: 0;
+  color: #4a4e69;
+  font-size: 1em;
+  flex: 1;
+}
+
+.stew-section-content {
+  padding: 20px;
+  transition: all 0.3s ease;
+  max-height: 5000px;
+  overflow: visible;
+}
+
+.stew-calculator-section.collapsed .stew-section-content {
+  max-height: 0;
+  padding: 0 20px;
+  overflow: hidden;
+}
+
+.stew-calc-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.stew-calc-table thead th {
+  background: #f2e9e4;
+  color: #4a4e69;
+  font-weight: bold;
+  padding: 10px 8px;
+  text-align: center;
+  border: 1px solid #e0e0e0;
+  font-size: 1.1em;
+}
+
+.stew-calc-table tbody td {
+  padding: 8px;
+  border: 1px solid #e0e0e0;
+  text-align: center;
+}
+
+.stew-calc-table .row-label {
+  background: #f9f9f9;
+  font-weight: bold;
+  color: #4a4e69;
+  text-align: left;
+  padding-left: 12px;
+  font-size: 1.05em;
+}
+
+.stew-input {
+  width: 60px;
+  padding: 6px 8px;
+  border: 1px solid #9a8c98;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 0.95em;
+  background: #fff;
+  transition: border 0.2s;
+}
+
+.stew-input:focus {
+  border-color: #4a4e69;
+  outline: none;
+  background: #f8f8f8;
+}
+
+#stew-result {
+  margin-top: 12px;
+  padding: 12px;
+  background: #e8f5e9;
+  border-radius: 8px;
+  font-weight: bold;
+  text-align: center;
+  font-size: 1.05em;
+  color: #2e7d32;
+}
+
+/* Mega Stew Simulator Styles */
+.stew-simulator {
+  width: 100%;
+}
+
+.stew-simulator .ingredient-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.stew-simulator .ingredient-card {
+  background: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  border: 1px solid #e0e0e0;
+  text-align: center;
+}
+
+.stew-simulator .ingredient-card.clown {
+  border-left: 4px solid #1565c0;
+}
+
+.stew-simulator .ingredient-card.mirac {
+  border-left: 4px solid #7b1fa2;
+}
+
+.stew-simulator .ingredient-card h4 {
+  margin: 0 0 4px 0;
+  color: #333;
+  font-size: 1em;
+}
+
+.stew-simulator .vendor-label {
+  font-size: 0.7em;
+  color: #777;
+  margin-bottom: 8px;
+}
+
+.stew-simulator .stew-sim-input {
+  width: 80px;
+  padding: 8px;
+  font-size: 1.1em;
+  text-align: center;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.stew-simulator .stew-sim-input:focus {
+  border-color: #4a4e69;
+  outline: none;
+}
+
+.stew-simulator .ingredient-stats {
+  font-size: 0.8em;
+  color: #666;
+}
+
+.stew-simulator .ingredient-stats .range {
+  font-family: monospace;
+  margin-bottom: 2px;
+}
+
+.stew-simulator .total-count {
+  text-align: center;
+  font-size: 1em;
+  color: #4a4e69;
+  margin-bottom: 12px;
+  padding: 8px;
+  background: #f2e9e4;
+  border-radius: 6px;
+}
+
+.stew-simulator .total-count strong {
+  font-size: 1.2em;
+}
+
+.stew-simulator .warning {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  color: #856404;
+  padding: 12px;
+  border-radius: 6px;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.stew-simulator .stew-results-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.stew-simulator .stew-results-card {
+  background: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+}
+
+.stew-simulator .stew-results-card h4 {
+  margin: 0 0 12px 0;
+  font-size: 0.95em;
+  text-align: left;
+  border-bottom: 2px solid #f2e9e4;
+  padding-bottom: 6px;
+}
+
+.stew-simulator .range-display {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 12px 0;
+}
+
+.stew-simulator .range-value {
+  text-align: center;
+}
+
+.stew-simulator .range-value .label {
+  font-size: 0.75em;
+  color: #777;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.stew-simulator .range-value .value {
+  font-size: 1.4em;
+  font-weight: bold;
+}
+
+.stew-simulator .range-value.min .value { color: #2e7d32; }
+.stew-simulator .range-value.mid .value { color: #1565c0; }
+.stew-simulator .range-value.max .value { color: #c62828; }
+
+.stew-simulator .range-bar {
+  flex-grow: 1;
+  height: 6px;
+  background: linear-gradient(to right, #2e7d32, #1565c0, #c62828);
+  border-radius: 3px;
+  margin: 0 12px;
+}
+
+.simulate-btn {
+  display: block;
+  width: 100%;
+  max-width: 280px;
+  margin: 0 auto 20px;
+  padding: 12px 24px;
+  font-size: 1.1em;
+  font-weight: bold;
+  color: #fff;
+  background: linear-gradient(135deg, #4a4e69, #22223b);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.simulate-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.simulate-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  background: #f9f9f9;
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.stat-card .stat-value {
+  font-size: 1.3em;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.stat-card .stat-label {
+  font-size: 0.8em;
+  color: #666;
+}
+
+.stat-card.green .stat-value { color: #2e7d32; }
+.stat-card.blue .stat-value { color: #1565c0; }
+.stat-card.orange .stat-value { color: #f57c00; }
+.stat-card.red .stat-value { color: #c62828; }
+
+.chart-container {
+  background: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  height: 350px;
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.percentile-section {
+  background: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.percentile-section h4 {
+  margin: 0 0 12px 0;
+}
+
+.percentile-input-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.percentile-input-row input {
+  width: 110px;
+  padding: 8px;
+  font-size: 1em;
+  text-align: center;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+}
+
+.percentile-input-row button {
+  padding: 8px 18px;
+  font-size: 0.95em;
+  font-weight: bold;
+  background: #4a4e69;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.percentile-result {
+  font-size: 1em;
+  color: #333;
+  min-height: 1.5em;
+}
+
+/* Mobile responsiveness for stew simulator */
+@media (max-width: 768px) {
+  .stew-simulator .ingredient-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .stew-simulator .stew-results-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .chart-container {
+    height: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .stew-simulator .ingredient-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -11,7 +11,8 @@
     <div class="calculator-switcher">
       <button id="showGearCalc" class="switcher-btn active">Gear Calculator</button>
       <button id="showRocketCalc" class="switcher-btn">Rocket Cabin Calculator</button>
-      <button id="showSteleCalc" class="switcher-btn">Stele Calculator</button>
+      <button id="showSteleCalc" class="switcher-btn">Stele Calculator</button>      
+      <button id="showCookingCalc" class="switcher-btn">Cooking Calculator</button>
     </div>
 
     <!-- ===== GEAR CALCULATOR SECTION ===== -->
@@ -171,8 +172,77 @@
       </div>
     </div>
 
+    <!-- ===== COOKING CALCULATOR SECTION (Add to index.html, initially hidden) ===== -->
+    <div id="cookingCalculator" class="calculator-container" style="display: none;">
+      <div class="calculator-section">
+        <h1>🍳 Cooking Profitability Calculator</h1>
+        <div class="info-blurb">
+          This calculator helps you optimize your cooking strategy based on your available recipes, vendor access, and shop purchases. 
+          Configure your recipes and shop options below, and the calculator will show you the most profitable dishes and daily ROI.
+        </div>
+        
+        <!-- Preset Buttons -->
+        <div class="button-row">
+          <button id="resetCooking" class="reset-button">Reset All</button>
+          <div class="preset-group">
+            <div class="preset-set">
+              <span class="preset-label">Preset 1:</span>
+              <button id="saveCookingPreset1" class="preset-button">Save</button>
+              <button id="loadCookingPreset1" class="preset-button">Load</button>
+            </div>
+            <div class="preset-set">
+              <span class="preset-label">Preset 2:</span>
+              <button id="saveCookingPreset2" class="preset-button">Save</button>
+              <button id="loadCookingPreset2" class="preset-button">Load</button>
+            </div>
+            <div class="preset-set">
+              <span class="preset-label">Preset 3:</span>
+              <button id="saveCookingPreset3" class="preset-button">Save</button>
+              <button id="loadCookingPreset3" class="preset-button">Load</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Vendor Configuration Section -->
+        <div class="cooking-section">
+          <div class="cooking-section-header">
+            <h3>🎪 Vendor Configuration</h3>
+          </div>
+          <div id="cooking-vendor-config"></div>
+        </div>
+        
+        <!-- Shop Purchases Section -->
+        <div class="cooking-section">
+          <div class="cooking-section-header">
+            <h3>🛒 Daily Shop Purchases</h3>
+          </div>
+          <div id="cooking-shop-config"></div>
+        </div>
+        
+        <!-- Recipe Manager Section -->
+        <div class="cooking-section">
+          <div class="cooking-section-header">
+            <h3>📖 Recipes</h3>
+            <span style="font-size: 0.85em; color: #666;">Enable/disable recipes and set your current stars & sell price</span>
+          </div>
+          <div id="cooking-recipe-manager"></div>
+        </div>
+        
+        <!-- Results Dashboard Section -->
+        <div class="cooking-section">
+          <div class="cooking-section-header">
+            <h3>📊 Results</h3>
+          </div>
+          <div id="cooking-results"></div>
+        </div>
+        
+      </div>
+    </div>
+
     <script src="data.js"></script>
     <script src="script.js"></script>
+    <script src="cooking-data.js"></script>
+    <script src="cooking.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script type="module" src="stele.js"></script>
     <script data-goatcounter="https://snailcalc.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>

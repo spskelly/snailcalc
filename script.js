@@ -1286,18 +1286,22 @@ function setupSwitcher() {
     const gearBtn = document.getElementById('showGearCalc');
     const rocketBtn = document.getElementById('showRocketCalc');
     const steleBtn = document.getElementById('showSteleCalc');
+    const cookingBtn = document.getElementById('showCookingCalc');
     const gearCalc = document.getElementById('gearCalculator');
     const rocketCalc = document.getElementById('rocketCalculator');
     const steleCalc = document.getElementById('steleCalculator');
+    const cookingCalc = document.getElementById('cookingCalculator');
 
     // Helper to deactivate all
     function hideAll() {
         gearCalc.style.display = 'none';
         rocketCalc.style.display = 'none';
         steleCalc.style.display = 'none';
+        cookingCalc.style.display = 'none';
         gearBtn.classList.remove('active');
         rocketBtn.classList.remove('active');
         steleBtn.classList.remove('active');
+        cookingBtn.classList.remove('active');
     }
 
     gearBtn.addEventListener('click', () => {
@@ -1349,6 +1353,27 @@ function setupSwitcher() {
             } catch (e) {
                 // eslint-disable-next-line no-alert
                 alert('Failed to load Stele Analysis module.');
+            }
+        }
+    });
+
+    cookingBtn.addEventListener('click', async () => {
+        hideAll();
+        cookingCalc.style.display = 'block';
+        cookingBtn.classList.add('active');
+        // Dynamically import and initialize Cooking calculator
+        if (window.initCookingCalculator) {
+            window.initCookingCalculator();
+        } else {
+            try {
+                const mod = await import('./cooking.js');
+                if (mod && typeof mod.initCookingCalculator === 'function') {
+                    window.initCookingCalculator = mod.initCookingCalculator;
+                    mod.initCookingCalculator();
+                }
+            } catch (e) {
+                // eslint-disable-next-line no-alert
+                alert('Failed to load Cooking Calculator module.');
             }
         }
     });
