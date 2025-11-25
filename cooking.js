@@ -926,7 +926,7 @@ const INGREDIENT_RANGES = {
   clownVeggie: { min: 29, max: 144, mid: 86.50 },
   clownSpice: { min: 72, max: 240, mid: 156.00 },
   miracMeat: { min: 12, max: 60, mid: 36.00 },
-  miracVeggie: { min: 0, max: 0, mid: 0 },
+  miracVeggie: { min: 36, max: 180, mid: 108 },
   miracSpice: { min: 0, max: 0, mid: 0 }
 };
 
@@ -979,6 +979,16 @@ function updateStewCalculator(root) {
           <div class="ingredient-stats">
             <div class="range">12 - 60 gold/ea</div>
             <div>Expected: 36.00</div>
+          </div>
+        </div>
+        
+        <div class="ingredient-card mirac">
+          <h4>🥬 Mirac Veggie</h4>
+          <div class="vendor-label">Miraculand Vendor</div>
+          <input type="number" id="sim-mirac-veggie" value="0" min="0" max="9999" class="stew-sim-input">
+          <div class="ingredient-stats">
+            <div class="range">36 - 180 gold/ea</div>
+            <div>Expected: 108.00</div>
           </div>
         </div>
       </div>
@@ -1059,7 +1069,7 @@ function updateStewCalculator(root) {
   `;
   
   // Set up event listeners for inputs
-  const inputs = ['sim-clown-meat', 'sim-clown-veggie', 'sim-clown-spice', 'sim-mirac-meat'];
+  const inputs = ['sim-clown-meat', 'sim-clown-veggie', 'sim-clown-spice', 'sim-mirac-meat','sim-mirac-veggie'];
   inputs.forEach(id => {
     const input = container.querySelector(`#${id}`);
     if (input) {
@@ -1085,7 +1095,8 @@ function calculateStewRanges(root) {
     clownMeat: parseInt(container.querySelector('#sim-clown-meat')?.value) || 0,
     clownVeggie: parseInt(container.querySelector('#sim-clown-veggie')?.value) || 0,
     clownSpice: parseInt(container.querySelector('#sim-clown-spice')?.value) || 0,
-    miracMeat: parseInt(container.querySelector('#sim-mirac-meat')?.value) || 0
+    miracMeat: parseInt(container.querySelector('#sim-mirac-meat')?.value) || 0,
+    miracVeggie: parseInt(container.querySelector('#sim-mirac-veggie')?.value) || 0
   };
   
   const totalQty = Object.values(quantities).reduce((a, b) => a + b, 0);

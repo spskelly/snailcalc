@@ -198,7 +198,7 @@ const MEGA_STEW_VALUES = {
   clownVeggie: 86.50,
   clownSpice: 156.00,
   miracMeat: 36.00, 
-  miracVeggie: 107.25, // est
+  miracVeggie: 108,
   miracSpice: 193.5 // est
 };
 
