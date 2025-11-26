@@ -811,6 +811,9 @@ function setupCookingEventListeners(root) {
       saveCookingToStorage();
     });
   });
+  
+  // Export/Import listeners
+  setupExportImportListeners(root);
 }
 
 function applyRecipeFilters(root, vendor) {
@@ -1780,8 +1783,237 @@ function loadCookingPreset(num, root) {
   }
 }
 
+// ============== EXPORT/IMPORT FUNCTIONALITY ==============
+
+function exportCookingConfig() {
+  // Create export object with version for future compatibility
+  const exportData = {
+    version: 1,
+    timestamp: new Date().toISOString(),
+    state: cookingState
+  };
+  
+  try {
+    // Convert to JSON, then base64
+    const jsonString = JSON.stringify(exportData);
+    const base64String = btoa(jsonString);
+    
+    // Show modal with the string
+    showExportModal(base64String);
+  } catch (error) {
+    alert('Export failed: ' + error.message);
+  }
+}
+
+function importCookingConfig(base64String) {
+  const root = document.getElementById('cookingCalculator');
+  if (!root) return;
+  
+  try {
+    // Decode base64 to JSON
+    const jsonString = atob(base64String.trim());
+    const importedData = JSON.parse(jsonString);
+    
+    // Validate version
+    if (!importedData.version) {
+      throw new Error("Invalid configuration format - no version found");
+    }
+    
+    if (importedData.version !== 1) {
+      throw new Error(`Unsupported configuration version: ${importedData.version}`);
+    }
+    
+    // Validate structure
+    if (!importedData.state) {
+      throw new Error("Invalid configuration format - no state data found");
+    }
+    
+    if (!importedData.state.recipes || !importedData.state.vendors || !importedData.state.shop) {
+      throw new Error("Invalid configuration format - missing required data");
+    }
+    
+    // Import the state
+    cookingState = importedData.state;
+    
+    // Refresh UI and recalculate
+    refreshCookingUI(root);
+    recalculateCooking();
+    saveCookingToStorage();
+    
+    // Close modal and show success
+    closeCookingModal();
+    alert("✅ Configuration imported successfully!");
+    
+  } catch (error) {
+    // Show error in the modal
+    const errorDiv = document.getElementById('importError');
+    if (errorDiv) {
+      errorDiv.textContent = '❌ ' + error.message;
+      errorDiv.style.display = 'block';
+    }
+  }
+}
+
+function showExportModal(base64String) {
+  const modal = document.getElementById('exportModal');
+  const textarea = document.getElementById('exportTextarea');
+  
+  if (modal && textarea) {
+    textarea.value = base64String;
+    modal.style.display = 'flex';
+    
+    // Select the text for easy copying
+    textarea.select();
+  }
+}
+
+function showImportModal() {
+  const modal = document.getElementById('importModal');
+  const textarea = document.getElementById('importTextarea');
+  const errorDiv = document.getElementById('importError');
+  
+  if (modal && textarea) {
+    // Clear previous content and errors
+    textarea.value = '';
+    if (errorDiv) {
+      errorDiv.style.display = 'none';
+      errorDiv.textContent = '';
+    }
+    
+    modal.style.display = 'flex';
+    
+    // Focus on textarea
+    setTimeout(() => textarea.focus(), 100);
+  }
+}
+
+function closeCookingModal() {
+  const exportModal = document.getElementById('exportModal');
+  const importModal = document.getElementById('importModal');
+  
+  if (exportModal) exportModal.style.display = 'none';
+  if (importModal) importModal.style.display = 'none';
+}
+
+function copyExportToClipboard() {
+  const textarea = document.getElementById('exportTextarea');
+  const copyBtn = document.getElementById('copyExportBtn');
+  
+  if (!textarea) return;
+  
+  // Select the text
+  textarea.select();
+  textarea.setSelectionRange(0, 99999); // For mobile devices
+  
+  // Try modern clipboard API first
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(textarea.value)
+      .then(() => {
+        // Show success feedback
+        const originalText = copyBtn.textContent;
+        copyBtn.textContent = '✅ Copied!';
+        copyBtn.style.backgroundColor = '#4caf50';
+        
+        setTimeout(() => {
+          copyBtn.textContent = originalText;
+          copyBtn.style.backgroundColor = '';
+        }, 2000);
+      })
+      .catch((err) => {
+        // Fallback to execCommand
+        fallbackCopyToClipboard(textarea, copyBtn);
+      });
+  } else {
+    // Fallback for older browsers
+    fallbackCopyToClipboard(textarea, copyBtn);
+  }
+}
+
+function fallbackCopyToClipboard(textarea, copyBtn) {
+  try {
+    document.execCommand('copy');
+    
+    // Show success feedback
+    const originalText = copyBtn.textContent;
+    copyBtn.textContent = '✅ Copied!';
+    copyBtn.style.backgroundColor = '#4caf50';
+    
+    setTimeout(() => {
+      copyBtn.textContent = originalText;
+      copyBtn.style.backgroundColor = '';
+    }, 2000);
+  } catch (err) {
+    alert('Failed to copy to clipboard. Please copy the text manually.');
+  }
+}
+
+function setupExportImportListeners(root) {
+  // Export button
+  const exportBtn = root.querySelector('#exportCookingConfig');
+  if (exportBtn) {
+    exportBtn.addEventListener('click', exportCookingConfig);
+  }
+  
+  // Import button
+  const importBtn = root.querySelector('#importCookingConfig');
+  if (importBtn) {
+    importBtn.addEventListener('click', showImportModal);
+  }
+  
+  // Copy button in export modal
+  const copyBtn = document.getElementById('copyExportBtn');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', copyExportToClipboard);
+  }
+  
+  // Import button in import modal
+  const doImportBtn = document.getElementById('doImportBtn');
+  if (doImportBtn) {
+    doImportBtn.addEventListener('click', () => {
+      const textarea = document.getElementById('importTextarea');
+      if (textarea && textarea.value.trim()) {
+        importCookingConfig(textarea.value);
+      } else {
+        const errorDiv = document.getElementById('importError');
+        if (errorDiv) {
+          errorDiv.textContent = '❌ Please paste a configuration string';
+          errorDiv.style.display = 'block';
+        }
+      }
+    });
+  }
+  
+  // Close modal when clicking outside
+  const exportModal = document.getElementById('exportModal');
+  const importModal = document.getElementById('importModal');
+  
+  if (exportModal) {
+    exportModal.addEventListener('click', (e) => {
+      if (e.target === exportModal) {
+        closeCookingModal();
+      }
+    });
+  }
+  
+  if (importModal) {
+    importModal.addEventListener('click', (e) => {
+      if (e.target === importModal) {
+        closeCookingModal();
+      }
+    });
+  }
+  
+  // ESC key to close modals
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeCookingModal();
+    }
+  });
+}
+
 // Export for module use
 if (typeof window !== 'undefined') {
   window.initCookingCalculator = initCookingCalculator;
   window.toggleAccordion = toggleAccordion;
+  window.closeCookingModal = closeCookingModal;
 }
