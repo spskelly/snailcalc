@@ -11,6 +11,14 @@ let cookingState = {
   filters: {        // recipe filters
     clown: { meat: false, veggie: false, spice: false },
     miraculand: { meat: false, veggie: false, spice: false }
+  },
+  currentIngredients: {  // current ingredient inventory
+    clownMeat: 0,
+    clownVeggie: 0,
+    clownSpice: 0,
+    miracMeat: 0,
+    miracVeggie: 0,
+    miracSpice: 0
   }
 };
 
@@ -69,7 +77,13 @@ function buildVendorConfig(root) {
   const container = root.querySelector('#cooking-vendor-config');
   if (!container) return;
   
-  let html = '<div class="vendor-grid">';
+  let html = '<div class="recipe-section">';
+  html += '<div class="recipe-section-header" onclick="this.parentElement.classList.toggle(\'collapsed\')">';
+  html += '<span class="section-toggle">▼</span>';
+  html += '<h4 style="margin: 0; font-size: 1.1em;">Vendor Configuration Details</h4>';
+  html += '</div>';
+  html += '<div class="recipe-section-content">';
+  html += '<div class="vendor-grid">';
   
   // clown vendor
   html += `
@@ -107,7 +121,7 @@ function buildVendorConfig(root) {
     </div>
   `;
   
-  html += '</div>';
+  html += '</div>'; // end vendor-grid
   
   // supply orders per hour
   html += `
@@ -118,6 +132,9 @@ function buildVendorConfig(root) {
     </div>
   `;
   
+  html += '</div>'; // end recipe-section-content
+  html += '</div>'; // end recipe-section
+  
   container.innerHTML = html;
 }
 
@@ -127,7 +144,21 @@ function buildShopConfig(root) {
   
   const shop = cookingState.shop;
   
-  let html = '<div class="shop-grid">';
+  // Collapsible section wrapping the entire shop content
+  let html = '<div class="recipe-section">';
+  html += '<div class="recipe-section-header" onclick="this.parentElement.classList.toggle(\'collapsed\')">';
+  html += '<span class="section-toggle">▼</span>';
+  html += '<h4 style="margin: 0; font-size: 1.1em;">Shop Items & Daily ROI</h4>';
+  html += '</div>';
+  html += '<div class="recipe-section-content">';
+  
+  // Two-column layout: items on left, ROI on right
+  html += '<div class="shop-layout-container">';
+  
+  // Left column: shop items
+  html += '<div class="shop-items-card">';
+  html += '<h4 class="shop-card-title">🛒 Shop Items</h4>';
+  html += '<div class="shop-items-list">';
   
   // supply deals
   html += `
@@ -174,7 +205,20 @@ function buildShopConfig(root) {
     </div>
   `;
   
-  html += '</div>';
+  html += '</div>'; // end shop-items-list
+  html += '</div>'; // end shop-items-card
+  
+  // Right column: ROI summary
+  html += '<div class="shop-roi-card">';
+  html += '<h4 class="shop-card-title">💰 Daily Shop ROI</h4>';
+  html += '<div id="shop-roi-summary"></div>';
+  html += '</div>'; // end shop-roi-card
+  
+  html += '</div>'; // end shop-layout-container
+  
+  html += '</div>'; // end recipe-section-content
+  html += '</div>'; // end recipe-section
+  
   container.innerHTML = html;
 }
 
@@ -233,6 +277,45 @@ function buildRecipeManager(root) {
         </div>
         <div class="recipe-grid mirac-recipes">
           ${buildRecipeCards(miracRecipes, true)}
+        </div>
+      </div>
+    </div>
+  `;
+  
+  // Add optimal dish ranking section at the end of recipes
+  html += `
+    <div class="recipe-section collapsed">
+      <div class="recipe-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+        <span class="section-toggle">▼</span>
+        <h3>📊 Optimal Dish Ranking</h3>
+      </div>
+      <div class="recipe-section-content">
+        <!-- 75/25 Layout: Table on left, Strategy on right -->
+        <div class="optimal-ranking-layout">
+          <!-- Ranking Table (75%) -->
+          <div class="optimal-ranking-table">
+            <div class="ranking-table-container">
+              <table class="cost-table" id="cooking-ranking-table">
+                <thead>
+                  <tr>
+                    <th>Rank</th>
+                    <th>Dish</th>
+                    <th>g/Order</th>
+                    <th>g/Hour</th>
+                    <th>Limiting</th>
+                  </tr>
+                </thead>
+                <tbody id="cooking-ranking-body">
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          <!-- Strategy Summary (25%) -->
+          <div class="optimal-ranking-strategy">
+            <h4>🎯 Strategy Summary</h4>
+            <div id="strategy-summary"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -298,61 +381,303 @@ function buildRecipeCards(recipeIds, isMirac) {
   return html;
 }
 
+
+function updateCurrentIngredients(root) {
+  const container = root.querySelector('#cooking-ingredient-optimizer');
+  if (!container) return;
+  
+  cookingState.currentIngredients = {
+    clownMeat: parseInt(container.querySelector('#current-clown-meat')?.value) || 0,
+    clownVeggie: parseInt(container.querySelector('#current-clown-veggie')?.value) || 0,
+    clownSpice: parseInt(container.querySelector('#current-clown-spice')?.value) || 0,
+    miracMeat: parseInt(container.querySelector('#current-mirac-meat')?.value) || 0,
+    miracVeggie: parseInt(container.querySelector('#current-mirac-veggie')?.value) || 0,
+    miracSpice: parseInt(container.querySelector('#current-mirac-spice')?.value) || 0
+  };
+  
+  saveCookingToStorage();
+}
+
+function calculateIngredientOptimizer(root) {
+  const container = root.querySelector('#optimizer-results');
+  if (!container) return;
+  
+  const ing = cookingState.currentIngredients;
+  const totalIngredients = Object.values(ing).reduce((a, b) => a + b, 0);
+  
+  if (totalIngredients === 0) {
+    container.innerHTML = '<div class="optimizer-empty">Enter your current ingredients above to see recommendations</div>';
+    return;
+  }
+  
+  // Sequential optimization - keep finding best recipe until nothing can be made
+  const sequence = [];
+  let remaining = { ...ing };
+  let totalGoldFromRecipes = 0;
+  let stepNumber = 1;
+  
+  while (true) {
+    // Find recipes that can be made with remaining ingredients
+    const viableRecipes = [];
+    
+    for (const [id, state] of Object.entries(cookingState.recipes)) {
+      if (!state.enabled || !state.price) continue;
+      
+      const recipe = COOKING_RECIPES[id];
+      
+      // Check if we have enough ingredients
+      const canMake = 
+        remaining.clownMeat >= recipe.clownMeat &&
+        remaining.clownVeggie >= recipe.clownVeggie &&
+        remaining.clownSpice >= recipe.clownSpice &&
+        remaining.miracMeat >= recipe.miracMeat &&
+        remaining.miracVeggie >= recipe.miracVeggie &&
+        remaining.miracSpice >= recipe.miracSpice;
+      
+      if (canMake) {
+        // Calculate how many we can make
+        const maxCanMake = [];
+        if (recipe.clownMeat > 0) maxCanMake.push(Math.floor(remaining.clownMeat / recipe.clownMeat));
+        if (recipe.clownVeggie > 0) maxCanMake.push(Math.floor(remaining.clownVeggie / recipe.clownVeggie));
+        if (recipe.clownSpice > 0) maxCanMake.push(Math.floor(remaining.clownSpice / recipe.clownSpice));
+        if (recipe.miracMeat > 0) maxCanMake.push(Math.floor(remaining.miracMeat / recipe.miracMeat));
+        if (recipe.miracVeggie > 0) maxCanMake.push(Math.floor(remaining.miracVeggie / recipe.miracVeggie));
+        if (recipe.miracSpice > 0) maxCanMake.push(Math.floor(remaining.miracSpice / recipe.miracSpice));
+        
+        const quantity = Math.min(...maxCanMake);
+        const totalGold = quantity * state.price;
+        
+        // Calculate gold per ingredient used
+        const ingredientsUsed = 
+          (recipe.clownMeat + recipe.clownVeggie + recipe.clownSpice +
+           recipe.miracMeat + recipe.miracVeggie + recipe.miracSpice) * quantity;
+        const goldPerIngredient = ingredientsUsed > 0 ? totalGold / ingredientsUsed : 0;
+        
+        viableRecipes.push({
+          id,
+          name: recipe.name,
+          stars: state.stars,
+          price: state.price,
+          quantity,
+          totalGold,
+          ingredientsUsed,
+          goldPerIngredient,
+          recipe
+        });
+      }
+    }
+    
+    // No more recipes can be made - break the loop
+    if (viableRecipes.length === 0) break;
+    
+    // Sort by gold per ingredient (most efficient use)
+    viableRecipes.sort((a, b) => b.goldPerIngredient - a.goldPerIngredient);
+    
+    const best = viableRecipes[0];
+    
+    // Add to sequence
+    sequence.push({
+      step: stepNumber++,
+      name: best.name,
+      stars: best.stars,
+      quantity: best.quantity,
+      gold: best.totalGold,
+      efficiency: best.goldPerIngredient,
+      ingredientsUsed: best.ingredientsUsed
+    });
+    
+    totalGoldFromRecipes += best.totalGold;
+    
+    // Update remaining ingredients
+    remaining = {
+      clownMeat: remaining.clownMeat - (best.recipe.clownMeat * best.quantity),
+      clownVeggie: remaining.clownVeggie - (best.recipe.clownVeggie * best.quantity),
+      clownSpice: remaining.clownSpice - (best.recipe.clownSpice * best.quantity),
+      miracMeat: remaining.miracMeat - (best.recipe.miracMeat * best.quantity),
+      miracVeggie: remaining.miracVeggie - (best.recipe.miracVeggie * best.quantity),
+      miracSpice: remaining.miracSpice - (best.recipe.miracSpice * best.quantity)
+    };
+  }
+  
+  // Check if we have any recipes in sequence
+  if (sequence.length === 0) {
+    container.innerHTML = '<div class="optimizer-empty">⚠️ No enabled recipes can be made with your current ingredients.<br>Enable recipes and set their prices in the Recipes section above.</div>';
+    return;
+  }
+  
+  const remainingTotal = Object.values(remaining).reduce((a, b) => a + b, 0);
+  
+  // Calculate mega stew value for remaining ingredients
+  let stewValue = 0;
+  if (remainingTotal >= 100) {
+    stewValue = 
+      remaining.clownMeat * MEGA_STEW_VALUES.clownMeat +
+      remaining.clownVeggie * MEGA_STEW_VALUES.clownVeggie +
+      remaining.clownSpice * MEGA_STEW_VALUES.clownSpice +
+      remaining.miracMeat * MEGA_STEW_VALUES.miracMeat +
+      remaining.miracVeggie * MEGA_STEW_VALUES.miracVeggie +
+      remaining.miracSpice * MEGA_STEW_VALUES.miracSpice;
+  }
+  
+  // Build HTML output
+  let html = `
+    <div class="optimizer-recommendation">
+      <h4>🎯 Optimal Crafting Sequence</h4>
+      <p style="color: #666; margin: 0 0 15px 0; font-size: 0.95em;">
+        Make recipes in order for maximum gold efficiency:
+      </p>
+  `;
+  
+  // Display each step in the sequence
+  sequence.forEach((step, index) => {
+    const isFirst = index === 0;
+    html += `
+      <div class="best-recipe" style="margin-bottom: ${index < sequence.length - 1 ? '20px' : '15px'};">
+        <h5 style="margin: 0 0 8px 0; color: ${isFirst ? '#2e7d32' : '#4a4e69'}; font-size: 1.05em;">
+          ${isFirst ? '⭐ ' : ''}Step ${step.step}: ${step.name} ${'★'.repeat(step.stars)}
+        </h5>
+        <div class="recipe-stats">
+          <p style="margin: 4px 0;"><strong>Make:</strong> <span>${step.quantity}×</span></p>
+          <p style="margin: 4px 0;"><strong>Gold Earned:</strong> <span style="color: #2e7d32; font-weight: bold;">${step.gold.toLocaleString()}g</span></p>
+          <p style="margin: 4px 0;"><strong>Efficiency:</strong> <span>${step.efficiency.toFixed(2)} g/ingredient</span></p>
+        </div>
+      </div>
+    `;
+  });
+  
+  // Show remaining ingredients and Mega Stew
+  if (remainingTotal > 0) {
+    html += `
+      <div class="remaining-ingredients" style="margin-top: 20px;">
+        <h5>📦 Final Remaining Ingredients (${remainingTotal} total)</h5>
+        <div class="remaining-grid">
+          ${remaining.clownMeat > 0 ? `<p><strong>${remaining.clownMeat}</strong> Clown Meat</p>` : ''}
+          ${remaining.clownVeggie > 0 ? `<p><strong>${remaining.clownVeggie}</strong> Clown Veggie</p>` : ''}
+          ${remaining.clownSpice > 0 ? `<p><strong>${remaining.clownSpice}</strong> Clown Spice</p>` : ''}
+          ${remaining.miracMeat > 0 ? `<p><strong>${remaining.miracMeat}</strong> Mirac Meat</p>` : ''}
+          ${remaining.miracVeggie > 0 ? `<p><strong>${remaining.miracVeggie}</strong> Mirac Veggie</p>` : ''}
+          ${remaining.miracSpice > 0 ? `<p><strong>${remaining.miracSpice}</strong> Mirac Spice</p>` : ''}
+        </div>
+        ${remainingTotal >= 100 ? `
+          <div class="mega-stew-suggestion">
+            🍲 Make Mega Stew with remaining ingredients: <strong>${Math.round(stewValue).toLocaleString()}g</strong> expected value
+          </div>
+        ` : `
+          <p style="text-align: center; color: #999; font-style: italic; margin-top: 10px;">
+            Not enough for Mega Stew (needs 100 minimum)
+          </p>
+        `}
+      </div>
+    `;
+  } else {
+    html += '<div style="text-align: center; padding: 15px; color: #2e7d32; font-weight: bold;">✅ All ingredients used perfectly!</div>';
+  }
+  
+  // Total value summary
+  const totalValue = totalGoldFromRecipes + stewValue;
+  html += `
+    <div style="margin-top: 20px; padding: 15px; background: #e3f2fd; border-radius: 8px; text-align: center;">
+      <div style="font-size: 0.9em; color: #666; margin-bottom: 5px;">TOTAL EXPECTED VALUE</div>
+      <div style="font-size: 1.8em; font-weight: bold; color: #1565c0;">${Math.round(totalValue).toLocaleString()}g</div>
+      <div style="font-size: 0.85em; color: #666; margin-top: 5px;">
+        ${totalGoldFromRecipes.toLocaleString()}g from recipes${stewValue > 0 ? ` + ${Math.round(stewValue).toLocaleString()}g from Mega Stew` : ''}
+      </div>
+    </div>
+  `;
+  
+  html += '</div>';
+  
+  container.innerHTML = html;
+}
+
 function buildResultsDashboard(root) {
   const container = root.querySelector('#cooking-results');
   if (!container) return;
   
+  const ing = cookingState.currentIngredients;
+  
   let html = `
-    <div class="results-grid">
-      <div class="results-rankings">
-        <h3>📊 Optimal Dish Ranking</h3>
-        <div class="ranking-table-container">
-          <table class="cost-table" id="cooking-ranking-table">
-            <thead>
-              <tr>
-                <th>Rank</th>
-                <th>Dish</th>
-                <th>g/Order</th>
-                <th>g/Hour</th>
-                <th>Limiting</th>
-              </tr>
-            </thead>
-            <tbody id="cooking-ranking-body">
-            </tbody>
-          </table>
+    <div class="results-full-width">
+      <!-- Current Ingredients Calculators Section Header -->
+      <h3 style="margin: 20px 0 15px 0; padding-bottom: 10px; border-bottom: 2px solid #f2e9e4; color: #4a4e69;">🎒 Current Ingredients Calculators</h3>
+      
+      <!-- Current Inventory Collapseable Section -->
+      <div class="recipe-section" style="margin-bottom: 20px;">
+        <div class="recipe-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+          <span class="section-toggle">▼</span>
+          <h3>📦 Current Inventory</h3>
         </div>
-        
-        <div class="stew-calculator-section collapsed">
-          <div class="stew-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
-            <span class="section-toggle">▼</span>
-            <h4>🎲 Mega Stew Calculator</h4>
-          </div>
-          <div class="stew-section-content">
-            <div id="stew-calculator"></div>
+        <div class="recipe-section-content">
+          <div class="ingredient-input-grid" id="cooking-ingredient-optimizer">
+            <div class="ingredient-input-card clown">
+              <label>🥩 Clown Meat</label>
+              <input type="number" id="current-clown-meat" value="${ing.clownMeat}" min="0" max="9999" class="ingredient-input">
+            </div>
+            <div class="ingredient-input-card clown">
+              <label>🥬 Clown Veggie</label>
+              <input type="number" id="current-clown-veggie" value="${ing.clownVeggie}" min="0" max="9999" class="ingredient-input">
+            </div>
+            <div class="ingredient-input-card clown">
+              <label>🌶️ Clown Spice</label>
+              <input type="number" id="current-clown-spice" value="${ing.clownSpice}" min="0" max="9999" class="ingredient-input">
+            </div>
+            <div class="ingredient-input-card mirac">
+              <label>🥩 Mirac Meat</label>
+              <input type="number" id="current-mirac-meat" value="${ing.miracMeat}" min="0" max="9999" class="ingredient-input">
+            </div>
+            <div class="ingredient-input-card mirac">
+              <label>🥬 Mirac Veggie</label>
+              <input type="number" id="current-mirac-veggie" value="${ing.miracVeggie}" min="0" max="9999" class="ingredient-input">
+            </div>
+            <div class="ingredient-input-card mirac">
+              <label>🌶️ Mirac Spice</label>
+              <input type="number" id="current-mirac-spice" value="${ing.miracSpice}" min="0" max="9999" class="ingredient-input">
+            </div>
           </div>
         </div>
       </div>
       
-      <div class="results-sidebar">
-        <div class="results-card shop-roi-card">
-          <h4>💰 Daily Shop ROI</h4>
-          <div id="shop-roi-summary"></div>
+      <!-- Current Ingredients Optimizer -->
+      <div class="recipe-section" style="margin-bottom: 20px;">
+        <div class="recipe-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+          <span class="section-toggle">▼</span>
+          <h3>🎯 Current Ingredients Optimizer</h3>
         </div>
-        
-        <div class="results-card strategy-card">
-          <h4>🎯 Strategy Summary</h4>
-          <div id="strategy-summary"></div>
+        <div class="recipe-section-content">
+          <div id="optimizer-results"></div>
         </div>
-        
-        <div class="results-card stew-card">
-          <h4>🍲 Mega Stew Values</h4>
-          <div id="stew-values"></div>
+      </div>
+      
+      <!-- Mega Stew Calculator -->
+      <div class="recipe-section collapsed">
+        <div class="recipe-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+          <span class="section-toggle">▼</span>
+          <h3>🎲 Mega Stew Calculator</h3>
+        </div>
+        <div class="recipe-section-content">
+          <div id="stew-calculator"></div>
         </div>
       </div>
     </div>
   `;
   
   container.innerHTML = html;
+  
+  // Set up event listeners for shared ingredient inputs
+  ['clown-meat', 'clown-veggie', 'clown-spice', 'mirac-meat', 'mirac-veggie', 'mirac-spice'].forEach(id => {
+    const input = container.querySelector(`#current-${id}`);
+    if (input) {
+      input.addEventListener('input', () => {
+        updateCurrentIngredients(root);
+        calculateIngredientOptimizer(root);
+        // Also trigger stew calculator update
+        calculateStewRanges(root);
+      });
+    }
+  });
+  
+  // Initial calculation
+  calculateIngredientOptimizer(root);
 }
 
 // ============== EVENT LISTENERS ==============
@@ -402,6 +727,10 @@ function setupCookingEventListeners(root) {
     select.addEventListener('change', (e) => {
       const id = e.target.dataset.recipe;
       cookingState.recipes[id].stars = parseInt(e.target.value);
+      // Auto-enable checkbox when stars are changed
+      cookingState.recipes[id].enabled = true;
+      const checkbox = root.querySelector(`.recipe-enabled[data-recipe="${id}"]`);
+      if (checkbox) checkbox.checked = true;
       recalculateCooking();
       saveCookingToStorage();
     });
@@ -410,7 +739,16 @@ function setupCookingEventListeners(root) {
   root.querySelectorAll('.recipe-price').forEach(input => {
     input.addEventListener('change', (e) => {
       const id = e.target.dataset.recipe;
-      cookingState.recipes[id].price = parseInt(e.target.value) || 0;
+      const newPrice = parseInt(e.target.value) || 0;
+      if (newPrice > 0) {
+        cookingState.recipes[id].price = newPrice;
+        // Auto-enable checkbox when price is entered
+        cookingState.recipes[id].enabled = true;
+        const checkbox = root.querySelector(`.recipe-enabled[data-recipe="${id}"]`);
+        if (checkbox) checkbox.checked = true;
+      } else {
+        cookingState.recipes[id].price = 0;
+      }
       recalculateCooking();
       saveCookingToStorage();
     });
@@ -670,7 +1008,6 @@ function recalculateCooking() {
   updateRankingTable(root, results);
   updateShopROI(root);
   updateStrategySummary(root, results);
-  updateStewValues(root);
   updateStewCalculator(root);
 }
 
@@ -872,49 +1209,6 @@ function updateStrategySummary(root, results) {
   container.innerHTML = html;
 }
 
-function updateStewValues(root) {
-  const container = root.querySelector('#stew-values');
-  if (!container) return;
-  
-  container.innerHTML = `
-    <div style="margin-bottom: 15px;">
-      <h5 style="margin: 0 0 10px 0; color: #1565c0; font-size: 0.95em;">🤡 Clown Vendor</h5>
-      <div class="stew-grid">
-        <div class="stew-item">
-          <span class="stew-label">Meat</span>
-          <span class="stew-value">${MEGA_STEW_VALUES.clownMeat.toFixed(2)} g</span>
-        </div>
-        <div class="stew-item">
-          <span class="stew-label">Veggie</span>
-          <span class="stew-value">${MEGA_STEW_VALUES.clownVeggie.toFixed(2)} g</span>
-        </div>
-        <div class="stew-item">
-          <span class="stew-label">Spice</span>
-          <span class="stew-value">${MEGA_STEW_VALUES.clownSpice.toFixed(2)} g</span>
-        </div>
-      </div>
-    </div>
-    
-    <div>
-      <h5 style="margin: 0 0 10px 0; color: #7b1fa2; font-size: 0.95em;">🎪 Miraculand Vendor</h5>
-      <div class="stew-grid">
-        <div class="stew-item">
-          <span class="stew-label">Meat</span>
-          <span class="stew-value">${MEGA_STEW_VALUES.miracMeat.toFixed(2)} g</span>
-        </div>
-        <div class="stew-item">
-          <span class="stew-label">Veggie</span>
-          <span class="stew-value">${MEGA_STEW_VALUES.miracVeggie.toFixed(2)} g</span>
-        </div>
-        <div class="stew-item">
-          <span class="stew-label">Spice</span>
-          <span class="stew-value">${MEGA_STEW_VALUES.miracSpice.toFixed(2)} g</span>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
 // Mega Stew Simulator State
 let stewSimulationResults = [];
 let stewChart = null;
@@ -936,58 +1230,51 @@ function updateStewCalculator(root) {
   container.innerHTML = `
     <div class="stew-simulator">
       <div class="info-blurb" style="margin-bottom: 15px; font-size: 0.95em;">
-        Enter ingredient quantities to simulate mega stew outcomes. Requires at least 100 ingredients.
+        Uses the ingredient quantities entered above. Requires at least 100 ingredients total.
       </div>
       
-      <!-- Ingredient Input Grid -->
-      <div class="ingredient-grid">
-        <div class="ingredient-card clown">
-          <h4>🥩 Clown Meat</h4>
-          <div class="vendor-label">Clown Vendor</div>
-          <input type="number" id="sim-clown-meat" value="0" min="0" max="9999" class="stew-sim-input">
-          <div class="ingredient-stats">
-            <div class="range">10 - 48 gold/ea</div>
-            <div>Expected: 29.00</div>
+      <!-- Ingredient Value Reference -->
+      <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e0e0e0;">
+        <h5 style="margin: 0 0 10px 0; color: #4a4e69; text-align: center;">Mega Stew Value Ranges (per ingredient)</h5>
+        <div class="ingredient-grid">
+          <div class="ingredient-card clown" style="padding: 10px;">
+            <div style="font-weight: bold; margin-bottom: 4px;">🥩 Clown Meat</div>
+            <div class="ingredient-stats">
+              <div class="range" style="font-size: 0.9em;">10 - 48 gold</div>
+              <div style="font-size: 0.85em;">Expected: 29.00</div>
+            </div>
           </div>
-        </div>
-        
-        <div class="ingredient-card clown">
-          <h4>🥬 Clown Veggie</h4>
-          <div class="vendor-label">Clown Vendor</div>
-          <input type="number" id="sim-clown-veggie" value="0" min="0" max="9999" class="stew-sim-input">
-          <div class="ingredient-stats">
-            <div class="range">29 - 144 gold/ea</div>
-            <div>Expected: 86.50</div>
+          
+          <div class="ingredient-card clown" style="padding: 10px;">
+            <div style="font-weight: bold; margin-bottom: 4px;">🥬 Clown Veggie</div>
+            <div class="ingredient-stats">
+              <div class="range" style="font-size: 0.9em;">29 - 144 gold</div>
+              <div style="font-size: 0.85em;">Expected: 86.50</div>
+            </div>
           </div>
-        </div>
-        
-        <div class="ingredient-card clown">
-          <h4>🌶️ Clown Spice</h4>
-          <div class="vendor-label">Clown Vendor</div>
-          <input type="number" id="sim-clown-spice" value="0" min="0" max="9999" class="stew-sim-input">
-          <div class="ingredient-stats">
-            <div class="range">72 - 240 gold/ea</div>
-            <div>Expected: 156.00</div>
+          
+          <div class="ingredient-card clown" style="padding: 10px;">
+            <div style="font-weight: bold; margin-bottom: 4px;">🌶️ Clown Spice</div>
+            <div class="ingredient-stats">
+              <div class="range" style="font-size: 0.9em;">72 - 240 gold</div>
+              <div style="font-size: 0.85em;">Expected: 156.00</div>
+            </div>
           </div>
-        </div>
-        
-        <div class="ingredient-card mirac">
-          <h4>🥩 Mirac Meat</h4>
-          <div class="vendor-label">Miraculand Vendor</div>
-          <input type="number" id="sim-mirac-meat" value="0" min="0" max="9999" class="stew-sim-input">
-          <div class="ingredient-stats">
-            <div class="range">12 - 60 gold/ea</div>
-            <div>Expected: 36.00</div>
+          
+          <div class="ingredient-card mirac" style="padding: 10px;">
+            <div style="font-weight: bold; margin-bottom: 4px;">🥩 Mirac Meat</div>
+            <div class="ingredient-stats">
+              <div class="range" style="font-size: 0.9em;">12 - 60 gold</div>
+              <div style="font-size: 0.85em;">Expected: 36.00</div>
+            </div>
           </div>
-        </div>
-        
-        <div class="ingredient-card mirac">
-          <h4>🥬 Mirac Veggie</h4>
-          <div class="vendor-label">Miraculand Vendor</div>
-          <input type="number" id="sim-mirac-veggie" value="0" min="0" max="9999" class="stew-sim-input">
-          <div class="ingredient-stats">
-            <div class="range">36 - 180 gold/ea</div>
-            <div>Expected: 108.00</div>
+          
+          <div class="ingredient-card mirac" style="padding: 10px;">
+            <div style="font-weight: bold; margin-bottom: 4px;">🥬 Mirac Veggie</div>
+            <div class="ingredient-stats">
+              <div class="range" style="font-size: 0.9em;">36 - 180 gold</div>
+              <div style="font-size: 0.85em;">Expected: 108.00</div>
+            </div>
           </div>
         </div>
       </div>
@@ -1063,15 +1350,6 @@ function updateStewCalculator(root) {
     </div>
   `;
   
-  // Set up event listeners for inputs
-  const inputs = ['sim-clown-meat', 'sim-clown-veggie', 'sim-clown-spice', 'sim-mirac-meat','sim-mirac-veggie'];
-  inputs.forEach(id => {
-    const input = container.querySelector(`#${id}`);
-    if (input) {
-      input.addEventListener('input', () => calculateStewRanges(root));
-    }
-  });
-  
   // Simulate button
   const simBtn = container.querySelector('#stew-simulate-btn');
   if (simBtn) {
@@ -1083,16 +1361,20 @@ function updateStewCalculator(root) {
 }
 
 function calculateStewRanges(root) {
-  const container = root.querySelector('#stew-calculator');
-  if (!container) return;
+  // Read from the shared ingredient inputs
+  const ingredientContainer = root.querySelector('#cooking-ingredient-optimizer');
+  if (!ingredientContainer) return;
   
   const quantities = {
-    clownMeat: parseInt(container.querySelector('#sim-clown-meat')?.value) || 0,
-    clownVeggie: parseInt(container.querySelector('#sim-clown-veggie')?.value) || 0,
-    clownSpice: parseInt(container.querySelector('#sim-clown-spice')?.value) || 0,
-    miracMeat: parseInt(container.querySelector('#sim-mirac-meat')?.value) || 0,
-    miracVeggie: parseInt(container.querySelector('#sim-mirac-veggie')?.value) || 0
+    clownMeat: parseInt(ingredientContainer.querySelector('#current-clown-meat')?.value) || 0,
+    clownVeggie: parseInt(ingredientContainer.querySelector('#current-clown-veggie')?.value) || 0,
+    clownSpice: parseInt(ingredientContainer.querySelector('#current-clown-spice')?.value) || 0,
+    miracMeat: parseInt(ingredientContainer.querySelector('#current-mirac-meat')?.value) || 0,
+    miracVeggie: parseInt(ingredientContainer.querySelector('#current-mirac-veggie')?.value) || 0
   };
+  
+  const container = root.querySelector('#stew-calculator');
+  if (!container) return;
   
   const totalQty = Object.values(quantities).reduce((a, b) => a + b, 0);
   
