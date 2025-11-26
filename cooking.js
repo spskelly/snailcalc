@@ -77,8 +77,10 @@ function buildVendorConfig(root) {
   const container = root.querySelector('#cooking-vendor-config');
   if (!container) return;
   
-  let html = '<div class="recipe-section">';
-  html += '<div class="recipe-section-header" onclick="this.parentElement.classList.toggle(\'collapsed\')">';
+  const isCollapsed = getAccordionState('vendor-config') ? '' : ' collapsed';
+  
+  let html = `<div class="recipe-section${isCollapsed}" data-accordion-id="vendor-config">`;
+  html += '<div class="recipe-section-header" onclick="toggleAccordion(this)">';
   html += '<span class="section-toggle">▼</span>';
   html += '<h4 style="margin: 0; font-size: 1.1em;">Vendor Configuration Details</h4>';
   html += '</div>';
@@ -144,9 +146,11 @@ function buildShopConfig(root) {
   
   const shop = cookingState.shop;
   
+  const isCollapsed = getAccordionState('shop-config') ? '' : ' collapsed';
+  
   // Collapsible section wrapping the entire shop content
-  let html = '<div class="recipe-section">';
-  html += '<div class="recipe-section-header" onclick="this.parentElement.classList.toggle(\'collapsed\')">';
+  let html = `<div class="recipe-section${isCollapsed}" data-accordion-id="shop-config">`;
+  html += '<div class="recipe-section-header" onclick="toggleAccordion(this)">';
   html += '<span class="section-toggle">▼</span>';
   html += '<h4 style="margin: 0; font-size: 1.1em;">Shop Items & Daily ROI</h4>';
   html += '</div>';
@@ -168,7 +172,7 @@ function buildShopConfig(root) {
         <strong>Supply Deals</strong>
       </label>
       <div class="shop-details">
-        <label>Qty: <input type="number" id="shop-supply-qty" value="${shop.supplyDeals.quantity}" min="0" max="99" class="tiny-input"></label>
+        <label>Qty: <input type="number" id="shop-supply-qty" value="${shop.supplyDeals.quantity}" min="0" max="99" step="1" class="tiny-input"></label>
         <label>@ <span class="fixed-price">100g</span> each</label>
       </div>
       <div class="shop-result" id="shop-supply-result"></div>
@@ -183,7 +187,7 @@ function buildShopConfig(root) {
         <strong>Buy Veggies</strong>
       </label>
       <div class="shop-details">
-        <label>Qty: <input type="number" id="shop-veggie-qty" value="${shop.veggiePurchase.quantity}" min="0" max="99" class="tiny-input"></label>
+        <label>Qty: <input type="number" id="shop-veggie-qty" value="${shop.veggiePurchase.quantity}" min="0" max="99" step="1" class="tiny-input"></label>
         <label>@ <span class="fixed-price">220g</span> each</label>
       </div>
       <div class="shop-result" id="shop-veggie-result"></div>
@@ -198,7 +202,7 @@ function buildShopConfig(root) {
         <strong>Buy Spice</strong>
       </label>
       <div class="shop-details">
-        <label>Qty: <input type="number" id="shop-spice-qty" value="${shop.spicePurchase.quantity}" min="0" max="99" class="tiny-input"></label>
+        <label>Qty: <input type="number" id="shop-spice-qty" value="${shop.spicePurchase.quantity}" min="0" max="99" step="1" class="tiny-input"></label>
         <label>@ <span class="fixed-price">360g</span> each</label>
       </div>
       <div class="shop-result" id="shop-spice-result"></div>
@@ -242,10 +246,14 @@ function buildRecipeManager(root) {
   
   let html = '<div class="recipe-sections">';
   
+  const clownCollapsed = getAccordionState('clown-recipes') ? '' : ' collapsed';
+  const miracCollapsed = getAccordionState('mirac-recipes') ? '' : ' collapsed';
+  const rankingCollapsed = getAccordionState('optimal-ranking') ? '' : ' collapsed';
+  
   // Clown recipes section
   html += `
-    <div class="recipe-section collapsed">
-      <div class="recipe-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+    <div class="recipe-section${clownCollapsed}" data-accordion-id="clown-recipes">
+      <div class="recipe-section-header" onclick="toggleAccordion(this)">
         <span class="section-toggle">▼</span>
         <h3>🤡 Clown Vendor Recipes (${clownRecipes.length})</h3>
       </div>
@@ -264,8 +272,8 @@ function buildRecipeManager(root) {
   
   // Miraculand recipes section
   html += `
-    <div class="recipe-section collapsed">
-      <div class="recipe-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+    <div class="recipe-section${miracCollapsed}" data-accordion-id="mirac-recipes">
+      <div class="recipe-section-header" onclick="toggleAccordion(this)">
         <span class="section-toggle">▼</span>
         <h3>🎪 Miraculand Vendor Recipes (${miracRecipes.length})</h3>
       </div>
@@ -284,8 +292,8 @@ function buildRecipeManager(root) {
   
   // Add optimal dish ranking section at the end of recipes
   html += `
-    <div class="recipe-section collapsed">
-      <div class="recipe-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+    <div class="recipe-section${rankingCollapsed}" data-accordion-id="optimal-ranking">
+      <div class="recipe-section-header" onclick="toggleAccordion(this)">
         <span class="section-toggle">▼</span>
         <h3>📊 Optimal Dish Ranking</h3>
       </div>
@@ -447,7 +455,18 @@ function calculateIngredientOptimizer(root) {
         const quantity = Math.min(...maxCanMake);
         const totalGold = quantity * state.price;
         
-        // Calculate gold per ingredient used
+        // Calculate opportunity cost based on Mega Stew values
+        const opportunityCost = 
+          (recipe.clownMeat * MEGA_STEW_VALUES.clownMeat) +
+          (recipe.clownVeggie * MEGA_STEW_VALUES.clownVeggie) +
+          (recipe.clownSpice * MEGA_STEW_VALUES.clownSpice) +
+          (recipe.miracMeat * MEGA_STEW_VALUES.miracMeat) +
+          (recipe.miracVeggie * MEGA_STEW_VALUES.miracVeggie) +
+          (recipe.miracSpice * MEGA_STEW_VALUES.miracSpice);
+        
+        const profit = totalGold - (opportunityCost * quantity);
+        
+        // Calculate ingredients used for display purposes
         const ingredientsUsed = 
           (recipe.clownMeat + recipe.clownVeggie + recipe.clownSpice +
            recipe.miracMeat + recipe.miracVeggie + recipe.miracSpice) * quantity;
@@ -460,6 +479,8 @@ function calculateIngredientOptimizer(root) {
           price: state.price,
           quantity,
           totalGold,
+          opportunityCost: opportunityCost * quantity,
+          profit,
           ingredientsUsed,
           goldPerIngredient,
           recipe
@@ -470,8 +491,8 @@ function calculateIngredientOptimizer(root) {
     // No more recipes can be made - break the loop
     if (viableRecipes.length === 0) break;
     
-    // Sort by gold per ingredient (most efficient use)
-    viableRecipes.sort((a, b) => b.goldPerIngredient - a.goldPerIngredient);
+    // Sort by profit (accounting for opportunity cost)
+    viableRecipes.sort((a, b) => b.profit - a.profit);
     
     const best = viableRecipes[0];
     
@@ -596,14 +617,18 @@ function buildResultsDashboard(root) {
   
   const ing = cookingState.currentIngredients;
   
+  const currentInventoryCollapsed = getAccordionState('current-inventory') ? '' : ' collapsed';
+  const optimizerCollapsed = getAccordionState('current-optimizer') ? '' : ' collapsed';
+  const stewCollapsed = getAccordionState('mega-stew') ? '' : ' collapsed';
+  
   let html = `
     <div class="results-full-width">
       <!-- Current Ingredients Calculators Section Header -->
       <h3 style="margin: 20px 0 15px 0; padding-bottom: 10px; border-bottom: 2px solid #f2e9e4; color: #4a4e69;">🎒 Current Ingredients Calculators</h3>
       
       <!-- Current Inventory Collapseable Section -->
-      <div class="recipe-section" style="margin-bottom: 20px;">
-        <div class="recipe-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+      <div class="recipe-section${currentInventoryCollapsed}" data-accordion-id="current-inventory" style="margin-bottom: 20px;">
+        <div class="recipe-section-header" onclick="toggleAccordion(this)">
           <span class="section-toggle">▼</span>
           <h3>📦 Current Inventory</h3>
         </div>
@@ -638,8 +663,8 @@ function buildResultsDashboard(root) {
       </div>
       
       <!-- Current Ingredients Optimizer -->
-      <div class="recipe-section" style="margin-bottom: 20px;">
-        <div class="recipe-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+      <div class="recipe-section${optimizerCollapsed}" data-accordion-id="current-optimizer" style="margin-bottom: 20px;">
+        <div class="recipe-section-header" onclick="toggleAccordion(this)">
           <span class="section-toggle">▼</span>
           <h3>🎯 Current Ingredients Optimizer</h3>
         </div>
@@ -649,8 +674,8 @@ function buildResultsDashboard(root) {
       </div>
       
       <!-- Mega Stew Calculator -->
-      <div class="recipe-section collapsed">
-        <div class="recipe-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+      <div class="recipe-section${stewCollapsed}" data-accordion-id="mega-stew">
+        <div class="recipe-section-header" onclick="toggleAccordion(this)">
           <span class="section-toggle">▼</span>
           <h3>🎲 Mega Stew Calculator</h3>
         </div>
@@ -880,21 +905,17 @@ function updateVendorState(root) {
 }
 
 function updateShopState(root) {
-  // supply deals - fixed price of 100g
+  // supply deals
   cookingState.shop.supplyDeals.enabled = root.querySelector('#shop-supply-enabled')?.checked ?? true;
   cookingState.shop.supplyDeals.quantity = parseInt(root.querySelector('#shop-supply-qty')?.value) || 0;
-  cookingState.shop.supplyDeals.cost = 100;
-  cookingState.shop.supplyDeals.supplyOrdersEach = 20;
   
-  // veggie purchase - fixed price of 220g
+  // veggie purchase
   cookingState.shop.veggiePurchase.enabled = root.querySelector('#shop-veggie-enabled')?.checked ?? true;
   cookingState.shop.veggiePurchase.quantity = parseInt(root.querySelector('#shop-veggie-qty')?.value) || 0;
-  cookingState.shop.veggiePurchase.cost = 220;
   
-  // spice purchase - fixed price of 360g
+  // spice purchase
   cookingState.shop.spicePurchase.enabled = root.querySelector('#shop-spice-enabled')?.checked ?? false;
   cookingState.shop.spicePurchase.quantity = parseInt(root.querySelector('#shop-spice-qty')?.value) || 0;
-  cookingState.shop.spicePurchase.cost = 360;
   
   saveCookingToStorage();
 }
@@ -960,21 +981,40 @@ function recalculateCooking() {
     // skip if impossible to make
     if (totalOrders === Infinity || totalOrders === 0) continue;
     
-    // calculate expected drops and byproducts for clown vendor
+    // calculate byproducts only for vendors that the recipe actually uses
     let byproductValue = 0;
-    if (usesClown && !usesMirac) {
+    
+    // 1. Calculate Clown Byproducts (only if recipe uses Clown ingredients)
+    if (usesClown && (clown.meatEnabled || clown.veggieEnabled || clown.spiceEnabled)) {
       const expectedMeat = totalOrders * clown.meatRate;
       const expectedVeggie = totalOrders * clown.veggieRate;
       const expectedSpice = totalOrders * clown.spiceRate;
       
+      // Subtract what the recipe consumes (defaults to 0 if ingredient not used)
       const excessMeat = Math.max(0, expectedMeat - recipe.clownMeat);
       const excessVeggie = Math.max(0, expectedVeggie - recipe.clownVeggie);
       const excessSpice = Math.max(0, expectedSpice - recipe.clownSpice);
       
-      byproductValue = 
+      byproductValue += 
         excessMeat * MEGA_STEW_VALUES.clownMeat +
         excessVeggie * MEGA_STEW_VALUES.clownVeggie +
         excessSpice * MEGA_STEW_VALUES.clownSpice;
+    }
+    
+    // 2. Calculate Miraculand Byproducts (only if recipe uses Mirac ingredients)
+    if (usesMirac && (mirac.meatEnabled || mirac.veggieEnabled || mirac.spiceEnabled)) {
+      const expectedMiracMeat = totalOrders * mirac.meatRate;
+      const expectedMiracVeggie = totalOrders * mirac.veggieRate;
+      const expectedMiracSpice = totalOrders * mirac.spiceRate;
+      
+      const excessMiracMeat = Math.max(0, expectedMiracMeat - recipe.miracMeat);
+      const excessMiracVeggie = Math.max(0, expectedMiracVeggie - recipe.miracVeggie);
+      const excessMiracSpice = Math.max(0, expectedMiracSpice - recipe.miracSpice);
+      
+      byproductValue += 
+        excessMiracMeat * MEGA_STEW_VALUES.miracMeat +
+        excessMiracVeggie * MEGA_STEW_VALUES.miracVeggie +
+        excessMiracSpice * MEGA_STEW_VALUES.miracSpice;
     }
     
     // calculate efficiency metrics
@@ -1592,6 +1632,42 @@ function checkStewPercentile(root) {
   }
 }
 
+// ============== ACCORDION STATE MANAGEMENT ==============
+
+function getAccordionState(accordionId) {
+  try {
+    const saved = localStorage.getItem(`accordion-${accordionId}`);
+    if (saved === null) {
+      // Default states: vendor-config and current-inventory are open by default
+      return accordionId === 'vendor-config' || accordionId === 'current-inventory';
+    }
+    return saved === 'true';
+  } catch (e) {
+    return accordionId === 'vendor-config' || accordionId === 'current-inventory';
+  }
+}
+
+function saveAccordionState(accordionId, isOpen) {
+  try {
+    localStorage.setItem(`accordion-${accordionId}`, isOpen.toString());
+  } catch (e) {
+    console.warn('Could not save accordion state:', e);
+  }
+}
+
+function toggleAccordion(headerElement) {
+  const section = headerElement.parentElement;
+  const accordionId = section.dataset.accordionId;
+  
+  section.classList.toggle('collapsed');
+  
+  // Save the new state (collapsed = false means open)
+  const isOpen = !section.classList.contains('collapsed');
+  if (accordionId) {
+    saveAccordionState(accordionId, isOpen);
+  }
+}
+
 // ============== STORAGE ==============
 
 function saveCookingToStorage() {
@@ -1697,4 +1773,5 @@ function loadCookingPreset(num, root) {
 // Export for module use
 if (typeof window !== 'undefined') {
   window.initCookingCalculator = initCookingCalculator;
+  window.toggleAccordion = toggleAccordion;
 }
