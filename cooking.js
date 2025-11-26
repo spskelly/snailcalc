@@ -523,9 +523,99 @@ function calculateIngredientOptimizer(root) {
     };
   }
   
-  // Check if we have any recipes in sequence
+  // If no recipes in sequence, check if we can at least make stew
   if (sequence.length === 0) {
-    container.innerHTML = '<div class="optimizer-empty">⚠️ No enabled recipes can be made with your current ingredients.<br>Enable recipes and set their prices in the Recipes section above.</div>';
+    const remainingTotal = Object.values(remaining).reduce((a, b) => a + b, 0);
+    
+    if (remainingTotal < 100) {
+      container.innerHTML = '<div class="optimizer-empty">⚠️ No enabled recipes can be made with your current ingredients.<br>Enable recipes and set their prices in the Recipes section above.</div>';
+      return;
+    }
+    
+    // We have enough for stew - show stew-only output
+    let stewValue = 
+      remaining.clownMeat * MEGA_STEW_VALUES.clownMeat +
+      remaining.clownVeggie * MEGA_STEW_VALUES.clownVeggie +
+      remaining.clownSpice * MEGA_STEW_VALUES.clownSpice +
+      remaining.miracMeat * MEGA_STEW_VALUES.miracMeat +
+      remaining.miracVeggie * MEGA_STEW_VALUES.miracVeggie +
+      remaining.miracSpice * MEGA_STEW_VALUES.miracSpice;
+    
+    let stewWarning = null;
+    const totalVeggies = remaining.clownVeggie + remaining.miracVeggie;
+    const totalMeat = remaining.clownMeat + remaining.miracMeat;
+    
+    const veggieWarningThreshold = 30;
+    const meatWarningThreshold = 40;
+    
+    if (totalVeggies >= veggieWarningThreshold || totalMeat >= meatWarningThreshold) {
+      const wastedVeggieValue = totalVeggies * MEGA_STEW_VALUES.clownVeggie;
+      const wastedMeatValue = totalMeat * MEGA_STEW_VALUES.clownMeat;
+      
+      const warnings = [];
+      if (totalVeggies >= veggieWarningThreshold) {
+        warnings.push(`${totalVeggies} veggies (${Math.round(wastedVeggieValue).toLocaleString()}g in stew)`);
+      }
+      if (totalMeat >= meatWarningThreshold) {
+        warnings.push(`${totalMeat} meat (${Math.round(wastedMeatValue).toLocaleString()}g in stew)`);
+      }
+      
+      stewWarning = {
+        message: warnings.join(' and '),
+        veggies: totalVeggies,
+        meat: totalMeat
+      };
+    }
+    
+    let html = `
+      <div class="optimizer-recommendation">
+        <h4>🎯 Current Ingredients Analysis</h4>
+        <p style="color: #666; margin: 0 0 15px 0; font-size: 0.95em;">
+          No recipes enabled or ingredients insufficient for enabled recipes.
+        </p>
+        <div class="remaining-ingredients" style="margin-top: 20px;">
+          <h5>📦 Your Ingredients (${remainingTotal} total)</h5>
+          <div class="remaining-grid">
+            ${remaining.clownMeat > 0 ? `<p><strong>${remaining.clownMeat}</strong> Clown Meat</p>` : ''}
+            ${remaining.clownVeggie > 0 ? `<p><strong>${remaining.clownVeggie}</strong> Clown Veggie</p>` : ''}
+            ${remaining.clownSpice > 0 ? `<p><strong>${remaining.clownSpice}</strong> Clown Spice</p>` : ''}
+            ${remaining.miracMeat > 0 ? `<p><strong>${remaining.miracMeat}</strong> Mirac Meat</p>` : ''}
+            ${remaining.miracVeggie > 0 ? `<p><strong>${remaining.miracVeggie}</strong> Mirac Veggie</p>` : ''}
+            ${remaining.miracSpice > 0 ? `<p><strong>${remaining.miracSpice}</strong> Mirac Spice</p>` : ''}
+          </div>
+          ${stewWarning ? `
+            <div style="background: #fff3cd; border: 2px solid #ffc107; border-radius: 8px; padding: 15px; margin: 15px 0;">
+              <div style="display: flex; align-items: start; gap: 10px;">
+                <div style="font-size: 1.5em;">⚠️</div>
+                <div style="flex: 1;">
+                  <div style="font-weight: bold; color: #856404; margin-bottom: 8px;">Warning: Wasting Valuable Ingredients</div>
+                  <div style="color: #856404; margin-bottom: 8px;">
+                    Making Mega Stew will use ${stewWarning.message}
+                  </div>
+                  <div style="color: #856404; font-size: 0.9em; line-height: 1.4;">
+                    ${stewWarning.veggies >= 30 ? `<div>• <strong>Veggies</strong> are high-value ingredients that work much better in recipes paired with meat</div>` : ''}
+                    ${stewWarning.meat >= 40 ? `<div>• <strong>Meat</strong> is better used in recipes than stew</div>` : ''}
+                    <div style="margin-top: 8px; font-style: italic;">💡 Consider waiting to gather ${stewWarning.veggies >= 30 && stewWarning.meat < 20 ? 'meat' : stewWarning.meat >= 40 && stewWarning.veggies < 20 ? 'veggies' : 'balanced ingredients'} for making recipes instead</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ` : ''}
+          <div class="mega-stew-suggestion">
+            🍲 Make Mega Stew with these ingredients: <strong>${Math.round(stewValue).toLocaleString()}g</strong> expected value
+          </div>
+        </div>
+        <div style="margin-top: 20px; padding: 15px; background: #e3f2fd; border-radius: 8px; text-align: center;">
+          <div style="font-size: 0.9em; color: #666; margin-bottom: 5px;">TOTAL EXPECTED VALUE</div>
+          <div style="font-size: 1.8em; font-weight: bold; color: #1565c0;">${Math.round(stewValue).toLocaleString()}g</div>
+          <div style="font-size: 0.85em; color: #666; margin-top: 5px;">
+            ${Math.round(stewValue).toLocaleString()}g from Mega Stew
+          </div>
+        </div>
+      </div>
+    `;
+    
+    container.innerHTML = html;
     return;
   }
   
@@ -533,6 +623,8 @@ function calculateIngredientOptimizer(root) {
   
   // Calculate mega stew value for remaining ingredients
   let stewValue = 0;
+  let stewWarning = null;
+  
   if (remainingTotal >= 100) {
     stewValue = 
       remaining.clownMeat * MEGA_STEW_VALUES.clownMeat +
@@ -541,6 +633,45 @@ function calculateIngredientOptimizer(root) {
       remaining.miracMeat * MEGA_STEW_VALUES.miracMeat +
       remaining.miracVeggie * MEGA_STEW_VALUES.miracVeggie +
       remaining.miracSpice * MEGA_STEW_VALUES.miracSpice;
+    
+    // Check if we're wasting valuable veggies or meat in stew
+    const totalVeggies = remaining.clownVeggie + remaining.miracVeggie;
+    const totalMeat = remaining.clownMeat + remaining.miracMeat;
+    const totalSpice = remaining.clownSpice + remaining.miracSpice;
+    
+    // Calculate percentage of non-spice ingredients
+    const nonSpiceTotal = totalVeggies + totalMeat;
+    const veggiePercent = nonSpiceTotal > 0 ? (totalVeggies / nonSpiceTotal) * 100 : 0;
+    const meatPercent = nonSpiceTotal > 0 ? (totalMeat / nonSpiceTotal) * 100 : 0;
+    
+    // Warn if we're using significant veggies or meat (which are better in recipes)
+    const veggieWarningThreshold = 30; // 30+ veggies is significant waste
+    const meatWarningThreshold = 40; // 40+ meat is significant waste
+    
+    if (totalVeggies >= veggieWarningThreshold || totalMeat >= meatWarningThreshold) {
+      const wastedVeggieValue = totalVeggies * MEGA_STEW_VALUES.clownVeggie; // Use clown value as average
+      const wastedMeatValue = totalMeat * MEGA_STEW_VALUES.clownMeat;
+      
+      let warningMsg = '';
+      const warnings = [];
+      
+      if (totalVeggies >= veggieWarningThreshold) {
+        warnings.push(`${totalVeggies} veggies (${Math.round(wastedVeggieValue).toLocaleString()}g in stew)`);
+      }
+      if (totalMeat >= meatWarningThreshold) {
+        warnings.push(`${totalMeat} meat (${Math.round(wastedMeatValue).toLocaleString()}g in stew)`);
+      }
+      
+      warningMsg = warnings.join(' and ');
+      
+      stewWarning = {
+        message: warningMsg,
+        veggies: totalVeggies,
+        meat: totalMeat,
+        veggiePercent,
+        meatPercent
+      };
+    }
   }
   
   // Build HTML output
@@ -583,6 +714,24 @@ function calculateIngredientOptimizer(root) {
           ${remaining.miracSpice > 0 ? `<p><strong>${remaining.miracSpice}</strong> Mirac Spice</p>` : ''}
         </div>
         ${remainingTotal >= 100 ? `
+          ${stewWarning ? `
+            <div style="background: #fff3cd; border: 2px solid #ffc107; border-radius: 8px; padding: 15px; margin: 15px 0;">
+              <div style="display: flex; align-items: start; gap: 10px;">
+                <div style="font-size: 1.5em;">⚠️</div>
+                <div style="flex: 1;">
+                  <div style="font-weight: bold; color: #856404; margin-bottom: 8px;">Warning: Wasting Valuable Ingredients</div>
+                  <div style="color: #856404; margin-bottom: 8px;">
+                    Making Mega Stew will use ${stewWarning.message}
+                  </div>
+                  <div style="color: #856404; font-size: 0.9em; line-height: 1.4;">
+                    ${stewWarning.veggies >= 30 ? `<div>• <strong>Veggies</strong> are high-value ingredients that work much better in recipes paired with meat</div>` : ''}
+                    ${stewWarning.meat >= 40 ? `<div>• <strong>Meat</strong> is better used in recipes than stew</div>` : ''}
+                    <div style="margin-top: 8px; font-style: italic;">💡 Consider waiting to gather ${stewWarning.veggies >= 30 && stewWarning.meat < 20 ? 'meat' : stewWarning.meat >= 40 && stewWarning.veggies < 20 ? 'veggies' : 'balanced ingredients'} for making recipes instead</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ` : ''}
           <div class="mega-stew-suggestion">
             🍲 Make Mega Stew with remaining ingredients: <strong>${Math.round(stewValue).toLocaleString()}g</strong> expected value
           </div>
