@@ -1378,3 +1378,44 @@ function setupSwitcher() {
         }
     });
 }
+
+// --- Theme Toggle Logic ---
+function initThemeToggle() {
+  const themeToggle = document.getElementById('themeToggle');
+  const themeIcon = document.getElementById('themeIcon');
+  const htmlElement = document.documentElement;
+
+  // Check for saved theme preference or default to light mode
+  const savedTheme = localStorage.getItem('theme') || 'light';
+  
+  // Apply the saved theme
+  if (savedTheme === 'dark') {
+    htmlElement.setAttribute('data-theme', 'dark');
+    themeIcon.textContent = '☀️';
+  } else {
+    htmlElement.setAttribute('data-theme', 'light');
+    themeIcon.textContent = '🌙';
+  }
+
+  // Toggle theme on button click
+  themeToggle.addEventListener('click', () => {
+    const currentTheme = htmlElement.getAttribute('data-theme');
+    
+    if (currentTheme === 'dark') {
+      // Switch to light mode
+      htmlElement.setAttribute('data-theme', 'light');
+      themeIcon.textContent = '🌙';
+      localStorage.setItem('theme', 'light');
+    } else {
+      // Switch to dark mode
+      htmlElement.setAttribute('data-theme', 'dark');
+      themeIcon.textContent = '☀️';
+      localStorage.setItem('theme', 'dark');
+    }
+  });
+}
+
+// Initialize theme toggle on page load
+document.addEventListener("DOMContentLoaded", () => {
+  initThemeToggle();
+});
