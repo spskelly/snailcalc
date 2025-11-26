@@ -111,6 +111,9 @@ function buildVendorConfig(root) {
       <h4>Miraculand Vendor</h4>
       <div class="vendor-preset">
         <label style="display: block; margin-bottom: 8px;">
+          <input type="radio" name="mirac-preset" value="none"> None (Not Unlocked)
+        </label>
+        <label style="display: block; margin-bottom: 8px;">
           <input type="radio" name="mirac-preset" value="meat-only" checked> Meat Only (100%)
         </label>
         <label style="display: block; margin-bottom: 8px;">
@@ -874,7 +877,14 @@ function updateVendorState(root) {
   
   // miraculand vendor - check which preset is selected
   const miracPreset = root.querySelector('input[name="mirac-preset"]:checked')?.value || 'meat-only';
-  if (miracPreset === 'meat-only') {
+  if (miracPreset === 'none') {
+    cookingState.vendors.miraculand.meatEnabled = false;
+    cookingState.vendors.miraculand.meatRate = 0;
+    cookingState.vendors.miraculand.veggieEnabled = false;
+    cookingState.vendors.miraculand.veggieRate = 0;
+    cookingState.vendors.miraculand.spiceEnabled = false;
+    cookingState.vendors.miraculand.spiceRate = 0;
+  } else if (miracPreset === 'meat-only') {
     cookingState.vendors.miraculand.meatEnabled = true;
     cookingState.vendors.miraculand.meatRate = 1.00;
     cookingState.vendors.miraculand.veggieEnabled = false;
