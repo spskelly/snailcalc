@@ -469,6 +469,9 @@ function calculateIngredientOptimizer(root) {
         
         const profit = totalGold - (opportunityCost * quantity);
         
+        // Calculate profit per dish (efficiency) for sorting
+        const profitPerDish = state.price - opportunityCost;
+        
         // Calculate ingredients used for display purposes
         const ingredientsUsed = 
           (recipe.clownMeat + recipe.clownVeggie + recipe.clownSpice +
@@ -484,6 +487,7 @@ function calculateIngredientOptimizer(root) {
           totalGold,
           opportunityCost: opportunityCost * quantity,
           profit,
+          profitPerDish,
           ingredientsUsed,
           goldPerIngredient,
           recipe
@@ -494,8 +498,8 @@ function calculateIngredientOptimizer(root) {
     // No more recipes can be made - break the loop
     if (viableRecipes.length === 0) break;
     
-    // Sort by profit (accounting for opportunity cost)
-    viableRecipes.sort((a, b) => b.profit - a.profit);
+    // Sort by profit per dish (efficiency) - prioritizes valuable recipes regardless of quantity
+    viableRecipes.sort((a, b) => b.profitPerDish - a.profitPerDish);
     
     const best = viableRecipes[0];
     
