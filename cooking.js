@@ -324,7 +324,7 @@ function buildRecipeManager(root) {
           
           <!-- Strategy Summary (25%) -->
           <div class="optimal-ranking-strategy">
-            <h4>🎯 Strategy Summary</h4>
+            <h4 class="card-heading">🎯 Strategy Summary</h4>
             <div id="strategy-summary"></div>
           </div>
         </div>
@@ -573,7 +573,7 @@ function calculateIngredientOptimizer(root) {
     
     let html = `
       <div class="optimizer-recommendation">
-        <h4>🎯 Current Ingredients Analysis</h4>
+        <h4 class="card-heading">🎯 Current Ingredients Analysis</h4>
         <p style="color: #666; margin: 0 0 15px 0; font-size: 0.95em;">
           No recipes enabled or ingredients insufficient for enabled recipes.
         </p>
@@ -681,7 +681,7 @@ function calculateIngredientOptimizer(root) {
   // Build HTML output
   let html = `
     <div class="optimizer-recommendation">
-      <h4>🎯 Optimal Crafting Sequence</h4>
+      <h4 class="card-heading">🎯 Optimal Crafting Sequence</h4>
       <p style="color: #666; margin: 0 0 15px 0; font-size: 0.95em;">
         Make recipes in order for maximum gold efficiency:
       </p>
@@ -1434,92 +1434,92 @@ function updateStewCalculator(root) {
   if (!container) return;
   
   container.innerHTML = `
-    <div class="stew-simulator">
+    <div style="width: 100%;">
       <div class="info-blurb" style="margin-bottom: 15px; font-size: 0.95em;">
         Uses the ingredient quantities entered above. Requires at least 100 ingredients total.
       </div>
       
       <!-- Ingredient Value Reference -->
-      <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e0e0e0;">
+      <div class="card card-md" style="margin-bottom: 20px;">
         <h5 style="margin: 0 0 10px 0; color: #4a4e69; text-align: center;">Mega Stew Value Ranges (per ingredient)</h5>
-        <div class="ingredient-grid">
-          <div class="ingredient-card clown" style="padding: 10px;">
+        <div class="grid-responsive grid-sm gap-md">
+          <div class="card card-md border-clown" style="text-align: center;">
             <div style="font-weight: bold; margin-bottom: 4px;">🥩 Clown Meat</div>
-            <div class="ingredient-stats">
-              <div class="range" style="font-size: 0.9em;">10 - 48 gold</div>
-              <div style="font-size: 0.85em;">Expected: 29.00</div>
+            <div style="font-size: 0.85em; color: #666;">
+              <div style="font-family: monospace; font-size: 0.9em; margin-bottom: 2px;">10 - 48 gold</div>
+              <div>Expected: 29.00</div>
             </div>
           </div>
           
-          <div class="ingredient-card clown" style="padding: 10px;">
+          <div class="card card-md border-clown" style="text-align: center;">
             <div style="font-weight: bold; margin-bottom: 4px;">🥬 Clown Veggie</div>
-            <div class="ingredient-stats">
-              <div class="range" style="font-size: 0.9em;">29 - 144 gold</div>
-              <div style="font-size: 0.85em;">Expected: 86.50</div>
+            <div style="font-size: 0.85em; color: #666;">
+              <div style="font-family: monospace; font-size: 0.9em; margin-bottom: 2px;">29 - 144 gold</div>
+              <div>Expected: 86.50</div>
             </div>
           </div>
           
-          <div class="ingredient-card clown" style="padding: 10px;">
+          <div class="card card-md border-clown" style="text-align: center;">
             <div style="font-weight: bold; margin-bottom: 4px;">🌶️ Clown Spice</div>
-            <div class="ingredient-stats">
-              <div class="range" style="font-size: 0.9em;">72 - 240 gold</div>
-              <div style="font-size: 0.85em;">Expected: 156.00</div>
+            <div style="font-size: 0.85em; color: #666;">
+              <div style="font-family: monospace; font-size: 0.9em; margin-bottom: 2px;">72 - 240 gold</div>
+              <div>Expected: 156.00</div>
             </div>
           </div>
           
-          <div class="ingredient-card mirac" style="padding: 10px;">
+          <div class="card card-md border-mirac" style="text-align: center;">
             <div style="font-weight: bold; margin-bottom: 4px;">🥩 Mirac Meat</div>
-            <div class="ingredient-stats">
-              <div class="range" style="font-size: 0.9em;">12 - 60 gold</div>
-              <div style="font-size: 0.85em;">Expected: 36.00</div>
+            <div style="font-size: 0.85em; color: #666;">
+              <div style="font-family: monospace; font-size: 0.9em; margin-bottom: 2px;">12 - 60 gold</div>
+              <div>Expected: 36.00</div>
             </div>
           </div>
           
-          <div class="ingredient-card mirac" style="padding: 10px;">
+          <div class="card card-md border-mirac" style="text-align: center;">
             <div style="font-weight: bold; margin-bottom: 4px;">🥬 Mirac Veggie</div>
-            <div class="ingredient-stats">
-              <div class="range" style="font-size: 0.9em;">36 - 180 gold</div>
-              <div style="font-size: 0.85em;">Expected: 108.00</div>
+            <div style="font-size: 0.85em; color: #666;">
+              <div style="font-family: monospace; font-size: 0.9em; margin-bottom: 2px;">36 - 180 gold</div>
+              <div>Expected: 108.00</div>
             </div>
           </div>
         </div>
       </div>
       
       <!-- Total Count -->
-      <div class="total-count" id="stew-total-count">
+      <div style="text-align: center; font-size: 1em; color: #4a4e69; margin-bottom: 12px; padding: 8px; background: #f2e9e4; border-radius: 6px;" id="stew-total-count">
         Total Ingredients: <strong>0</strong> (minimum 100 required)
       </div>
       
       <!-- Warning -->
-      <div class="warning" id="stew-min-warning">
+      <div style="background: #fff3cd; border: 1px solid #ffc107; color: #856404; padding: 12px; border-radius: 6px; text-align: center; margin-bottom: 15px;" id="stew-min-warning">
         ⚠️ Mega Stew requires at least 100 ingredients!
       </div>
       
       <!-- Range Results -->
-      <div class="stew-results-container">
-        <div class="stew-results-card">
-          <h4>📊 Expected Range</h4>
-          <div class="range-display">
-            <div class="range-value min">
-              <div class="label">Minimum</div>
-              <div class="value" id="stew-range-min">0</div>
+      <div class="grid grid-2 gap-md" style="margin-bottom: 20px;">
+        <div class="card card-md">
+          <h4 class="card-heading">📊 Expected Range</h4>
+          <div class="d-flex justify-between items-center" style="margin: 12px 0;">
+            <div style="text-align: center;">
+              <div style="font-size: 0.75em; color: #777; text-transform: uppercase; margin-bottom: 4px;">Minimum</div>
+              <div style="font-size: 1.4em; font-weight: bold; color: #2e7d32;" id="stew-range-min">0</div>
             </div>
             <div class="range-bar"></div>
-            <div class="range-value max">
-              <div class="label">Maximum</div>
-              <div class="value" id="stew-range-max">0</div>
+            <div style="text-align: center;">
+              <div style="font-size: 0.75em; color: #777; text-transform: uppercase; margin-bottom: 4px;">Maximum</div>
+              <div style="font-size: 1.4em; font-weight: bold; color: #c62828;" id="stew-range-max">0</div>
             </div>
           </div>
           <div style="text-align: center; margin-top: 15px;">
-            <div class="range-value mid">
-              <div class="label">Expected Value</div>
-              <div class="value" id="stew-range-mid">0</div>
+            <div style="text-align: center;">
+              <div style="font-size: 0.75em; color: #777; text-transform: uppercase; margin-bottom: 4px;">Expected Value</div>
+              <div style="font-size: 1.4em; font-weight: bold; color: #1565c0;" id="stew-range-mid">0</div>
             </div>
           </div>
         </div>
         
-        <div class="stew-results-card">
-          <h4>📈 Value Per Ingredient</h4>
+        <div class="card card-md">
+          <h4 class="card-heading">📈 Value Per Ingredient</h4>
           <div style="text-align: center; padding: 20px 10px;">
             <div style="font-size: 0.85em; color: #666; margin-bottom: 5px;">AVERAGE</div>
             <div style="font-size: 1.8em; font-weight: bold; color: #1565c0;" id="stew-per-ingredient">0.00</div>
@@ -1534,23 +1534,23 @@ function updateStewCalculator(root) {
       </button>
       
       <!-- Simulation Stats -->
-      <div class="stats-grid" id="stew-sim-stats" style="display: none;">
-        <div class="stat-card green">
-          <div class="stat-value" id="stew-sim-min">-</div>
-          <div class="stat-label">Sim Minimum</div>
+      <div class="grid grid-3 gap-md" id="stew-sim-stats" style="display: none; margin-bottom: 25px;">
+        <div class="card card-md text-center">
+          <div style="font-size: 2rem; font-weight: bold; margin-bottom: 5px; color: #2e7d32;" id="stew-sim-min">-</div>
+          <div style="color: #666; font-size: 0.9rem;">Sim Minimum</div>
         </div>
-        <div class="stat-card blue">
-          <div class="stat-value" id="stew-sim-mean">-</div>
-          <div class="stat-label">Sim Mean</div>
+        <div class="card card-md text-center">
+          <div style="font-size: 2rem; font-weight: bold; margin-bottom: 5px; color: #1565c0;" id="stew-sim-mean">-</div>
+          <div style="color: #666; font-size: 0.9rem;">Sim Mean</div>
         </div>
-        <div class="stat-card red">
-          <div class="stat-value" id="stew-sim-max">-</div>
-          <div class="stat-label">Sim Maximum</div>
+        <div class="card card-md text-center">
+          <div style="font-size: 2rem; font-weight: bold; margin-bottom: 5px; color: #c62828;" id="stew-sim-max">-</div>
+          <div style="color: #666; font-size: 0.9rem;">Sim Maximum</div>
         </div>
       </div>
       
       <!-- Chart -->
-      <div class="chart-container" id="stew-chart-container" style="display: none;">
+      <div class="card card-lg" id="stew-chart-container" style="display: none; height: 600px; padding: 20px;">
         <canvas id="stewDistributionChart"></canvas>
       </div>
     </div>

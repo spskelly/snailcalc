@@ -95,13 +95,6 @@ function generateNormalCurve(mean, stdDev, binLabels) {
   return curve;
 }
 
-function updateStatsDisplay(stats, root) {
-  root.querySelector('#stdDevStat').textContent = Math.round(stats.stdDev);
-  root.querySelector('#minStat').textContent = stats.min;
-  root.querySelector('#meanStat').textContent = Math.round(stats.mean);
-  root.querySelector('#maxStat').textContent = stats.max;
-  root.querySelector('#statsGrid').style.display = 'grid';
-}
 
 function updateChart(histogramData, normalCurve, stats, steleLevel, root) {
   const ctx = root.querySelector('#distributionChart').getContext('2d');
@@ -190,8 +183,7 @@ async function runSteleSimulation(root) {
     if (select) selectedStele = parseInt(select.value);
   }
   const targetEnergy = STELE_REQUIREMENTS[selectedStele];
-  // Always show stat cards, but do not update values until calculation is done
-  root.querySelector('#statsGrid').style.display = 'grid';
+  
   await new Promise(resolve => setTimeout(resolve, 100));
   const tokensNeeded = [];
   for (let i = 0; i < simCount; i++) {
@@ -210,13 +202,11 @@ async function runSteleSimulation(root) {
     stats.stdDev,
     histogramData.binLabels
   );
-  updateStatsDisplay(stats, root);
   updateChart(histogramData, normalCurve, stats, selectedStele, root);
   // Update token probability result if input is present
   if (typeof root._updateTokenProbResult === "function") {
     root._updateTokenProbResult();
   }
-  // No loading/progress text
 }
 
 export function initSteleCalculator() {
