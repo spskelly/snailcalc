@@ -117,43 +117,43 @@
           This calculator runs 10,000 simulations to estimate the number of tokens needed to reach a selected Stele level, based on the game's token probabilities. Click a Stele level button below to recalculate for that level.
         </div>
 
-        <div class="controls">
-          <div class="control-group stele-level-buttons-group">
-            <div class="stele-level-btn-row">
-              <button class="btn btn-secondary stele-level-btn" data-stele="5">Stele 5<br><span class="stele-energy">(1000)</span></button>
-              <button class="btn btn-secondary stele-level-btn" data-stele="8">Stele 8<br><span class="stele-energy">(2000)</span></button>
-              <button class="btn btn-secondary stele-level-btn" data-stele="10">Stele 10<br><span class="stele-energy">(2900)</span></button>
-              <button class="btn btn-secondary stele-level-btn" data-stele="12">Stele 12<br><span class="stele-energy">(4000)</span></button>
-              <button class="btn btn-secondary stele-level-btn" data-stele="15">Stele 15<br><span class="stele-energy">(6000)</span></button>
-            </div>
-          </div>
+        <div class="d-flex justify-center gap-lg flex-wrap" style="margin-bottom: 30px;">
+          <button class="btn btn-secondary stele-level-btn" data-stele="5">Stele 5<br><span class="stele-energy">(1000)</span></button>
+          <button class="btn btn-secondary stele-level-btn" data-stele="8">Stele 8<br><span class="stele-energy">(2000)</span></button>
+          <button class="btn btn-secondary stele-level-btn" data-stele="10">Stele 10<br><span class="stele-energy">(2900)</span></button>
+          <button class="btn btn-secondary stele-level-btn" data-stele="12">Stele 12<br><span class="stele-energy">(4000)</span></button>
+          <button class="btn btn-secondary stele-level-btn" data-stele="15">Stele 15<br><span class="stele-energy">(6000)</span></button>
         </div>
 
-        <div class="stele-stats-outer" id="statsGrid" style="display: none;">
-          <div class="d-flex justify-center gap-lg flex-wrap mt-md">
-            <div class="stat-card">
-              <div class="stat-value orange" id="stdDevStat">-</div>
-              <div class="stat-label">Std Deviation</div>
-            </div>
+        <div class="grid grid-4 gap-lg" id="statsGrid" style="display: none;">
+          <div class="stat-card card">
+            <div class="stat-value" id="minStat" style="color: #4caf50;">-</div>
+            <div class="stat-label">Minimum</div>
           </div>
-          <div class="d-flex justify-center gap-lg flex-wrap mt-md">
-            <div class="stat-card">
-              <div class="stat-value green" id="minStat">-</div>
-              <div class="stat-label">Minimum</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-value blue" id="meanStat">-</div>
-              <div class="stat-label">Mean</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-value red" id="maxStat">-</div>
-              <div class="stat-label">Maximum</div>
-            </div>
+          <div class="stat-card card">
+            <div class="stat-value" id="meanStat" style="color: #2196f3;">-</div>
+            <div class="stat-label">Mean</div>
+          </div>
+          <div class="stat-card card">
+            <div class="stat-value" id="maxStat" style="color: #f44336;">-</div>
+            <div class="stat-label">Maximum</div>
+          </div>
+          <div class="stat-card card">
+            <div class="stat-value" id="stdDevStat" style="color: #ff9800;">-</div>
+            <div class="stat-label">Std Deviation</div>
           </div>
         </div>
 
         <div class="chart-container">
           <canvas id="distributionChart"></canvas>
+        </div>
+
+        <div class="d-flex justify-center gap-lg flex-wrap" style="margin: 24px 0;">
+          <div class="stele-prob-item"><span class="stele-prob-label">0 Energy</span><span class="stele-prob-value">53.7%</span></div>
+          <div class="stele-prob-item"><span class="stele-prob-label">15 Energy</span><span class="stele-prob-value">33.1%</span></div>
+          <div class="stele-prob-item"><span class="stele-prob-label">30 Energy</span><span class="stele-prob-value">7.5%</span></div>
+          <div class="stele-prob-item"><span class="stele-prob-label">50 Energy</span><span class="stele-prob-value">5.7%</span></div>
+          <div class="stele-prob-item stele-prob-expected"><span class="stele-prob-label">Expected/token</span><span class="stele-prob-value">10.065</span></div>
         </div>
 
         <!-- Token Probability Feature -->
@@ -164,16 +164,6 @@
           <div id="steleTokenProbResult" style="margin-top: 10px; font-size: 1.08em; color: #1a237e;"></div>
         </div>
 
-        <div class="info-panel">
-          <h3 class="stele-prob-heading" style="margin-bottom: 15px; text-align: center;">Recruit Token Probabilities</h3>
-          <div class="stele-prob-row">
-            <div class="stele-prob-item"><span class="stele-prob-label">0 Energy</span><span class="stele-prob-value">53.7%</span></div>
-            <div class="stele-prob-item"><span class="stele-prob-label">15 Energy</span><span class="stele-prob-value">33.1%</span></div>
-            <div class="stele-prob-item"><span class="stele-prob-label">30 Energy</span><span class="stele-prob-value">7.5%</span></div>
-            <div class="stele-prob-item"><span class="stele-prob-label">50 Energy</span><span class="stele-prob-value">5.7%</span></div>
-            <div class="stele-prob-item stele-prob-expected"><span class="stele-prob-label">Expected/token</span><span class="stele-prob-value">10.065</span></div>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -209,31 +199,31 @@
         </div>
         
         <!-- Export/Import Configuration Row -->
-        <div class="export-import-row">
-          <button id="exportCookingConfig" class="btn btn-primary export-import-button">📤 Export Configuration</button>
-          <button id="importCookingConfig" class="btn btn-primary export-import-button">📥 Import Configuration</button>
+        <div class="d-flex justify-center gap-md" style="margin: 15px 0;">
+          <button id="exportCookingConfig" class="btn btn-primary">📤 Export Configuration</button>
+          <button id="importCookingConfig" class="btn btn-primary">📥 Import Configuration</button>
         </div>
         
         <!-- Vendor Configuration Section -->
         <div class="cooking-section">
-          <div class="cooking-section-header">
-            <h3>🎪 Vendor Configuration</h3>
+          <div class="d-flex items-center gap-sm" style="margin-bottom: 15px;">
+            <h3 style="margin: 0;">🎪 Vendor Configuration</h3>
           </div>
           <div id="cooking-vendor-config"></div>
         </div>
         
         <!-- Shop Purchases Section -->
         <div class="cooking-section">
-          <div class="cooking-section-header">
-            <h3>🛒 Daily Shop Purchases</h3>
+          <div class="d-flex items-center gap-sm" style="margin-bottom: 15px;">
+            <h3 style="margin: 0;">🛒 Daily Shop Purchases</h3>
           </div>
           <div id="cooking-shop-config"></div>
         </div>
         
         <!-- Recipe Manager Section -->
         <div class="cooking-section">
-          <div class="cooking-section-header">
-            <h3>📖 Recipes</h3>
+          <div class="d-flex items-center gap-sm" style="margin-bottom: 15px;">
+            <h3 style="margin: 0;">📖 Recipes</h3>
             <span style="font-size: 0.85em; color: #666;">Enable/disable recipes and set your current stars & sell price</span>
           </div>
           <div id="cooking-recipe-manager"></div>
@@ -248,17 +238,17 @@
     <!-- Export Modal -->
     <div id="exportModal" class="modal-overlay" style="display: none;">
       <div class="modal-dialog">
-        <div class="modal-header">
-          <h3>📤 Export Configuration</h3>
+        <div class="d-flex justify-between items-center p-sm" style="background: var(--bg-highlight); border-bottom: 2px solid var(--bg-highlight);">
+          <h3 style="margin: 0;">📤 Export Configuration</h3>
           <button class="modal-close" onclick="closeCookingModal()">&times;</button>
         </div>
         <div class="modal-body">
           <p style="margin-bottom: 12px; color: #666;">Copy this string and save it somewhere safe. You can use it to restore your configuration or share it with others.</p>
           <textarea id="exportTextarea" readonly style="width: 100%; height: 150px; font-family: monospace; font-size: 0.9em; padding: 10px; border: 1px solid #ddd; border-radius: 4px; resize: vertical;"></textarea>
         </div>
-        <div class="modal-footer">
-          <button id="copyExportBtn" class="btn btn-primary modal-button primary">📋 Copy to Clipboard</button>
-          <button onclick="closeCookingModal()" class="btn btn-secondary modal-button">Close</button>
+        <div class="d-flex justify-end gap-sm p-sm" style="border-top: 1px solid var(--bg-highlight);">
+          <button id="copyExportBtn" class="btn btn-primary">📋 Copy to Clipboard</button>
+          <button onclick="closeCookingModal()" class="btn btn-secondary">Close</button>
         </div>
       </div>
     </div>
@@ -266,8 +256,8 @@
     <!-- Import Modal -->
     <div id="importModal" class="modal-overlay" style="display: none;">
       <div class="modal-dialog">
-        <div class="modal-header">
-          <h3>📥 Import Configuration</h3>
+        <div class="d-flex justify-between items-center p-sm" style="background: var(--bg-highlight); border-bottom: 2px solid var(--bg-highlight);">
+          <h3 style="margin: 0;">📥 Import Configuration</h3>
           <button class="modal-close" onclick="closeCookingModal()">&times;</button>
         </div>
         <div class="modal-body">
@@ -275,9 +265,9 @@
           <textarea id="importTextarea" placeholder="Paste configuration string here..." style="width: 100%; height: 150px; font-family: monospace; font-size: 0.9em; padding: 10px; border: 1px solid #ddd; border-radius: 4px; resize: vertical;"></textarea>
           <div id="importError" style="display: none; margin-top: 10px; padding: 10px; background: #ffebee; border: 1px solid #ef5350; border-radius: 4px; color: #c62828;"></div>
         </div>
-        <div class="modal-footer">
-          <button id="doImportBtn" class="btn btn-primary modal-button primary">✅ Import</button>
-          <button onclick="closeCookingModal()" class="btn btn-secondary modal-button">Cancel</button>
+        <div class="d-flex justify-end gap-sm p-sm" style="border-top: 1px solid var(--bg-highlight);">
+          <button id="doImportBtn" class="btn btn-primary">✅ Import</button>
+          <button onclick="closeCookingModal()" class="btn btn-secondary">Cancel</button>
         </div>
       </div>
     </div>

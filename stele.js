@@ -226,13 +226,12 @@ export function initSteleCalculator() {
   root.dataset.initialized = "true";
 
   // Stele level button logic
-  const btnRow = root.querySelector('.stele-level-btn-row');
   let selectedStele = 5; // default
 
   function selectStele(level) {
     const isNewLevel = selectedStele !== level;
     selectedStele = level;
-    btnRow.querySelectorAll('.stele-level-btn').forEach(btn => {
+    root.querySelectorAll('.stele-level-btn').forEach(btn => {
       if (parseInt(btn.dataset.stele) === level) {
         btn.classList.add('selected');
       } else {
@@ -247,7 +246,7 @@ export function initSteleCalculator() {
     runSteleSimulation(root);
   }
 
-  btnRow.querySelectorAll('.stele-level-btn').forEach(btn => {
+  root.querySelectorAll('.stele-level-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       selectStele(parseInt(btn.dataset.stele));
     });

@@ -934,9 +934,9 @@ h1, h2 {
 }
 .rocket-selectors-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(4, auto);
-  gap: 15px;
+  grid-template-columns: auto 1fr auto 1fr;
+  gap: 15px 20px;
+  align-items: center;
 }
 
 .rocket-tier-toggle {

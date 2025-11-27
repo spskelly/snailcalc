@@ -809,15 +809,16 @@ function createAllRocketCabinsUI() {
     cabinWrapper.appendChild(title);
 
     const grid = document.createElement('div');
-    grid.className = 'grid grid-2 gap-md rocket-selectors-grid';
+    grid.className = 'grid grid-4 gap-md rocket-selectors-grid';
 
     Object.keys(cabin.devices).forEach(deviceName => {
-        const selectorDiv = document.createElement("div");
-        selectorDiv.className = "d-flex items-center justify-between p-sm border-light rounded mb-sm";
-        
+        // Create label as standalone grid item
         const label = document.createElement("label");
         label.textContent = deviceName;
+        label.className = "text-right";
+        grid.appendChild(label);
         
+        // Create select as standalone grid item
         const select = document.createElement("select");
         // Unique ID: cabinKey-deviceName
         select.id = `rocket-${cabinKey}-${deviceName.replace(/\s+/g, '-')}`;
@@ -839,9 +840,7 @@ function createAllRocketCabinsUI() {
             select.appendChild(option);
         });
 
-        selectorDiv.appendChild(label);
-        selectorDiv.appendChild(select);
-        grid.appendChild(selectorDiv);
+        grid.appendChild(select);
     });
     
     cabinWrapper.appendChild(grid);
