@@ -79,19 +79,19 @@ function buildVendorConfig(root) {
   
   const isCollapsed = getAccordionState('vendor-config') ? '' : ' collapsed';
   
-  let html = `<div class="recipe-section${isCollapsed}" data-accordion-id="vendor-config">`;
-  html += '<div class="recipe-section-header" onclick="toggleAccordion(this)">';
-  html += '<span class="section-toggle">▼</span>';
-  html += '<h4 style="margin: 0; font-size: 1.1em;">Vendor Configuration Details</h4>';
+  let html = `<div class="panel${isCollapsed}" data-accordion-id="vendor-config">`;
+  html += '<div class="panel-header" onclick="toggleAccordion(this)">';
+  html += '<span class="panel-toggle">▼</span>';
+  html += '<h4 class="panel-title">Vendor Configuration Details</h4>';
   html += '</div>';
-  html += '<div class="recipe-section-content">';
-  html += '<div class="vendor-grid">';
+  html += '<div class="panel-content">';
+  html += '<div class="grid-responsive grid-md gap-lg">';
   
   // clown vendor
   html += `
-    <div class="vendor-card">
-      <h4>Clown Vendor</h4>
-      <div class="vendor-preset">
+    <div class="card card-lg vendor-card">
+      <h4 class="card-header">Clown Vendor</h4>
+      <div class="card-body vendor-preset">
         <label style="display: block; margin-bottom: 8px;">
           <input type="radio" name="clown-preset" value="meat-only"> Meat Only (100%)
         </label>
@@ -107,9 +107,9 @@ function buildVendorConfig(root) {
   
   // miraculand vendor
   html += `
-    <div class="vendor-card">
-      <h4>Miraculand Vendor</h4>
-      <div class="vendor-preset">
+    <div class="card card-lg vendor-card">
+      <h4 class="card-header">Miraculand Vendor</h4>
+      <div class="card-body vendor-preset">
         <label style="display: block; margin-bottom: 8px;">
           <input type="radio" name="mirac-preset" value="none"> None (Not Unlocked)
         </label>
@@ -126,19 +126,19 @@ function buildVendorConfig(root) {
     </div>
   `;
   
-  html += '</div>'; // end vendor-grid
+  html += '</div>'; // end grid
   
   // supply orders per hour
   html += `
     <div class="voucher-config">
       <label>Supply Orders per Hour: 
-        <input type="number" id="supply-orders-per-hour" value="30" min="1" max="999" class="small-input">
+        <input type="number" id="supply-orders-per-hour" value="30" min="1" max="999" class="form-control form-control-md">
       </label>
     </div>
   `;
   
-  html += '</div>'; // end recipe-section-content
-  html += '</div>'; // end recipe-section
+  html += '</div>'; // end panel-content
+  html += '</div>'; // end panel
   
   container.innerHTML = html;
 }
@@ -152,19 +152,19 @@ function buildShopConfig(root) {
   const isCollapsed = getAccordionState('shop-config') ? '' : ' collapsed';
   
   // Collapsible section wrapping the entire shop content
-  let html = `<div class="recipe-section${isCollapsed}" data-accordion-id="shop-config">`;
-  html += '<div class="recipe-section-header" onclick="toggleAccordion(this)">';
-  html += '<span class="section-toggle">▼</span>';
-  html += '<h4 style="margin: 0; font-size: 1.1em;">Shop Items & Daily ROI</h4>';
+  let html = `<div class="panel${isCollapsed}" data-accordion-id="shop-config">`;
+  html += '<div class="panel-header" onclick="toggleAccordion(this)">';
+  html += '<span class="panel-toggle">▼</span>';
+  html += '<h4 class="panel-title">Shop Items & Daily ROI</h4>';
   html += '</div>';
-  html += '<div class="recipe-section-content">';
+  html += '<div class="panel-content">';
   
   // Two-column layout: items on left, ROI on right
   html += '<div class="shop-layout-container">';
   
   // Left column: shop items
-  html += '<div class="shop-items-card">';
-  html += '<h4 class="shop-card-title">🛒 Shop Items</h4>';
+  html += '<div class="card card-lg shop-items-card">';
+  html += '<h4 class="card-header">🛒 Shop Items</h4>';
   html += '<div class="shop-items-list">';
   
   // supply deals
@@ -174,8 +174,8 @@ function buildShopConfig(root) {
         <input type="checkbox" id="shop-supply-enabled" ${shop.supplyDeals.enabled ? 'checked' : ''}>
         <strong>Supply Deals</strong>
       </label>
-      <div class="shop-details">
-        <label>Qty: <input type="number" id="shop-supply-qty" value="${shop.supplyDeals.quantity}" min="0" max="99" step="1" class="tiny-input"></label>
+      <div class="d-flex items-center gap-sm">
+        <label>Qty: <input type="number" id="shop-supply-qty" value="${shop.supplyDeals.quantity}" min="0" max="99" step="1" class="form-control form-control-xs"></label>
         <label>@ <span class="fixed-price">100g</span> each</label>
       </div>
       <div class="shop-result" id="shop-supply-result"></div>
@@ -189,8 +189,8 @@ function buildShopConfig(root) {
         <input type="checkbox" id="shop-veggie-enabled" ${shop.veggiePurchase.enabled ? 'checked' : ''}>
         <strong>Buy Veggies</strong>
       </label>
-      <div class="shop-details">
-        <label>Qty: <input type="number" id="shop-veggie-qty" value="${shop.veggiePurchase.quantity}" min="0" max="99" step="1" class="tiny-input"></label>
+      <div class="d-flex items-center gap-sm">
+        <label>Qty: <input type="number" id="shop-veggie-qty" value="${shop.veggiePurchase.quantity}" min="0" max="99" step="1" class="form-control form-control-xs"></label>
         <label>@ <span class="fixed-price">220g</span> each</label>
       </div>
       <div class="shop-result" id="shop-veggie-result"></div>
@@ -204,8 +204,8 @@ function buildShopConfig(root) {
         <input type="checkbox" id="shop-spice-enabled" ${shop.spicePurchase.enabled ? 'checked' : ''}>
         <strong>Buy Spice</strong>
       </label>
-      <div class="shop-details">
-        <label>Qty: <input type="number" id="shop-spice-qty" value="${shop.spicePurchase.quantity}" min="0" max="99" step="1" class="tiny-input"></label>
+      <div class="d-flex items-center gap-sm">
+        <label>Qty: <input type="number" id="shop-spice-qty" value="${shop.spicePurchase.quantity}" min="0" max="99" step="1" class="form-control form-control-xs"></label>
         <label>@ <span class="fixed-price">360g</span> each</label>
       </div>
       <div class="shop-result" id="shop-spice-result"></div>
@@ -216,15 +216,15 @@ function buildShopConfig(root) {
   html += '</div>'; // end shop-items-card
   
   // Right column: ROI summary
-  html += '<div class="shop-roi-card">';
-  html += '<h4 class="shop-card-title">💰 Daily Shop ROI</h4>';
+  html += '<div class="card card-lg shop-roi-card">';
+  html += '<h4 class="card-header">💰 Daily Shop ROI</h4>';
   html += '<div id="shop-roi-summary"></div>';
   html += '</div>'; // end shop-roi-card
   
   html += '</div>'; // end shop-layout-container
   
-  html += '</div>'; // end recipe-section-content
-  html += '</div>'; // end recipe-section
+  html += '</div>'; // end panel-content
+  html += '</div>'; // end panel
   
   container.innerHTML = html;
 }
@@ -255,18 +255,18 @@ function buildRecipeManager(root) {
   
   // Clown recipes section
   html += `
-    <div class="recipe-section${clownCollapsed}" data-accordion-id="clown-recipes">
-      <div class="recipe-section-header" onclick="toggleAccordion(this)">
-        <span class="section-toggle">▼</span>
-        <h3>🤡 Clown Vendor Recipes (${clownRecipes.length})</h3>
+    <div class="panel${clownCollapsed}" data-accordion-id="clown-recipes">
+      <div class="panel-header" onclick="toggleAccordion(this)">
+        <span class="panel-toggle">▼</span>
+        <h3 class="panel-title">🤡 Clown Vendor Recipes (${clownRecipes.length})</h3>
       </div>
-      <div class="recipe-section-content">
+      <div class="panel-content">
         <div class="ingredient-filters">
           <label><input type="checkbox" class="filter-ingredient" data-vendor="clown" data-ingredient="meat"> Meat</label>
           <label><input type="checkbox" class="filter-ingredient" data-vendor="clown" data-ingredient="veggie"> Veggie</label>
           <label><input type="checkbox" class="filter-ingredient" data-vendor="clown" data-ingredient="spice"> Spice</label>
         </div>
-        <div class="recipe-grid clown-recipes">
+        <div class="grid-responsive grid-md gap-md clown-recipes">
           ${buildRecipeCards(clownRecipes, false)}
         </div>
       </div>
@@ -275,18 +275,18 @@ function buildRecipeManager(root) {
   
   // Miraculand recipes section
   html += `
-    <div class="recipe-section${miracCollapsed}" data-accordion-id="mirac-recipes">
-      <div class="recipe-section-header" onclick="toggleAccordion(this)">
-        <span class="section-toggle">▼</span>
-        <h3>🎪 Miraculand Vendor Recipes (${miracRecipes.length})</h3>
+    <div class="panel${miracCollapsed}" data-accordion-id="mirac-recipes">
+      <div class="panel-header" onclick="toggleAccordion(this)">
+        <span class="panel-toggle">▼</span>
+        <h3 class="panel-title">🎪 Miraculand Vendor Recipes (${miracRecipes.length})</h3>
       </div>
-      <div class="recipe-section-content">
+      <div class="panel-content">
         <div class="ingredient-filters">
           <label><input type="checkbox" class="filter-ingredient" data-vendor="miraculand" data-ingredient="meat"> Meat</label>
           <label><input type="checkbox" class="filter-ingredient" data-vendor="miraculand" data-ingredient="veggie"> Veggie</label>
           <label><input type="checkbox" class="filter-ingredient" data-vendor="miraculand" data-ingredient="spice"> Spice</label>
         </div>
-        <div class="recipe-grid mirac-recipes">
+        <div class="grid-responsive grid-md gap-md mirac-recipes">
           ${buildRecipeCards(miracRecipes, true)}
         </div>
       </div>
@@ -295,12 +295,12 @@ function buildRecipeManager(root) {
   
   // Add optimal dish ranking section at the end of recipes
   html += `
-    <div class="recipe-section${rankingCollapsed}" data-accordion-id="optimal-ranking">
-      <div class="recipe-section-header" onclick="toggleAccordion(this)">
-        <span class="section-toggle">▼</span>
-        <h3>📊 Optimal Dish Ranking</h3>
+    <div class="panel${rankingCollapsed}" data-accordion-id="optimal-ranking">
+      <div class="panel-header" onclick="toggleAccordion(this)">
+        <span class="panel-toggle">▼</span>
+        <h3 class="panel-title">📊 Optimal Dish Ranking</h3>
       </div>
-      <div class="recipe-section-content">
+      <div class="panel-content">
         <!-- 75/25 Layout: Table on left, Strategy on right -->
         <div class="optimal-ranking-layout">
           <!-- Ranking Table (75%) -->
@@ -361,13 +361,13 @@ function buildRecipeCards(recipeIds, isMirac) {
     html += `
       <div class="recipe-card" data-recipe-id="${id}" 
            data-has-meat="${hasMeat}" data-has-veggie="${hasVeggie}" data-has-spice="${hasSpice}">
-        <div class="recipe-header">
-          <label class="recipe-toggle">
+        <div class="d-flex justify-between items-center p-sm bg-alt border-b">
+          <label class="d-flex items-center gap-sm cursor-pointer">
             <input type="checkbox" class="recipe-enabled" data-recipe="${id}" ${state.enabled ? 'checked' : ''}>
             <span class="recipe-name">${recipe.name}</span>
           </label>
         </div>
-        <div class="recipe-config">
+        <div class="d-flex flex-col gap-sm p-sm">
           <div class="recipe-field">
             <label>Stars</label>
             <select class="recipe-stars" data-recipe="${id}">
@@ -783,59 +783,59 @@ function buildResultsDashboard(root) {
       <h3 style="margin: 20px 0 15px 0; padding-bottom: 10px; border-bottom: 2px solid #f2e9e4; color: #4a4e69;">🎒 Current Ingredients Calculators</h3>
       
       <!-- Current Inventory Collapseable Section -->
-      <div class="recipe-section${currentInventoryCollapsed}" data-accordion-id="current-inventory" style="margin-bottom: 20px;">
-        <div class="recipe-section-header" onclick="toggleAccordion(this)">
-          <span class="section-toggle">▼</span>
-          <h3>📦 Current Inventory</h3>
+      <div class="panel${currentInventoryCollapsed}" data-accordion-id="current-inventory" style="margin-bottom: 20px;">
+        <div class="panel-header" onclick="toggleAccordion(this)">
+          <span class="panel-toggle">▼</span>
+          <h3 class="panel-title">📦 Current Inventory</h3>
         </div>
-        <div class="recipe-section-content">
-          <div class="ingredient-input-grid" id="cooking-ingredient-optimizer">
-            <div class="ingredient-input-card clown">
-              <label>🥩 Clown Meat</label>
-              <input type="number" id="current-clown-meat" value="${ing.clownMeat}" min="0" max="9999" class="ingredient-input">
+        <div class="panel-content">
+          <div class="grid-responsive grid-sm gap-md" id="cooking-ingredient-optimizer">
+            <div class="card card-md border-clown bg-clown" style="text-align: center;">
+              <label style="display: block; font-weight: bold; margin-bottom: 8px;">🥩 Clown Meat</label>
+              <input type="number" id="current-clown-meat" value="${ing.clownMeat}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1.1em; padding: 10px;">
             </div>
-            <div class="ingredient-input-card clown">
-              <label>🥬 Clown Veggie</label>
-              <input type="number" id="current-clown-veggie" value="${ing.clownVeggie}" min="0" max="9999" class="ingredient-input">
+            <div class="card card-md border-clown bg-clown" style="text-align: center;">
+              <label style="display: block; font-weight: bold; margin-bottom: 8px;">🥬 Clown Veggie</label>
+              <input type="number" id="current-clown-veggie" value="${ing.clownVeggie}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1.1em; padding: 10px;">
             </div>
-            <div class="ingredient-input-card clown">
-              <label>🌶️ Clown Spice</label>
-              <input type="number" id="current-clown-spice" value="${ing.clownSpice}" min="0" max="9999" class="ingredient-input">
+            <div class="card card-md border-clown bg-clown" style="text-align: center;">
+              <label style="display: block; font-weight: bold; margin-bottom: 8px;">🌶️ Clown Spice</label>
+              <input type="number" id="current-clown-spice" value="${ing.clownSpice}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1.1em; padding: 10px;">
             </div>
-            <div class="ingredient-input-card mirac">
-              <label>🥩 Mirac Meat</label>
-              <input type="number" id="current-mirac-meat" value="${ing.miracMeat}" min="0" max="9999" class="ingredient-input">
+            <div class="card card-md border-mirac bg-mirac" style="text-align: center;">
+              <label style="display: block; font-weight: bold; margin-bottom: 8px;">🥩 Mirac Meat</label>
+              <input type="number" id="current-mirac-meat" value="${ing.miracMeat}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1.1em; padding: 10px;">
             </div>
-            <div class="ingredient-input-card mirac">
-              <label>🥬 Mirac Veggie</label>
-              <input type="number" id="current-mirac-veggie" value="${ing.miracVeggie}" min="0" max="9999" class="ingredient-input">
+            <div class="card card-md border-mirac bg-mirac" style="text-align: center;">
+              <label style="display: block; font-weight: bold; margin-bottom: 8px;">🥬 Mirac Veggie</label>
+              <input type="number" id="current-mirac-veggie" value="${ing.miracVeggie}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1.1em; padding: 10px;">
             </div>
-            <div class="ingredient-input-card mirac">
-              <label>🌶️ Mirac Spice</label>
-              <input type="number" id="current-mirac-spice" value="${ing.miracSpice}" min="0" max="9999" class="ingredient-input">
+            <div class="card card-md border-mirac bg-mirac" style="text-align: center;">
+              <label style="display: block; font-weight: bold; margin-bottom: 8px;">🌶️ Mirac Spice</label>
+              <input type="number" id="current-mirac-spice" value="${ing.miracSpice}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1.1em; padding: 10px;">
             </div>
           </div>
         </div>
       </div>
       
       <!-- Current Ingredients Optimizer -->
-      <div class="recipe-section${optimizerCollapsed}" data-accordion-id="current-optimizer" style="margin-bottom: 20px;">
-        <div class="recipe-section-header" onclick="toggleAccordion(this)">
-          <span class="section-toggle">▼</span>
-          <h3>🎯 Current Ingredients Optimizer</h3>
+      <div class="panel${optimizerCollapsed}" data-accordion-id="current-optimizer" style="margin-bottom: 20px;">
+        <div class="panel-header" onclick="toggleAccordion(this)">
+          <span class="panel-toggle">▼</span>
+          <h3 class="panel-title">🎯 Current Ingredients Optimizer</h3>
         </div>
-        <div class="recipe-section-content">
+        <div class="panel-content">
           <div id="optimizer-results"></div>
         </div>
       </div>
       
       <!-- Mega Stew Calculator -->
-      <div class="recipe-section${stewCollapsed}" data-accordion-id="mega-stew">
-        <div class="recipe-section-header" onclick="toggleAccordion(this)">
-          <span class="section-toggle">▼</span>
-          <h3>🎲 Mega Stew Calculator</h3>
+      <div class="panel${stewCollapsed}" data-accordion-id="mega-stew">
+        <div class="panel-header" onclick="toggleAccordion(this)">
+          <span class="panel-toggle">▼</span>
+          <h3 class="panel-title">🎲 Mega Stew Calculator</h3>
         </div>
-        <div class="recipe-section-content">
+        <div class="panel-content">
           <div id="stew-calculator"></div>
         </div>
       </div>
@@ -1529,7 +1529,7 @@ function updateStewCalculator(root) {
       </div>
       
       <!-- Simulate Button -->
-      <button class="simulate-btn" id="stew-simulate-btn" disabled>
+      <button class="btn btn-primary btn-gradient btn-full simulate-btn" id="stew-simulate-btn" disabled>
         🎲 Run 10,000 Simulations
       </button>
       

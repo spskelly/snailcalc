@@ -8,16 +8,16 @@
   </head>
   <body>
     <!-- Theme Toggle Button -->
-    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+    <button class="btn btn-primary btn-icon theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
       <span id="themeIcon">🌙</span>
     </button>
 
     <!-- Main Calculator Switcher -->
     <div class="calculator-switcher">
-      <button id="showGearCalc" class="switcher-btn active">Gear Calculator</button>
-      <button id="showRocketCalc" class="switcher-btn">Rocket Cabin Calculator</button>
-      <button id="showSteleCalc" class="switcher-btn">Stele Calculator</button>      
-      <button id="showCookingCalc" class="switcher-btn">Cooking Calculator</button>
+      <button id="showGearCalc" class="btn btn-secondary btn-lg switcher-btn active">Gear Calculator</button>
+      <button id="showRocketCalc" class="btn btn-secondary btn-lg switcher-btn">Rocket Cabin Calculator</button>
+      <button id="showSteleCalc" class="btn btn-secondary btn-lg switcher-btn">Stele Calculator</button>      
+      <button id="showCookingCalc" class="btn btn-secondary btn-lg switcher-btn">Cooking Calculator</button>
     </div>
 
     <!-- ===== GEAR CALCULATOR SECTION ===== -->
@@ -28,34 +28,34 @@
           This calculator helps you plan and optimize your snail and minion gear setups. Use presets to save and load configurations for quick comparisons.
         </div>
         <div class="button-row">
-          <button id="resetSnail" class="reset-button">Reset</button>
+          <button id="resetSnail" class="btn btn-secondary reset-button">Reset</button>
           <div class="preset-group">
             <div class="preset-set">
               <span class="preset-label">Preset 1:</span>
-              <button id="saveSnailPreset1" class="preset-button">Save</button>
-              <button id="loadSnailPreset1" class="preset-button">Load</button>
+              <button id="saveSnailPreset1" class="btn btn-secondary btn-sm preset-button">Save</button>
+              <button id="loadSnailPreset1" class="btn btn-secondary btn-sm preset-button">Load</button>
             </div>
             <div class="preset-set">
               <span class="preset-label">Preset 2:</span>
-              <button id="saveSnailPreset2" class="preset-button">Save</button>
-              <button id="loadSnailPreset2" class="preset-button">Load</button>
+              <button id="saveSnailPreset2" class="btn btn-secondary btn-sm preset-button">Save</button>
+              <button id="loadSnailPreset2" class="btn btn-secondary btn-sm preset-button">Load</button>
             </div>
             <div class="preset-set">
               <span class="preset-label">Preset 3:</span>
-              <button id="saveSnailPreset3" class="preset-button">Save</button>
-              <button id="loadSnailPreset3" class="preset-button">Load</button>
+              <button id="saveSnailPreset3" class="btn btn-secondary btn-sm preset-button">Save</button>
+              <button id="loadSnailPreset3" class="btn btn-secondary btn-sm preset-button">Load</button>
             </div>
           </div>
         </div>
         <div class="snail-label equipped-label">Equipped</div>
-        <div class="snail-row equipped-row" id="snail-row-1"></div>
-        <div class="snail-row equipped-row" id="snail-row-2"></div>
+        <div class="grid grid-6 gap-md snail-row equipped-row" id="snail-row-1"></div>
+        <div class="grid grid-6 gap-md snail-row equipped-row" id="snail-row-2"></div>
         <div class="snail-label unequipped-label">
           Unequipped
-          <button id="toggleUnequipped" class="toggle-section-btn" aria-expanded="true" aria-controls="snail-row-3">−</button>
+          <button id="toggleUnequipped" class="btn btn-xs toggle-section-btn" aria-expanded="true" aria-controls="snail-row-3">−</button>
         </div>
-        <div class="snail-row unequipped-row" id="snail-row-3"></div>
-        <div class="totals-column" id="snail-totals">
+        <div class="grid grid-6 gap-md snail-row unequipped-row" id="snail-row-3"></div>
+        <div class="card card-lg totals-column" id="snail-totals">
           <h3>Snail Gear Costs</h3>
           <div id="snailMainTable"></div>
         </div>
@@ -63,33 +63,33 @@
       <div class="calculator-section">
         <h1>Minion Gear Calculator</h1>
         <div class="button-row">
-          <button id="resetMinion" class="reset-button">Reset</button>
+          <button id="resetMinion" class="btn btn-secondary reset-button">Reset</button>
           <div class="preset-group">
             <div class="preset-set">
               <span class="preset-label">Preset 1:</span>
-              <button id="saveMinionPreset1" class="preset-button">Save</button>
-              <button id="loadMinionPreset1" class="preset-button">Load</button>
+              <button id="saveMinionPreset1" class="btn btn-secondary btn-sm preset-button">Save</button>
+              <button id="loadMinionPreset1" class="btn btn-secondary btn-sm preset-button">Load</button>
             </div>
             <div class="preset-set">
               <span class="preset-label">Preset 2:</span>
-              <button id="saveMinionPreset2" class="preset-button">Save</button>
-              <button id="loadMinionPreset2" class="preset-button">Load</button>
+              <button id="saveMinionPreset2" class="btn btn-secondary btn-sm preset-button">Save</button>
+              <button id="loadMinionPreset2" class="btn btn-secondary btn-sm preset-button">Load</button>
             </div>
             <div class="preset-set">
               <span class="preset-label">Preset 3:</span>
-              <button id="saveMinionPreset3" class="preset-button">Save</button>
-              <button id="loadMinionPreset3" class="preset-button">Load</button>
+              <button id="saveMinionPreset3" class="btn btn-secondary btn-sm preset-button">Save</button>
+              <button id="loadMinionPreset3" class="btn btn-secondary btn-sm preset-button">Load</button>
             </div>
           </div>
         </div>
         <div class="minion-label equipped-label">Equipped</div>
-        <div class="horizontal-slots equipped-row" id="minion-row-1"></div>
+        <div class="grid grid-6 gap-md horizontal-slots equipped-row" id="minion-row-1"></div>
         <div class="minion-label unequipped-label">
           Unequipped
-          <button id="toggleMinionUnequipped" class="toggle-section-btn" aria-expanded="true" aria-controls="minion-row-2">−</button>
+          <button id="toggleMinionUnequipped" class="btn btn-xs toggle-section-btn" aria-expanded="true" aria-controls="minion-row-2">−</button>
         </div>
-        <div class="horizontal-slots unequipped-row" id="minion-row-2"></div>
-        <div class="totals-column" id="minion-totals">
+        <div class="grid grid-6 gap-md horizontal-slots unequipped-row" id="minion-row-2"></div>
+        <div class="card card-lg totals-column" id="minion-totals">
           <h3>Minion Gear Costs</h3>
           <div id="minionMainTable"></div>
         </div>
@@ -120,23 +120,23 @@
         <div class="controls">
           <div class="control-group stele-level-buttons-group">
             <div class="stele-level-btn-row">
-              <button class="stele-level-btn" data-stele="5">Stele 5<br><span class="stele-energy">(1000)</span></button>
-              <button class="stele-level-btn" data-stele="8">Stele 8<br><span class="stele-energy">(2000)</span></button>
-              <button class="stele-level-btn" data-stele="10">Stele 10<br><span class="stele-energy">(2900)</span></button>
-              <button class="stele-level-btn" data-stele="12">Stele 12<br><span class="stele-energy">(4000)</span></button>
-              <button class="stele-level-btn" data-stele="15">Stele 15<br><span class="stele-energy">(6000)</span></button>
+              <button class="btn btn-secondary stele-level-btn" data-stele="5">Stele 5<br><span class="stele-energy">(1000)</span></button>
+              <button class="btn btn-secondary stele-level-btn" data-stele="8">Stele 8<br><span class="stele-energy">(2000)</span></button>
+              <button class="btn btn-secondary stele-level-btn" data-stele="10">Stele 10<br><span class="stele-energy">(2900)</span></button>
+              <button class="btn btn-secondary stele-level-btn" data-stele="12">Stele 12<br><span class="stele-energy">(4000)</span></button>
+              <button class="btn btn-secondary stele-level-btn" data-stele="15">Stele 15<br><span class="stele-energy">(6000)</span></button>
             </div>
           </div>
         </div>
 
         <div class="stele-stats-outer" id="statsGrid" style="display: none;">
-          <div class="stele-stats-row stele-stats-row1">
+          <div class="d-flex justify-center gap-lg flex-wrap mt-md">
             <div class="stat-card">
               <div class="stat-value orange" id="stdDevStat">-</div>
               <div class="stat-label">Std Deviation</div>
             </div>
           </div>
-          <div class="stele-stats-row stele-stats-row2">
+          <div class="d-flex justify-center gap-lg flex-wrap mt-md">
             <div class="stat-card">
               <div class="stat-value green" id="minStat">-</div>
               <div class="stat-label">Minimum</div>
@@ -188,30 +188,30 @@
         
         <!-- Preset Buttons -->
         <div class="button-row">
-          <button id="resetCooking" class="reset-button">Reset All</button>
+          <button id="resetCooking" class="btn btn-secondary reset-button">Reset All</button>
           <div class="preset-group">
             <div class="preset-set">
               <span class="preset-label">Preset 1:</span>
-              <button id="saveCookingPreset1" class="preset-button">Save</button>
-              <button id="loadCookingPreset1" class="preset-button">Load</button>
+              <button id="saveCookingPreset1" class="btn btn-secondary btn-sm preset-button">Save</button>
+              <button id="loadCookingPreset1" class="btn btn-secondary btn-sm preset-button">Load</button>
             </div>
             <div class="preset-set">
               <span class="preset-label">Preset 2:</span>
-              <button id="saveCookingPreset2" class="preset-button">Save</button>
-              <button id="loadCookingPreset2" class="preset-button">Load</button>
+              <button id="saveCookingPreset2" class="btn btn-secondary btn-sm preset-button">Save</button>
+              <button id="loadCookingPreset2" class="btn btn-secondary btn-sm preset-button">Load</button>
             </div>
             <div class="preset-set">
               <span class="preset-label">Preset 3:</span>
-              <button id="saveCookingPreset3" class="preset-button">Save</button>
-              <button id="loadCookingPreset3" class="preset-button">Load</button>
+              <button id="saveCookingPreset3" class="btn btn-secondary btn-sm preset-button">Save</button>
+              <button id="loadCookingPreset3" class="btn btn-secondary btn-sm preset-button">Load</button>
             </div>
           </div>
         </div>
         
         <!-- Export/Import Configuration Row -->
         <div class="export-import-row">
-          <button id="exportCookingConfig" class="export-import-button">📤 Export Configuration</button>
-          <button id="importCookingConfig" class="export-import-button">📥 Import Configuration</button>
+          <button id="exportCookingConfig" class="btn btn-primary export-import-button">📤 Export Configuration</button>
+          <button id="importCookingConfig" class="btn btn-primary export-import-button">📥 Import Configuration</button>
         </div>
         
         <!-- Vendor Configuration Section -->
@@ -257,8 +257,8 @@
           <textarea id="exportTextarea" readonly style="width: 100%; height: 150px; font-family: monospace; font-size: 0.9em; padding: 10px; border: 1px solid #ddd; border-radius: 4px; resize: vertical;"></textarea>
         </div>
         <div class="modal-footer">
-          <button id="copyExportBtn" class="modal-button primary">📋 Copy to Clipboard</button>
-          <button onclick="closeCookingModal()" class="modal-button">Close</button>
+          <button id="copyExportBtn" class="btn btn-primary modal-button primary">📋 Copy to Clipboard</button>
+          <button onclick="closeCookingModal()" class="btn btn-secondary modal-button">Close</button>
         </div>
       </div>
     </div>
@@ -276,8 +276,8 @@
           <div id="importError" style="display: none; margin-top: 10px; padding: 10px; background: #ffebee; border: 1px solid #ef5350; border-radius: 4px; color: #c62828;"></div>
         </div>
         <div class="modal-footer">
-          <button id="doImportBtn" class="modal-button primary">✅ Import</button>
-          <button onclick="closeCookingModal()" class="modal-button">Cancel</button>
+          <button id="doImportBtn" class="btn btn-primary modal-button primary">✅ Import</button>
+          <button onclick="closeCookingModal()" class="btn btn-secondary modal-button">Cancel</button>
         </div>
       </div>
     </div>

@@ -163,6 +163,423 @@
 }
 
 /* ============================================
+   UTILITY CLASSES - CARD SYSTEM
+   ============================================ */
+
+.card {
+  background: var(--bg-card);
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-light);
+  transition: transform 0.2s, box-shadow 0.2s;
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Card size modifiers */
+.card-sm { 
+  padding: 10px; 
+  border-radius: 8px; 
+}
+
+.card-md { 
+  padding: 15px; 
+}
+
+.card-lg { 
+  padding: 20px; 
+}
+
+/* Card layout helpers */
+.card-header {
+  padding: 15px 20px;
+  border-bottom: 2px solid var(--bg-highlight);
+  font-weight: bold;
+  color: var(--text-secondary);
+}
+
+.card-body {
+  padding: 20px;
+}
+
+.card-footer {
+  padding: 15px 20px;
+  border-top: 1px solid var(--bg-highlight);
+}
+
+/* Special card variants */
+.card-flat {
+  box-shadow: none;
+  border: 1px solid var(--border-dark);
+}
+
+.card-no-hover:hover {
+  transform: none;
+  box-shadow: var(--shadow-md);
+}
+
+/* ============================================
+   UTILITY CLASSES - BUTTON SYSTEM
+   ============================================ */
+
+.btn {
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  font-family: "Arial", sans-serif;
+  transition: all 0.2s;
+  border: 2px solid transparent;
+  font-size: 1rem;
+  display: inline-block;
+  text-align: center;
+  text-decoration: none;
+}
+
+/* Primary button - for main actions */
+.btn-primary {
+  background: var(--btn-primary-bg);
+  color: var(--btn-text-active);
+  border-color: var(--btn-primary-bg);
+}
+
+.btn-primary:hover {
+  background: var(--btn-primary-bg-hover);
+  border-color: var(--btn-primary-bg-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Secondary button - for standard actions */
+.btn-secondary {
+  background: var(--btn-bg);
+  color: var(--btn-text);
+  border: 2px solid var(--btn-border);
+}
+
+.btn-secondary:hover {
+  border-color: var(--btn-border-hover);
+  background: var(--btn-bg-hover);
+}
+
+/* Active state for toggle buttons */
+.btn-secondary.active {
+  background: var(--btn-active-bg);
+  color: var(--btn-text-active);
+  border-color: var(--btn-active-bg);
+}
+
+/* Size modifiers */
+.btn-xs {
+  padding: 2px 10px;
+  font-size: 0.9em;
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 0.95em;
+}
+
+.btn-lg {
+  padding: 12px 28px;
+  font-size: 1.1em;
+}
+
+/* Width modifiers */
+.btn-full {
+  width: 100%;
+  display: block;
+}
+
+.btn-auto {
+  width: auto;
+}
+
+/* Special variants */
+.btn-icon {
+  padding: 8px 12px;
+  border-radius: 50px;
+  font-size: 1.2em;
+}
+
+.btn-gradient {
+  background: linear-gradient(135deg, var(--btn-primary-bg), var(--btn-primary-bg-hover));
+  border: none;
+}
+
+.btn:disabled {
+  background: var(--border-light);
+  border-color: var(--border-light);
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* ============================================
+   UTILITY CLASSES - GRID SYSTEM
+   ============================================ */
+
+.grid {
+  display: grid;
+  gap: 15px;
+}
+
+/* Responsive grid - auto-fits columns based on min width */
+.grid-responsive {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--min-col-width, 250px), 1fr));
+  gap: 15px;
+}
+
+/* Column width modifiers for responsive grids */
+.grid-xs { --min-col-width: 120px; }
+.grid-sm { --min-col-width: 180px; }
+.grid-md { --min-col-width: 250px; }
+.grid-lg { --min-col-width: 320px; }
+
+/* Explicit column counts */
+.grid-1 { grid-template-columns: 1fr; }
+.grid-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+.grid-6 { grid-template-columns: repeat(6, 1fr); }
+
+/* Gap size modifiers */
+.gap-xs { gap: 8px; }
+.gap-sm { gap: 10px; }
+.gap-md { gap: 15px; }
+.gap-lg { gap: 20px; }
+.gap-xl { gap: 30px; }
+
+/* Mobile responsive behavior */
+@media (max-width: 768px) {
+  .grid-6,
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .grid-responsive {
+    --min-col-width: 150px;
+  }
+}
+
+@media (max-width: 480px) {
+  .grid-6,
+  .grid-4,
+  .grid-3,
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================
+   UTILITY CLASSES - WIDTH UTILITIES
+   ============================================ */
+
+.w-50  { width: 50px !important; }
+.w-60  { width: 60px !important; }
+.w-70  { width: 70px !important; }
+.w-80  { width: 80px !important; }
+.w-100 { width: 100px !important; }
+.w-full { width: 100% !important; }
+
+/* ============================================
+   UTILITY CLASSES - TEXT UTILITIES
+   ============================================ */
+
+.text-center { text-align: center; }
+.text-right  { text-align: right; }
+.text-left   { text-align: left; }
+.font-mono   { font-family: monospace; }
+.font-bold   { font-weight: bold; }
+
+/* ============================================
+   UTILITY CLASSES - VENDOR UTILITIES
+   ============================================ */
+
+.border-clown { border-left: 4px solid var(--vendor-clown-border) !important; }
+.bg-clown     { background: linear-gradient(to bottom, var(--bg-card), var(--vendor-clown-bg)); }
+
+.border-mirac { border-left: 4px solid var(--vendor-mirac-border) !important; }
+.bg-mirac     { background: linear-gradient(to bottom, var(--bg-card), var(--vendor-mirac-bg)); }
+
+/* ============================================
+   UTILITY CLASSES - FLEXBOX TOOLKIT
+   ============================================ */
+.d-flex { display: flex !important; }
+.flex-col { flex-direction: column !important; }
+.flex-wrap { flex-wrap: wrap !important; }
+
+/* Alignment */
+.items-center { align-items: center !important; }
+.items-start  { align-items: flex-start !important; }
+.items-end    { align-items: flex-end !important; }
+
+/* Justification */
+.justify-center { justify-content: center !important; }
+.justify-between { justify-content: space-between !important; }
+.justify-end    { justify-content: flex-end !important; }
+.justify-start  { justify-content: flex-start !important; }
+
+/* Spacing (Gap) */
+.gap-xs { gap: 4px !important; }
+.gap-sm { gap: 8px !important; }
+.gap-md { gap: 16px !important; }
+.gap-lg { gap: 24px !important; }
+
+/* Sizing */
+.flex-1 { flex: 1 !important; }
+.w-full { width: 100% !important; }
+
+/* ============================================
+   UTILITY CLASSES - FORM CONTROLS
+   ============================================ */
+
+.form-control {
+  padding: 8px 12px;
+  border: 1px solid var(--border-primary);
+  border-radius: 4px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 1em;
+  transition: border 0.2s, background 0.2s;
+  font-family: "Arial", sans-serif;
+}
+
+.form-control:focus {
+  border-color: var(--text-secondary);
+  outline: none;
+  background: var(--bg-alt);
+}
+
+.form-control:hover {
+  border-color: var(--border-secondary);
+}
+
+.form-control:disabled {
+  background: var(--border-light);
+  color: var(--text-lighter);
+  cursor: not-allowed;
+}
+
+/* Select specific styling */
+.form-control.select {
+  cursor: pointer;
+  background-color: var(--bg-input);
+  font-weight: bold;
+}
+
+.form-control.select:hover {
+  background-color: var(--bg-input-hover);
+}
+
+/* Size modifiers */
+.form-control-xs {
+  width: 50px;
+  padding: 4px;
+  text-align: right;
+}
+
+.form-control-sm {
+  width: 60px;
+  padding: 4px 6px;
+  text-align: right;
+}
+
+.form-control-md {
+  width: 80px;
+  padding: 6px 8px;
+}
+
+.form-control-lg {
+  width: 120px;
+  padding: 8px 12px;
+}
+
+.form-control-full {
+  width: 100%;
+}
+
+/* Text alignment */
+.text-left { text-align: left; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+
+/* ============================================
+   UTILITY CLASSES - PANEL/ACCORDION SYSTEM
+   ============================================ */
+
+.panel {
+  background: var(--bg-card);
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  background: var(--bg-highlight);
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s;
+}
+
+.panel-header:hover {
+  background: var(--bg-input-hover);
+}
+
+.panel-toggle {
+  font-size: 1.2em;
+  margin-right: 12px;
+  transition: transform 0.3s;
+  color: var(--text-secondary);
+}
+
+.panel.collapsed .panel-toggle {
+  transform: rotate(-90deg);
+}
+
+.panel-title {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 1.1em;
+  flex: 1;
+}
+
+.panel-content {
+  padding: 20px;
+  transition: max-height 0.3s ease, padding 0.3s ease;
+  max-height: 5000px;
+  overflow: visible;
+}
+
+.panel.collapsed .panel-content {
+  max-height: 0;
+  padding: 0 20px;
+  overflow: hidden;
+}
+
+/* Panel variants */
+.panel-flat {
+  box-shadow: none;
+  border: 1px solid var(--border-light);
+}
+
+.panel-sm .panel-header {
+  padding: 12px 15px;
+}
+
+.panel-sm .panel-content {
+  padding: 15px;
+}
+
+/* ============================================
    BASE STYLES
    ============================================ */
 
@@ -232,38 +649,12 @@ h1, h2 {
   margin: 0 auto 30px;
 }
 
-.horizontal-slots {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 15px;
-  justify-content: center;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.snail-row {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 15px;
-  justify-content: center;
-  max-width: 1200px;
-  margin: 0 auto 15px;
-}
-
 /* Slot styling */
 .slot-container {
+  /* Card properties now handled by .card .card-sm utility classes */
   margin: 8px;
-  padding: 15px;
-  background-color: var(--bg-card);
-  border-radius: 8px;
-  box-shadow: var(--shadow-sm);
   position: relative;
-  transition: transform 0.2s;
   min-width: 0;
-}
-
-.slot-container:hover {
-  transform: translateY(-2px);
 }
 
 /* Totals section */
@@ -277,10 +668,7 @@ h1, h2 {
 }
 
 .totals-column {
-  background-color: var(--bg-card);
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: var(--shadow-lg);
+  /* Card properties now handled by .card .card-lg utility classes */
   flex: 1 1 300px;
   min-width: 280px;
 }
@@ -305,45 +693,6 @@ h1, h2 {
 .totals-column span {
   font-weight: bold;
   color: var(--text-tertiary);
-}
-
-/* Form elements */
-.upgrade-select {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid var(--border-primary);
-  border-radius: 4px;
-  background-color: var(--bg-input);
-  color: var(--text-tertiary);
-  font-size: clamp(14px, 2vw, 16px);
-  cursor: pointer;
-  transition: all 0.2s;
-  font-weight: bold;
-  font-family: "Arial", sans-serif;
-}
-
-.upgrade-select:hover {
-  border-color: var(--border-secondary);
-}
-
-.reset-button {
-  display: block;
-  margin: 15px auto;
-  padding: 12px 24px;
-  background-color: var(--btn-bg);
-  color: var(--btn-text);
-  border: 1px solid var(--btn-border);
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-size: clamp(14px, 2vw, 16px);
-  font-weight: bold;
-  font-family: "Arial", sans-serif;
-}
-
-.reset-button:hover {
-  border-color: var(--btn-border-hover);
-  background-color: var(--btn-bg-hover);
 }
 
 /* Preset group and button styling */
@@ -377,51 +726,8 @@ h1, h2 {
   letter-spacing: 0.2px;
 }
 .preset-button {
-  padding: 8px 16px;
-  background-color: var(--btn-bg);
-  color: var(--btn-text);
-  border: 1px solid var(--btn-border);
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: clamp(14px, 2vw, 16px);
+  /* Most properties now handled by .btn .btn-secondary .btn-sm utility classes */
   margin-right: 8px;
-  transition: all 0.2s;
-  font-weight: bold;
-  font-family: "Arial", sans-serif;
-}
-.preset-button:hover {
-  border-color: var(--btn-border-hover);
-  background-color: var(--btn-bg-hover);
-}
-
-/* Export/Import Configuration Row */
-.export-import-row {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin: 15px auto 20px auto;
-  max-width: 600px;
-}
-
-.export-import-button {
-  padding: 10px 24px;
-  background-color: var(--btn-primary-bg);
-  color: var(--btn-text-active);
-  border: 2px solid var(--btn-primary-bg);
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 1em;
-  font-weight: bold;
-  font-family: "Arial", sans-serif;
-  transition: all 0.2s;
-  box-shadow: var(--shadow-sm);
-}
-
-.export-import-button:hover {
-  background-color: var(--btn-primary-bg-hover);
-  border-color: var(--btn-primary-bg-hover);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
 }
 
 /* Modal Overlay and Dialog */
@@ -462,20 +768,6 @@ h1, h2 {
   }
 }
 
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 24px;
-  border-bottom: 2px solid var(--bg-highlight);
-}
-
-.modal-header h3 {
-  margin: 0;
-  color: var(--text-secondary);
-  font-size: 1.3em;
-}
-
 .modal-close {
   background: none;
   border: none;
@@ -503,62 +795,14 @@ h1, h2 {
   flex: 1;
 }
 
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  padding: 16px 24px;
-  border-top: 1px solid var(--bg-highlight);
-}
-
-.modal-button {
-  padding: 10px 20px;
-  border: 2px solid var(--btn-border);
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 1em;
-  font-weight: bold;
-  font-family: "Arial", sans-serif;
-  transition: all 0.2s;
-  background-color: var(--btn-bg);
-  color: var(--btn-text);
-}
-
-.modal-button:hover {
-  border-color: var(--btn-border-hover);
-  background-color: var(--btn-bg-hover);
-}
-
-.modal-button.primary {
-  background-color: var(--btn-primary-bg);
-  border-color: var(--btn-primary-bg);
-  color: var(--btn-text-active);
-}
-
-.modal-button.primary:hover {
-  background-color: var(--btn-primary-bg-hover);
-  border-color: var(--btn-primary-bg-hover);
-}
-
 @media (max-width: 768px) {
   .modal-dialog {
     width: 95%;
     max-height: 90vh;
   }
   
-  .modal-header,
-  .modal-body,
-  .modal-footer {
+  .modal-body {
     padding: 15px;
-  }
-  
-  .export-import-row {
-    flex-direction: column;
-    max-width: 280px;
-  }
-  
-  .export-import-button {
-    width: 100%;
   }
   
   .theme-toggle {
@@ -631,12 +875,6 @@ h1, h2 {
     margin: 10px;
     font-size: 16px;
   }
-  
-  .horizontal-slots,
-  .snail-row {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-  }
 
   .slot-container {
     margin: 5px;
@@ -657,14 +895,6 @@ h1, h2 {
     font-size: 16px;
   }
 
-  .upgrade-select {
-    font-size: 16px;
-  }
-
-  .reset-button {
-    font-size: 16px;
-  }
-
   #totals {
     flex-direction: column;
     margin: 15px auto;
@@ -677,24 +907,8 @@ h1, h2 {
   margin-bottom: 25px;
 }
 .switcher-btn {
-  padding: 12px 25px;
-  font-size: 1.1em;
-  font-weight: bold;
-  cursor: pointer;
-  border: 2px solid var(--btn-border);
-  background-color: var(--btn-bg);
-  color: var(--text-secondary);
+  /* Most properties now handled by .btn .btn-secondary .btn-lg utility classes */
   margin: 0 5px;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-}
-.switcher-btn.active {
-  background-color: var(--btn-active-bg);
-  color: var(--btn-text-active);
-  border-color: var(--btn-active-bg);
-}
-.switcher-btn:not(.active):hover {
-  background-color: var(--btn-bg-hover);
 }
 
 /* --- Rocket Cabin Section --- */
@@ -723,25 +937,6 @@ h1, h2 {
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: repeat(4, auto);
   gap: 15px;
-}
-.rocket-device-selector {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: var(--bg-card);
-  padding: 10px 15px;
-  border-radius: 8px;
-  border: 1px solid var(--border-light);
-}
-.rocket-device-selector label {
-  font-weight: bold;
-  color: var(--text-secondary);
-  margin-right: 15px;
-  flex-shrink: 0;
-}
-.rocket-device-selector .upgrade-select {
-  flex-grow: 1;
-  max-width: 180px;
 }
 
 .rocket-tier-toggle {
@@ -849,29 +1044,14 @@ h1, h2 {
 }
 
 /* Stele Level Button Row */
-.stele-level-btn-row {
-  display: flex;
-  flex-direction: row;
-  gap: 16px;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 10px;
-}
 
 .stele-level-btn {
-  padding: 12px 18px;
-  background-color: var(--btn-bg);
-  color: var(--btn-text);
+  /* Most button properties now handled by .btn .btn-secondary utility classes */
   border: 1.5px solid var(--btn-border);
   border-radius: 5px;
-  cursor: pointer;
   font-size: 1.05em;
-  font-weight: bold;
-  font-family: "Arial", sans-serif;
-  transition: all 0.2s;
   min-width: 90px;
   min-height: 48px;
-  text-align: center;
   box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
@@ -903,15 +1083,6 @@ h1, h2 {
   padding: 0 10px;
 }
 
-.stele-stats-row {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: stretch;
-  gap: 32px;
-  max-width: 600px;
-  margin: 0 auto;
-}
 
 .stele-stats-row1 .stat-card {
   flex: 1 1 220px;
@@ -950,12 +1121,9 @@ h1, h2 {
 
 .stele-stat-card,
 .stat-card {
-  background: var(--bg-card);
+  /* Card properties now handled by .card utility class */
   padding: 20px;
-  border-radius: 12px;
   text-align: center;
-  box-shadow: var(--shadow-lg);
-  transition: transform 0.2s;
 }
 .stele-stat-card:hover {
   transform: translateY(-2px);
@@ -1022,16 +1190,6 @@ h1, h2 {
 }
 
 /* Stele Probabilities Row */
-.stele-prob-row {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: stretch;
-  gap: 24px;
-  margin-top: 10px;
-  margin-bottom: 5px;
-  flex-wrap: wrap;
-}
 .stele-prob-item {
   background: var(--bg-alt);
   border-radius: 8px;
@@ -1072,67 +1230,12 @@ h1, h2 {
 /* ============== COOKING CALCULATOR STYLES ============== */
 
 /* Vendor Configuration */
-.vendor-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
-  margin-bottom: 20px;
-}
-
-.vendor-card {
-  background: var(--bg-card);
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: var(--shadow-md);
-  border: 1px solid var(--border-light);
-}
-
 .vendor-card h4 {
   margin: 0 0 15px 0;
   color: var(--text-secondary);
   font-size: 1.1em;
   border-bottom: 2px solid var(--bg-highlight);
   padding-bottom: 8px;
-}
-
-.vendor-ingredient {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: 10px 0;
-  padding: 8px;
-  background: var(--bg-section);
-  border-radius: 6px;
-}
-
-.vendor-ingredient label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.vendor-ingredient input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  cursor: pointer;
-}
-
-.rate-input {
-  width: 55px;
-  padding: 6px 8px;
-  border: 1px solid var(--border-primary);
-  border-radius: 4px;
-  text-align: right;
-  font-size: 0.95em;
-  background: var(--bg-card);
-  color: var(--text-primary);
-}
-
-.rate-input:disabled {
-  background: var(--border-light);
-  color: var(--text-lighter);
 }
 
 .voucher-config {
@@ -1148,45 +1251,12 @@ h1, h2 {
   color: var(--text-secondary);
 }
 
-.small-input {
-  width: 70px;
-  padding: 6px 8px;
-  border: 1px solid var(--border-primary);
-  border-radius: 4px;
-  text-align: right;
-  font-size: 0.95em;
-  margin: 0 5px;
-  background: var(--bg-card);
-  color: var(--text-primary);
-}
-
-.tiny-input {
-  width: 50px;
-  padding: 6px 8px;
-  border: 1px solid var(--border-primary);
-  border-radius: 4px;
-  text-align: right;
-  font-size: 0.95em;
-  margin: 0 3px;
-  background: var(--bg-card);
-  color: var(--text-primary);
-}
-
 /* Shop Configuration */
 .shop-layout-container {
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 20px;
   align-items: start;
-}
-
-.shop-items-card,
-.shop-roi-card {
-  background: var(--bg-card);
-  border-radius: 12px;
-  box-shadow: var(--shadow-lg);
-  padding: 20px;
-  border: 1px solid var(--border-light);
 }
 
 .shop-card-title {
@@ -1229,19 +1299,6 @@ h1, h2 {
   height: 18px;
 }
 
-.shop-details {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-.shop-details label {
-  font-size: 0.9em;
-  color: var(--text-light);
-}
-
 .fixed-price {
   font-weight: bold;
   color: var(--text-secondary);
@@ -1268,33 +1325,9 @@ h1, h2 {
 }
 
 /* Recipe Manager */
-.recipe-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 15px;
-}
-
 .recipe-card {
-  background: var(--bg-card);
-  border-radius: 10px;
-  box-shadow: var(--shadow-md);
-  border: 1px solid var(--border-light);
+  /* Card properties now handled by .card utility class */
   overflow: hidden;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.recipe-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
-}
-
-.recipe-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 15px;
-  background: var(--bg-alt);
-  border-bottom: 1px solid var(--border-lighter);
 }
 
 .recipe-toggle {
@@ -1331,14 +1364,6 @@ h1, h2 {
 .vendor-badge.mirac {
   background: var(--vendor-mirac-bg);
   color: var(--vendor-mirac-color);
-}
-
-.recipe-config {
-  padding: 12px 15px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
 }
 
 .recipe-field {
@@ -1435,9 +1460,7 @@ h1, h2 {
 }
 
 .results-card {
-  background: var(--bg-card);
-  border-radius: 12px;
-  box-shadow: var(--shadow-lg);
+  /* Card properties now handled by .card utility class */
   padding: 15px;
 }
 
@@ -1645,21 +1668,6 @@ h1, h2 {
   margin-bottom: 25px;
 }
 
-.cooking-section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid var(--bg-highlight);
-}
-
-.cooking-section-header h3 {
-  margin: 0;
-  color: var(--text-secondary);
-  font-size: 1.15em;
-}
-
 /* Mobile Responsiveness */
 @media (max-width: 900px) {
   .results-grid {
@@ -1689,11 +1697,6 @@ h1, h2 {
     grid-template-columns: 1fr;
   }
   
-  .recipe-config {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  
   .recipe-ingredients {
     margin-left: 0;
     margin-top: 10px;
@@ -1710,65 +1713,6 @@ h1, h2 {
   .results-card {
     flex: 1 1 auto;
   }
-}
-
-/* Recipe Sections with Collapse */
-.recipe-sections {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.recipe-section {
-  background: var(--bg-card);
-  border-radius: 12px;
-  box-shadow: var(--shadow-lg);
-  overflow: hidden;
-}
-
-.recipe-section-header {
-  display: flex;
-  align-items: center;
-  padding: 15px 20px;
-  background: var(--bg-highlight);
-  cursor: pointer;
-  user-select: none;
-  transition: background 0.2s;
-}
-
-.recipe-section-header:hover {
-  background: var(--bg-input-hover);
-}
-
-.recipe-section-header .section-toggle {
-  font-size: 1.2em;
-  margin-right: 12px;
-  transition: transform 0.3s;
-  color: var(--text-secondary);
-}
-
-.recipe-section.collapsed .section-toggle {
-  transform: rotate(-90deg);
-}
-
-.recipe-section-header h3 {
-  margin: 0;
-  color: var(--text-secondary);
-  font-size: 1.1em;
-  flex: 1;
-}
-
-.recipe-section-content {
-  padding: 20px;
-  transition: all 0.3s ease;
-  max-height: 3000px;
-  overflow: visible;
-}
-
-.recipe-section.collapsed .recipe-section-content {
-  max-height: 0;
-  padding: 0 20px;
-  overflow: hidden;
 }
 
 /* Ingredient Filters */
@@ -1806,66 +1750,6 @@ h1, h2 {
   accent-color: var(--text-secondary);
 }
 
-/* Recipe Grid spacing within sections */
-.recipe-section-content .recipe-grid {
-  margin-top: 0;
-}
-
-/* Mega Stew Calculator Section */
-.stew-calculator-section {
-  margin-top: 20px;
-  border-top: 2px solid var(--bg-highlight);
-  background: var(--bg-card);
-  border-radius: 12px;
-  box-shadow: var(--shadow-lg);
-  overflow: hidden;
-}
-
-.stew-section-header {
-  display: flex;
-  align-items: center;
-  padding: 15px 20px;
-  background: var(--bg-highlight);
-  cursor: pointer;
-  user-select: none;
-  transition: background 0.2s;
-}
-
-.stew-section-header:hover {
-  background: var(--bg-input-hover);
-}
-
-.stew-section-header .section-toggle {
-  font-size: 1.2em;
-  margin-right: 12px;
-  transition: transform 0.3s;
-  color: var(--text-secondary);
-}
-
-.stew-calculator-section.collapsed .section-toggle {
-  transform: rotate(-90deg);
-}
-
-.stew-section-header h4 {
-  margin: 0;
-  color: var(--text-secondary);
-  font-size: 1em;
-  flex: 1;
-}
-
-.stew-section-content {
-  padding: 20px;
-  transition: all 0.3s ease;
-  max-height: 5000px;
-  overflow: visible;
-}
-
-.stew-calculator-section.collapsed .stew-section-content {
-  max-height: 0;
-  padding: 0 20px;
-  overflow: hidden;
-}
-
 .stew-calc-table {
   width: 100%;
   border-collapse: collapse;
@@ -1898,24 +1782,6 @@ h1, h2 {
   text-align: left;
   padding-left: 12px;
   font-size: 1.05em;
-}
-
-.stew-input {
-  width: 60px;
-  padding: 6px 8px;
-  border: 1px solid var(--border-primary);
-  border-radius: 4px;
-  text-align: center;
-  font-size: 0.95em;
-  background: var(--bg-card);
-  color: var(--text-primary);
-  transition: border 0.2s;
-}
-
-.stew-input:focus {
-  border-color: var(--text-secondary);
-  outline: none;
-  background: var(--bg-alt);
 }
 
 #stew-result {
@@ -2129,156 +1995,10 @@ h1, h2 {
   margin: 0 0 12px 0;
 }
 
-.percentile-input-row {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.percentile-input-row input {
-  width: 110px;
-  padding: 8px;
-  font-size: 1em;
-  text-align: center;
-  border: 2px solid var(--border-dark);
-  border-radius: 6px;
-  background: var(--bg-card);
-  color: var(--text-primary);
-}
-
-.percentile-input-row button {
-  padding: 8px 18px;
-  font-size: 0.95em;
-  font-weight: bold;
-  background: var(--btn-primary-bg);
-  color: var(--btn-text-active);
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
 .percentile-result {
   font-size: 1em;
   color: var(--text-primary);
   min-height: 1.5em;
-}
-
-/* Ingredient Optimizer Styles */
-.ingredient-optimizer-section {
-  background: var(--bg-card);
-  border-radius: 12px;
-  box-shadow: var(--shadow-lg);
-  overflow: hidden;
-  margin-bottom: 20px;
-}
-
-.optimizer-section-header {
-  display: flex;
-  align-items: center;
-  padding: 15px 20px;
-  background: var(--bg-highlight);
-  cursor: pointer;
-  user-select: none;
-  transition: background 0.2s;
-}
-
-.optimizer-section-header:hover {
-  background: var(--bg-input-hover);
-}
-
-.optimizer-section-header .section-toggle {
-  font-size: 1.2em;
-  margin-right: 12px;
-  transition: transform 0.3s;
-  color: var(--text-secondary);
-}
-
-.ingredient-optimizer-section.collapsed .section-toggle {
-  transform: rotate(-90deg);
-}
-
-.optimizer-section-header h4 {
-  margin: 0;
-  color: var(--text-secondary);
-  font-size: 1.1em;
-  flex: 1;
-}
-
-.optimizer-section-content {
-  padding: 20px;
-  transition: all 0.3s ease;
-  max-height: 3000px;
-  overflow: visible;
-}
-
-.ingredient-optimizer-section.collapsed .optimizer-section-content {
-  max-height: 0;
-  padding: 0 20px;
-  overflow: hidden;
-}
-
-.ingredient-input-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 15px;
-  margin-bottom: 20px;
-}
-
-.ingredient-input-card {
-  background: var(--bg-card);
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: var(--shadow-md);
-  border: 1px solid var(--border-light);
-  text-align: center;
-  transition: transform 0.2s, box-shadow 0.2s;
-  box-sizing: border-box;
-  min-width: 0;
-  overflow: hidden;
-}
-
-.ingredient-input-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
-}
-
-.ingredient-input-card.clown {
-  border-left: 4px solid var(--vendor-clown-border);
-  background: linear-gradient(to bottom, var(--bg-card), var(--vendor-clown-bg));
-}
-
-.ingredient-input-card.mirac {
-  border-left: 4px solid var(--vendor-mirac-border);
-  background: linear-gradient(to bottom, var(--bg-card), var(--vendor-mirac-bg));
-}
-
-.ingredient-input-card label {
-  display: block;
-  font-weight: bold;
-  color: var(--text-primary);
-  font-size: 0.95em;
-  margin-bottom: 8px;
-}
-
-.ingredient-input-card input {
-  width: 100%;
-  padding: 10px;
-  font-size: 1.1em;
-  text-align: center;
-  border: 2px solid var(--border-dark);
-  border-radius: 6px;
-  background: var(--bg-card);
-  transition: border-color 0.2s;
-  box-sizing: border-box;
-  color: var(--text-primary);
-}
-
-.ingredient-input-card input:focus {
-  border-color: var(--text-secondary);
-  outline: none;
-  background: var(--bg-alt);
 }
 
 .optimizer-recommendation {

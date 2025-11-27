@@ -170,11 +170,11 @@ MINION_UPGRADE_PATH.forEach(level => {
 
 function createSlotElement(id, isSnail = false) {
   const container = document.createElement("div");
-  container.className = "slot-container";
+  container.className = "card card-sm slot-container";
 
   const select = document.createElement("select");
   select.id = id;
-  select.className = "upgrade-select";
+  select.className = "form-control select form-control-full upgrade-select";
 
   // Use the keys from our data objects to create the options
   let options;
@@ -809,11 +809,11 @@ function createAllRocketCabinsUI() {
     cabinWrapper.appendChild(title);
 
     const grid = document.createElement('div');
-    grid.className = 'rocket-selectors-grid';
+    grid.className = 'grid grid-2 gap-md rocket-selectors-grid';
 
     Object.keys(cabin.devices).forEach(deviceName => {
         const selectorDiv = document.createElement("div");
-        selectorDiv.className = "rocket-device-selector";
+        selectorDiv.className = "d-flex items-center justify-between p-sm border-light rounded mb-sm";
         
         const label = document.createElement("label");
         label.textContent = deviceName;
@@ -821,7 +821,7 @@ function createAllRocketCabinsUI() {
         const select = document.createElement("select");
         // Unique ID: cabinKey-deviceName
         select.id = `rocket-${cabinKey}-${deviceName.replace(/\s+/g, '-')}`;
-        select.className = "upgrade-select rocket-tier-select";
+        select.className = "form-control select form-control-full upgrade-select rocket-tier-select";
         select.setAttribute("data-cabin", cabinKey);
 
         // Tier display mapping
@@ -861,7 +861,7 @@ function createAllRocketCabinsUI() {
     // Toggle button
     const toggleBtn = document.createElement("button");
     toggleBtn.id = `toggleExcess-${cabinKey}`;
-    toggleBtn.className = "toggle-section-btn";
+    toggleBtn.className = "btn btn-xs toggle-section-btn";
     toggleBtn.setAttribute("aria-expanded", "false");
     toggleBtn.setAttribute("aria-controls", `excessGrid-${cabinKey}`);
     toggleBtn.textContent = "+";
@@ -869,7 +869,7 @@ function createAllRocketCabinsUI() {
 
     // Reset Excess button
     const resetExcessBtn = document.createElement("button");
-    resetExcessBtn.className = "reset-button";
+    resetExcessBtn.className = "btn btn-secondary reset-button";
     resetExcessBtn.textContent = "Reset Excess";
     resetExcessBtn.style.marginLeft = "12px";
     resetExcessBtn.style.padding = "4px 14px";
@@ -977,13 +977,13 @@ function createAllRocketCabinsUI() {
 
       const saveBtn = document.createElement("button");
       saveBtn.textContent = "Save";
-      saveBtn.className = "preset-button";
+      saveBtn.className = "btn btn-secondary btn-sm preset-button";
       saveBtn.addEventListener("click", () => saveRocketCabinPreset(cabinKey, i));
       presetSet.appendChild(saveBtn);
 
       const loadBtn = document.createElement("button");
       loadBtn.textContent = "Load";
-      loadBtn.className = "preset-button";
+      loadBtn.className = "btn btn-secondary btn-sm preset-button";
       loadBtn.addEventListener("click", () => loadRocketCabinPreset(cabinKey, i));
       presetSet.appendChild(loadBtn);
 
@@ -993,7 +993,7 @@ function createAllRocketCabinsUI() {
 
     const resetBtn = document.createElement("button");
     resetBtn.textContent = "Reset";
-    resetBtn.className = "reset-button";
+    resetBtn.className = "btn btn-secondary reset-button";
     resetBtn.style.display = "block";
     resetBtn.style.margin = "15px auto";
     resetBtn.addEventListener("click", () => resetRocketCabin(cabinKey));
@@ -1001,7 +1001,7 @@ function createAllRocketCabinsUI() {
 
     // Add per-cabin summary
     const summaryDiv = document.createElement("div");
-    summaryDiv.className = "totals-column rocket-cabin-totals-summary";
+    summaryDiv.className = "card card-lg totals-column rocket-cabin-totals-summary";
     summaryDiv.innerHTML = `<h3>Cabin Materials Summary <span style="font-weight:normal;font-size:0.95em;">(<span id="rocketTierSummaryLabel-${cabinKey}">T1 materials</span>)</span></h3>`;
 
     // Create tier toggle dropdown (now inside summaryDiv, just below header)
@@ -1023,7 +1023,7 @@ function createAllRocketCabinsUI() {
 
     const tierSelect = document.createElement("select");
     tierSelect.id = `rocketTierDisplay-${cabinKey}`;
-    tierSelect.className = "upgrade-select";
+    tierSelect.className = "form-control select upgrade-select";
     tierSelect.style.fontSize = "0.98em";
     tierSelect.style.padding = "2px 8px";
     tierSelect.style.height = "28px";
