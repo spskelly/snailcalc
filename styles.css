@@ -354,27 +354,6 @@
 .gap-lg { gap: 20px; }
 .gap-xl { gap: 30px; }
 
-/* Mobile responsive behavior */
-@media (max-width: 768px) {
-  .grid-6,
-  .grid-4 {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .grid-responsive {
-    --min-col-width: 150px;
-  }
-}
-
-@media (max-width: 480px) {
-  .grid-6,
-  .grid-4,
-  .grid-3,
-  .grid-2 {
-    grid-template-columns: 1fr;
-  }
-}
-
 /* ============================================
    UTILITY CLASSES - WIDTH UTILITIES
    ============================================ */
@@ -515,18 +494,6 @@
 .p-sm { padding: 10px !important; }
 .p-md { padding: 15px !important; }
 .p-lg { padding: 20px !important; }
-
-/* ============================================
-   UTILITY CLASSES - CARD HEADING
-   ============================================ */
-
-.card-heading {
-  margin: 0 0 15px 0;
-  color: var(--text-secondary);
-  font-size: 1.1em;
-  border-bottom: 2px solid var(--bg-highlight);
-  padding-bottom: 8px;
-}
 
 /* ============================================
    UTILITY CLASSES - PANEL/ACCORDION SYSTEM
@@ -693,13 +660,6 @@ h1, h2 {
   min-width: 280px;
 }
 
-.totals-column h3 {
-  color: var(--text-tertiary);
-  text-align: center;
-  margin-bottom: 15px;
-  font-size: clamp(1.1rem, 3vw, 1.3rem);
-}
-
 .totals-column p {
   margin: 12px 0;
   font-size: clamp(14px, 2vw, 16px);
@@ -815,24 +775,6 @@ h1, h2 {
   flex: 1;
 }
 
-@media (max-width: 768px) {
-  .modal-dialog {
-    width: 95%;
-    max-height: 90vh;
-  }
-  
-  .modal-body {
-    padding: 15px;
-  }
-  
-  .theme-toggle {
-    top: 10px;
-    right: 10px;
-    padding: 8px 12px;
-    font-size: 1em;
-  }
-}
-
 /* Main cost table styling */
 .cost-table {
   width: 100%;
@@ -907,21 +849,6 @@ h1, h2 {
   gap: 30px;
   margin-bottom: 30px;
 }
-.cabin-section {
-  background: var(--bg-tertiary);
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: var(--shadow-sm);
-}
-.cabin-title {
-  color: var(--text-tertiary);
-  margin-top: 0;
-  margin-bottom: 15px;
-  text-align: left;
-  border-bottom: 2px solid var(--bg-highlight);
-  padding-bottom: 10px;
-}
-
 .rocket-tier-toggle {
   display: inline-flex;
   align-items: center;
@@ -1004,51 +931,6 @@ h1, h2 {
   color: var(--text-light);
   font-weight: normal;
 }
-
-.stele-stats-outer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 24px;
-  margin: 30px 0 30px 0;
-  padding: 0 10px;
-}
-
-
-.stele-stats-row1 .stat-card {
-  flex: 1 1 220px;
-  max-width: 220px;
-  min-width: 160px;
-}
-.stele-stats-row2 .stat-card {
-  flex: 1 1 160px;
-  max-width: 160px;
-  min-width: 120px;
-}
-
-.stele-stats-row .stat-card {
-  margin: 0;
-}
-
-.stele-stats-outer .stat-card {
-  box-sizing: border-box;
-}
-
-.stele-stats-outer .stat-value {
-  font-size: 2rem;
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-.stele-stats-outer .stat-label {
-  color: var(--text-muted);
-  font-size: 0.9rem;
-}
-
-.stele-stats-outer .blue { color: var(--chart-blue); }
-.stele-stats-outer .green { color: var(--chart-green); }
-.stele-stats-outer .purple { color: var(--chart-purple); }
-.stele-stats-outer .orange { color: var(--chart-orange); }
-.stele-stats-outer .red { color: var(--chart-red); }
 
 .stele-stat-card,
 .stat-card {
@@ -1250,8 +1132,17 @@ h1, h2 {
 
 /* Recipe Manager */
 .recipe-card {
-  /* Card properties now handled by .card utility class */
+  background: var(--bg-card);
+  border-radius: 10px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-light);
+  transition: transform 0.2s, box-shadow 0.2s;
   overflow: hidden;
+}
+
+.recipe-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
 }
 
 .recipe-toggle {
@@ -1346,12 +1237,6 @@ h1, h2 {
   box-shadow: var(--shadow-lg);
   padding: 20px;
   height: fit-content;
-}
-
-.results-rankings h3 {
-  margin: 0 0 15px 0;
-  color: var(--text-secondary);
-  font-size: 1.2em;
 }
 
 .ranking-table-container {
@@ -1509,32 +1394,6 @@ h1, h2 {
 
 
 /* Mega Stew Values */
-.stew-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.stew-item {
-  text-align: center;
-  padding: 10px;
-  background: var(--bg-section);
-  border-radius: 8px;
-}
-
-.stew-label {
-  display: block;
-  font-size: 0.8em;
-  color: var(--text-muted);
-  margin-bottom: 3px;
-}
-
-.stew-value {
-  font-weight: bold;
-  color: var(--text-primary);
-}
-
 .stew-formula {
   text-align: center;
   font-family: monospace;
@@ -1645,147 +1504,56 @@ h1, h2 {
 /* ============================================
    RESPONSIVE OVERRIDES (MASTER BLOCK)
    ============================================ */
-
 @media (max-width: 900px) {
   .optimal-ranking-layout,
-  .results-grid {
-    flex-direction: column;
-    grid-template-columns: 1fr;
-  }
+  .results-grid { flex-direction: column; grid-template-columns: 1fr; }
   
   .optimal-ranking-table,
-  .optimal-ranking-strategy {
-    flex: 1 1 100%;
-  }
+  .optimal-ranking-strategy { flex: 1 1 100%; max-width: 100%; }
   
-  .optimal-ranking-strategy {
-    position: relative;
-    top: 0;
-  }
+  .optimal-ranking-strategy { position: relative; top: 0; }
   
-  .results-sidebar {
-    flex-direction: row;
-    flex-wrap: wrap;
-  }
-  
-  .results-card {
-    flex: 1 1 280px;
-  }
+  .results-sidebar { flex-direction: row; flex-wrap: wrap; }
+  .results-card { flex: 1 1 280px; }
 }
 
 @media (max-width: 768px) {
-  /* Body & Layout */
-  body {
-    margin: 10px;
-    font-size: 16px;
+  /* Layout & Spacing */
+  body { margin: 10px; font-size: 16px; }
+  #totals { flex-direction: column; margin: 15px auto; }
+  .slot-container { margin: 5px; padding: 12px; }
+  .totals-column { width: 100%; margin: 10px 0; padding: 15px; }
+  .totals-column p, .totals-column span { font-size: 16px; }
+
+  /* Grids - Force 2 columns */
+  .grid-6, .grid-4, .stats-grid,
+  .ingredient-input-grid, .remaining-grid,
+  .stew-simulator .ingredient-grid { 
+    grid-template-columns: repeat(2, 1fr) !important; 
   }
 
-  .slot-container {
-    margin: 5px;
-    padding: 12px;
+  /* Grids - Force 1 column */
+  .shop-layout-container, .recipe-grid, .vendor-grid,
+  .stew-grid, .stew-simulator .stew-results-container { 
+    grid-template-columns: 1fr !important; 
   }
 
-  .totals-column {
-    width: 100%;
-    margin: 10px 0;
-    padding: 15px;
-  }
-
-  .totals-column p,
-  .totals-column span {
-    font-size: 16px;
-  }
-
-  #totals {
-    flex-direction: column;
-    margin: 15px auto;
-  }
-  
-  /* Modal & Theme */
-  .modal-dialog {
-    width: 95%;
-    max-height: 90vh;
-  }
-  
-  .modal-body {
-    padding: 15px;
-  }
-  
-  .theme-toggle {
-    top: 10px;
-    right: 10px;
-    padding: 8px 12px;
-    font-size: 1em;
-  }
-  
-  /* Cooking Calculator */
-  .vendor-grid,
-  .shop-layout-container,
-  .recipe-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .recipe-ingredients {
-    margin-left: 0;
-    margin-top: 10px;
-  }
-  
-  .stew-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .results-sidebar {
-    flex-direction: column;
-  }
-  
-  .results-card {
-    flex: 1 1 auto;
-  }
-  
-  /* Ingredient Optimizer */
-  .ingredient-input-grid,
-  .remaining-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .recipe-stats p {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
-  }
-  
-  /* Stew Simulator */
-  .stew-simulator .ingredient-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-  
-  .stew-simulator .stew-results-container {
-    grid-template-columns: 1fr;
-  }
-  
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .chart-container {
-    height: 300px;
-  }
+  /* Components */
+  .modal-dialog { width: 95%; max-height: 90vh; }
+  .modal-body { padding: 15px; }
+  .theme-toggle { top: 10px; right: 10px; padding: 8px 12px; }
+  .recipe-ingredients { margin-left: 0; margin-top: 10px; }
+  .results-sidebar { flex-direction: column; }
+  .chart-container { height: 300px; }
 }
 
 @media (max-width: 480px) {
-  /* Ingredient Optimizer */
-  .ingredient-input-grid,
-  .remaining-grid {
-    grid-template-columns: 1fr;
+  /* Grids - Force 1 column on small mobile */
+  .grid-6, .grid-4, .grid-3, .grid-2,
+  .ingredient-input-grid, .remaining-grid,
+  .stew-simulator .ingredient-grid { 
+    grid-template-columns: 1fr !important; 
   }
   
-  .recipe-option .recipe-details {
-    flex-direction: column;
-    gap: 8px;
-  }
-  
-  /* Stew Simulator */
-  .stew-simulator .ingredient-grid {
-    grid-template-columns: 1fr;
-  }
+  .recipe-option .recipe-details { flex-direction: column; gap: 8px; }
 }

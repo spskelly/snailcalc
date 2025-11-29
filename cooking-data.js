@@ -167,6 +167,39 @@ const COOKING_RECIPES = {
     miracVeggie: 0,
     miracSpice: 0
   },
+  "braised_dire_shrimp": {
+    name: "Braised Dire Shrimp",
+    defaultStars: 1,
+    defaultPrice: 0,
+    clownMeat: 0,
+    clownVeggie: 0,
+    clownSpice: 0,
+    miracMeat: 2,
+    miracVeggie: 1,
+    miracSpice: 0
+  },
+  "stir_fried_sea_dragon": {
+    name: "Stir-fried Sea Dragon",
+    defaultStars: 1,
+    defaultPrice: 0,
+    clownMeat: 0,
+    clownVeggie: 0,
+    clownSpice: 0,
+    miracMeat: 3,
+    miracVeggie: 2,
+    miracSpice: 0
+  },
+  "sea_salt_cheese": {
+    name: "Sea Salt Cheese",
+    defaultStars: 1,
+    defaultPrice: 0,
+    clownMeat: 0,
+    clownVeggie: 0,
+    clownSpice: 0,
+    miracMeat: 4,
+    miracVeggie: 2,
+    miracSpice: 0
+  },
 };
 
 // Default vendor configurations
@@ -241,4 +274,7 @@ const RECIPE_ORDER = [
   "nuclear_bbq_oyster",
   "marinated_octopus",
   "manta_ray_sashimi",
+  "braised_dire_shrimp",
+  "stir_fried_sea_dragon",
+  "sea_salt_cheese",
 ];

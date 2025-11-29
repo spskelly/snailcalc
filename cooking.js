@@ -324,7 +324,7 @@ function buildRecipeManager(root) {
           
           <!-- Strategy Summary (25%) -->
           <div class="optimal-ranking-strategy">
-            <h4 class="card-heading">🎯 Strategy Summary</h4>
+            <h4 class="card-header">🎯 Strategy Summary</h4>
             <div id="strategy-summary"></div>
           </div>
         </div>
@@ -681,7 +681,7 @@ function calculateIngredientOptimizer(root) {
   // Build HTML output
   let html = `
     <div class="optimizer-recommendation">
-      <h4 class="card-heading">🎯 Optimal Crafting Sequence</h4>
+      <h4 class="card-header">🎯 Optimal Crafting Sequence</h4>
       <p style="color: #666; margin: 0 0 15px 0; font-size: 0.95em;">
         Make recipes in order for maximum gold efficiency:
       </p>
@@ -792,27 +792,27 @@ function buildResultsDashboard(root) {
           <div class="grid-responsive grid-sm gap-md" id="cooking-ingredient-optimizer">
             <div class="card card-md border-clown bg-clown" style="text-align: center;">
               <label style="display: block; font-weight: bold; margin-bottom: 8px;">🥩 Clown Meat</label>
-              <input type="number" id="current-clown-meat" value="${ing.clownMeat}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1.1em; padding: 10px;">
+              <input type="number" id="current-clown-meat" value="${ing.clownMeat}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
             </div>
             <div class="card card-md border-clown bg-clown" style="text-align: center;">
               <label style="display: block; font-weight: bold; margin-bottom: 8px;">🥬 Clown Veggie</label>
-              <input type="number" id="current-clown-veggie" value="${ing.clownVeggie}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1.1em; padding: 10px;">
+              <input type="number" id="current-clown-veggie" value="${ing.clownVeggie}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
             </div>
             <div class="card card-md border-clown bg-clown" style="text-align: center;">
               <label style="display: block; font-weight: bold; margin-bottom: 8px;">🌶️ Clown Spice</label>
-              <input type="number" id="current-clown-spice" value="${ing.clownSpice}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1.1em; padding: 10px;">
+              <input type="number" id="current-clown-spice" value="${ing.clownSpice}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
             </div>
             <div class="card card-md border-mirac bg-mirac" style="text-align: center;">
               <label style="display: block; font-weight: bold; margin-bottom: 8px;">🥩 Mirac Meat</label>
-              <input type="number" id="current-mirac-meat" value="${ing.miracMeat}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1.1em; padding: 10px;">
+              <input type="number" id="current-mirac-meat" value="${ing.miracMeat}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
             </div>
             <div class="card card-md border-mirac bg-mirac" style="text-align: center;">
               <label style="display: block; font-weight: bold; margin-bottom: 8px;">🥬 Mirac Veggie</label>
-              <input type="number" id="current-mirac-veggie" value="${ing.miracVeggie}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1.1em; padding: 10px;">
+              <input type="number" id="current-mirac-veggie" value="${ing.miracVeggie}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
             </div>
             <div class="card card-md border-mirac bg-mirac" style="text-align: center;">
               <label style="display: block; font-weight: bold; margin-bottom: 8px;">🌶️ Mirac Spice</label>
-              <input type="number" id="current-mirac-spice" value="${ing.miracSpice}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1.1em; padding: 10px;">
+              <input type="number" id="current-mirac-spice" value="${ing.miracSpice}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
             </div>
           </div>
         </div>
@@ -1498,7 +1498,7 @@ function updateStewCalculator(root) {
       <!-- Range Results -->
       <div class="grid grid-2 gap-md" style="margin-bottom: 20px;">
         <div class="card card-md">
-          <h4 class="card-heading">📊 Expected Range</h4>
+          <h4 class="card-header">📊 Expected Range</h4>
           <div class="d-flex justify-between items-center" style="margin: 12px 0;">
             <div style="text-align: center;">
               <div style="font-size: 0.75em; color: #777; text-transform: uppercase; margin-bottom: 4px;">Minimum</div>
@@ -1519,7 +1519,7 @@ function updateStewCalculator(root) {
         </div>
         
         <div class="card card-md">
-          <h4 class="card-heading">📈 Value Per Ingredient</h4>
+          <h4 class="card-header">📈 Value Per Ingredient</h4>
           <div style="text-align: center; padding: 20px 10px;">
             <div style="font-size: 0.85em; color: #666; margin-bottom: 5px;">AVERAGE</div>
             <div style="font-size: 1.8em; font-weight: bold; color: #1565c0;" id="stew-per-ingredient">0.00</div>

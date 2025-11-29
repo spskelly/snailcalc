@@ -801,7 +801,7 @@ function createAllRocketCabinsUI() {
     
     // Create a wrapper for the cabin
     const cabinWrapper = document.createElement('div');
-    cabinWrapper.className = 'cabin-section';
+    cabinWrapper.className = 'card card-lg shadow-sm mb-lg bg-tertiary';
     
     const title = document.createElement('h2');
     title.className = 'cabin-title';
