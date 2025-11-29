@@ -79,19 +79,19 @@ function buildVendorConfig(root) {
   
   const isCollapsed = getAccordionState('vendor-config') ? '' : ' collapsed';
   
-  let html = `<div class="recipe-section${isCollapsed}" data-accordion-id="vendor-config">`;
-  html += '<div class="recipe-section-header" onclick="toggleAccordion(this)">';
-  html += '<span class="section-toggle">▼</span>';
-  html += '<h4 style="margin: 0; font-size: 1.1em;">Vendor Configuration Details</h4>';
+  let html = `<div class="panel${isCollapsed}" data-accordion-id="vendor-config">`;
+  html += '<div class="panel-header" onclick="toggleAccordion(this)">';
+  html += '<span class="panel-toggle">▼</span>';
+  html += '<h4 class="panel-title">Vendor Configuration Details</h4>';
   html += '</div>';
-  html += '<div class="recipe-section-content">';
-  html += '<div class="vendor-grid">';
+  html += '<div class="panel-content">';
+  html += '<div class="grid-responsive grid-md gap-lg">';
   
   // clown vendor
   html += `
-    <div class="vendor-card">
-      <h4>Clown Vendor</h4>
-      <div class="vendor-preset">
+    <div class="card card-lg vendor-card">
+      <h4 class="card-header">Clown Vendor</h4>
+      <div class="card-body vendor-preset">
         <label style="display: block; margin-bottom: 8px;">
           <input type="radio" name="clown-preset" value="meat-only"> Meat Only (100%)
         </label>
@@ -107,9 +107,9 @@ function buildVendorConfig(root) {
   
   // miraculand vendor
   html += `
-    <div class="vendor-card">
-      <h4>Miraculand Vendor</h4>
-      <div class="vendor-preset">
+    <div class="card card-lg vendor-card">
+      <h4 class="card-header">Miraculand Vendor</h4>
+      <div class="card-body vendor-preset">
         <label style="display: block; margin-bottom: 8px;">
           <input type="radio" name="mirac-preset" value="none"> None (Not Unlocked)
         </label>
@@ -126,19 +126,19 @@ function buildVendorConfig(root) {
     </div>
   `;
   
-  html += '</div>'; // end vendor-grid
+  html += '</div>'; // end grid
   
   // supply orders per hour
   html += `
     <div class="voucher-config">
       <label>Supply Orders per Hour: 
-        <input type="number" id="supply-orders-per-hour" value="30" min="1" max="999" class="small-input">
+        <input type="number" id="supply-orders-per-hour" value="30" min="1" max="999" class="form-control form-control-md">
       </label>
     </div>
   `;
   
-  html += '</div>'; // end recipe-section-content
-  html += '</div>'; // end recipe-section
+  html += '</div>'; // end panel-content
+  html += '</div>'; // end panel
   
   container.innerHTML = html;
 }
@@ -152,19 +152,19 @@ function buildShopConfig(root) {
   const isCollapsed = getAccordionState('shop-config') ? '' : ' collapsed';
   
   // Collapsible section wrapping the entire shop content
-  let html = `<div class="recipe-section${isCollapsed}" data-accordion-id="shop-config">`;
-  html += '<div class="recipe-section-header" onclick="toggleAccordion(this)">';
-  html += '<span class="section-toggle">▼</span>';
-  html += '<h4 style="margin: 0; font-size: 1.1em;">Shop Items & Daily ROI</h4>';
+  let html = `<div class="panel${isCollapsed}" data-accordion-id="shop-config">`;
+  html += '<div class="panel-header" onclick="toggleAccordion(this)">';
+  html += '<span class="panel-toggle">▼</span>';
+  html += '<h4 class="panel-title">Shop Items & Daily ROI</h4>';
   html += '</div>';
-  html += '<div class="recipe-section-content">';
+  html += '<div class="panel-content">';
   
   // Two-column layout: items on left, ROI on right
   html += '<div class="shop-layout-container">';
   
   // Left column: shop items
-  html += '<div class="shop-items-card">';
-  html += '<h4 class="shop-card-title">🛒 Shop Items</h4>';
+  html += '<div class="card card-lg shop-items-card">';
+  html += '<h4 class="card-header">🛒 Shop Items</h4>';
   html += '<div class="shop-items-list">';
   
   // supply deals
@@ -174,8 +174,8 @@ function buildShopConfig(root) {
         <input type="checkbox" id="shop-supply-enabled" ${shop.supplyDeals.enabled ? 'checked' : ''}>
         <strong>Supply Deals</strong>
       </label>
-      <div class="shop-details">
-        <label>Qty: <input type="number" id="shop-supply-qty" value="${shop.supplyDeals.quantity}" min="0" max="99" step="1" class="tiny-input"></label>
+      <div class="d-flex items-center gap-sm">
+        <label>Qty: <input type="number" id="shop-supply-qty" value="${shop.supplyDeals.quantity}" min="0" max="99" step="1" class="form-control form-control-xs"></label>
         <label>@ <span class="fixed-price">100g</span> each</label>
       </div>
       <div class="shop-result" id="shop-supply-result"></div>
@@ -189,8 +189,8 @@ function buildShopConfig(root) {
         <input type="checkbox" id="shop-veggie-enabled" ${shop.veggiePurchase.enabled ? 'checked' : ''}>
         <strong>Buy Veggies</strong>
       </label>
-      <div class="shop-details">
-        <label>Qty: <input type="number" id="shop-veggie-qty" value="${shop.veggiePurchase.quantity}" min="0" max="99" step="1" class="tiny-input"></label>
+      <div class="d-flex items-center gap-sm">
+        <label>Qty: <input type="number" id="shop-veggie-qty" value="${shop.veggiePurchase.quantity}" min="0" max="99" step="1" class="form-control form-control-xs"></label>
         <label>@ <span class="fixed-price">220g</span> each</label>
       </div>
       <div class="shop-result" id="shop-veggie-result"></div>
@@ -204,8 +204,8 @@ function buildShopConfig(root) {
         <input type="checkbox" id="shop-spice-enabled" ${shop.spicePurchase.enabled ? 'checked' : ''}>
         <strong>Buy Spice</strong>
       </label>
-      <div class="shop-details">
-        <label>Qty: <input type="number" id="shop-spice-qty" value="${shop.spicePurchase.quantity}" min="0" max="99" step="1" class="tiny-input"></label>
+      <div class="d-flex items-center gap-sm">
+        <label>Qty: <input type="number" id="shop-spice-qty" value="${shop.spicePurchase.quantity}" min="0" max="99" step="1" class="form-control form-control-xs"></label>
         <label>@ <span class="fixed-price">360g</span> each</label>
       </div>
       <div class="shop-result" id="shop-spice-result"></div>
@@ -216,15 +216,15 @@ function buildShopConfig(root) {
   html += '</div>'; // end shop-items-card
   
   // Right column: ROI summary
-  html += '<div class="shop-roi-card">';
-  html += '<h4 class="shop-card-title">💰 Daily Shop ROI</h4>';
+  html += '<div class="card card-lg shop-roi-card">';
+  html += '<h4 class="card-header">💰 Daily Shop ROI</h4>';
   html += '<div id="shop-roi-summary"></div>';
   html += '</div>'; // end shop-roi-card
   
   html += '</div>'; // end shop-layout-container
   
-  html += '</div>'; // end recipe-section-content
-  html += '</div>'; // end recipe-section
+  html += '</div>'; // end panel-content
+  html += '</div>'; // end panel
   
   container.innerHTML = html;
 }
@@ -255,18 +255,18 @@ function buildRecipeManager(root) {
   
   // Clown recipes section
   html += `
-    <div class="recipe-section${clownCollapsed}" data-accordion-id="clown-recipes">
-      <div class="recipe-section-header" onclick="toggleAccordion(this)">
-        <span class="section-toggle">▼</span>
-        <h3>🤡 Clown Vendor Recipes (${clownRecipes.length})</h3>
+    <div class="panel${clownCollapsed}" data-accordion-id="clown-recipes">
+      <div class="panel-header" onclick="toggleAccordion(this)">
+        <span class="panel-toggle">▼</span>
+        <h3 class="panel-title">🤡 Clown Vendor Recipes (${clownRecipes.length})</h3>
       </div>
-      <div class="recipe-section-content">
+      <div class="panel-content">
         <div class="ingredient-filters">
           <label><input type="checkbox" class="filter-ingredient" data-vendor="clown" data-ingredient="meat"> Meat</label>
           <label><input type="checkbox" class="filter-ingredient" data-vendor="clown" data-ingredient="veggie"> Veggie</label>
           <label><input type="checkbox" class="filter-ingredient" data-vendor="clown" data-ingredient="spice"> Spice</label>
         </div>
-        <div class="recipe-grid clown-recipes">
+        <div class="grid-responsive grid-md gap-md clown-recipes">
           ${buildRecipeCards(clownRecipes, false)}
         </div>
       </div>
@@ -275,18 +275,18 @@ function buildRecipeManager(root) {
   
   // Miraculand recipes section
   html += `
-    <div class="recipe-section${miracCollapsed}" data-accordion-id="mirac-recipes">
-      <div class="recipe-section-header" onclick="toggleAccordion(this)">
-        <span class="section-toggle">▼</span>
-        <h3>🎪 Miraculand Vendor Recipes (${miracRecipes.length})</h3>
+    <div class="panel${miracCollapsed}" data-accordion-id="mirac-recipes">
+      <div class="panel-header" onclick="toggleAccordion(this)">
+        <span class="panel-toggle">▼</span>
+        <h3 class="panel-title">🎪 Miraculand Vendor Recipes (${miracRecipes.length})</h3>
       </div>
-      <div class="recipe-section-content">
+      <div class="panel-content">
         <div class="ingredient-filters">
           <label><input type="checkbox" class="filter-ingredient" data-vendor="miraculand" data-ingredient="meat"> Meat</label>
           <label><input type="checkbox" class="filter-ingredient" data-vendor="miraculand" data-ingredient="veggie"> Veggie</label>
           <label><input type="checkbox" class="filter-ingredient" data-vendor="miraculand" data-ingredient="spice"> Spice</label>
         </div>
-        <div class="recipe-grid mirac-recipes">
+        <div class="grid-responsive grid-md gap-md mirac-recipes">
           ${buildRecipeCards(miracRecipes, true)}
         </div>
       </div>
@@ -295,12 +295,12 @@ function buildRecipeManager(root) {
   
   // Add optimal dish ranking section at the end of recipes
   html += `
-    <div class="recipe-section${rankingCollapsed}" data-accordion-id="optimal-ranking">
-      <div class="recipe-section-header" onclick="toggleAccordion(this)">
-        <span class="section-toggle">▼</span>
-        <h3>📊 Optimal Dish Ranking</h3>
+    <div class="panel${rankingCollapsed}" data-accordion-id="optimal-ranking">
+      <div class="panel-header" onclick="toggleAccordion(this)">
+        <span class="panel-toggle">▼</span>
+        <h3 class="panel-title">📊 Optimal Dish Ranking</h3>
       </div>
-      <div class="recipe-section-content">
+      <div class="panel-content">
         <!-- 75/25 Layout: Table on left, Strategy on right -->
         <div class="optimal-ranking-layout">
           <!-- Ranking Table (75%) -->
@@ -324,7 +324,7 @@ function buildRecipeManager(root) {
           
           <!-- Strategy Summary (25%) -->
           <div class="optimal-ranking-strategy">
-            <h4>🎯 Strategy Summary</h4>
+            <h4 class="card-header">🎯 Strategy Summary</h4>
             <div id="strategy-summary"></div>
           </div>
         </div>
@@ -361,13 +361,13 @@ function buildRecipeCards(recipeIds, isMirac) {
     html += `
       <div class="recipe-card" data-recipe-id="${id}" 
            data-has-meat="${hasMeat}" data-has-veggie="${hasVeggie}" data-has-spice="${hasSpice}">
-        <div class="recipe-header">
-          <label class="recipe-toggle">
+        <div class="d-flex justify-between items-center p-sm bg-alt border-b">
+          <label class="d-flex items-center gap-sm cursor-pointer">
             <input type="checkbox" class="recipe-enabled" data-recipe="${id}" ${state.enabled ? 'checked' : ''}>
             <span class="recipe-name">${recipe.name}</span>
           </label>
         </div>
-        <div class="recipe-config">
+        <div class="d-flex flex-col gap-sm p-sm">
           <div class="recipe-field">
             <label>Stars</label>
             <select class="recipe-stars" data-recipe="${id}">
@@ -573,7 +573,7 @@ function calculateIngredientOptimizer(root) {
     
     let html = `
       <div class="optimizer-recommendation">
-        <h4>🎯 Current Ingredients Analysis</h4>
+        <h4 class="card-heading">🎯 Current Ingredients Analysis</h4>
         <p style="color: #666; margin: 0 0 15px 0; font-size: 0.95em;">
           No recipes enabled or ingredients insufficient for enabled recipes.
         </p>
@@ -681,7 +681,7 @@ function calculateIngredientOptimizer(root) {
   // Build HTML output
   let html = `
     <div class="optimizer-recommendation">
-      <h4>🎯 Optimal Crafting Sequence</h4>
+      <h4 class="card-header">🎯 Optimal Crafting Sequence</h4>
       <p style="color: #666; margin: 0 0 15px 0; font-size: 0.95em;">
         Make recipes in order for maximum gold efficiency:
       </p>
@@ -783,59 +783,59 @@ function buildResultsDashboard(root) {
       <h3 style="margin: 20px 0 15px 0; padding-bottom: 10px; border-bottom: 2px solid #f2e9e4; color: #4a4e69;">🎒 Current Ingredients Calculators</h3>
       
       <!-- Current Inventory Collapseable Section -->
-      <div class="recipe-section${currentInventoryCollapsed}" data-accordion-id="current-inventory" style="margin-bottom: 20px;">
-        <div class="recipe-section-header" onclick="toggleAccordion(this)">
-          <span class="section-toggle">▼</span>
-          <h3>📦 Current Inventory</h3>
+      <div class="panel${currentInventoryCollapsed}" data-accordion-id="current-inventory" style="margin-bottom: 20px;">
+        <div class="panel-header" onclick="toggleAccordion(this)">
+          <span class="panel-toggle">▼</span>
+          <h3 class="panel-title">📦 Current Inventory</h3>
         </div>
-        <div class="recipe-section-content">
-          <div class="ingredient-input-grid" id="cooking-ingredient-optimizer">
-            <div class="ingredient-input-card clown">
-              <label>🥩 Clown Meat</label>
-              <input type="number" id="current-clown-meat" value="${ing.clownMeat}" min="0" max="9999" class="ingredient-input">
+        <div class="panel-content">
+          <div class="grid-responsive grid-sm gap-md" id="cooking-ingredient-optimizer">
+            <div class="card card-md border-clown bg-clown" style="text-align: center;">
+              <label style="display: block; font-weight: bold; margin-bottom: 8px;">🥩 Clown Meat</label>
+              <input type="number" id="current-clown-meat" value="${ing.clownMeat}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
             </div>
-            <div class="ingredient-input-card clown">
-              <label>🥬 Clown Veggie</label>
-              <input type="number" id="current-clown-veggie" value="${ing.clownVeggie}" min="0" max="9999" class="ingredient-input">
+            <div class="card card-md border-clown bg-clown" style="text-align: center;">
+              <label style="display: block; font-weight: bold; margin-bottom: 8px;">🥬 Clown Veggie</label>
+              <input type="number" id="current-clown-veggie" value="${ing.clownVeggie}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
             </div>
-            <div class="ingredient-input-card clown">
-              <label>🌶️ Clown Spice</label>
-              <input type="number" id="current-clown-spice" value="${ing.clownSpice}" min="0" max="9999" class="ingredient-input">
+            <div class="card card-md border-clown bg-clown" style="text-align: center;">
+              <label style="display: block; font-weight: bold; margin-bottom: 8px;">🌶️ Clown Spice</label>
+              <input type="number" id="current-clown-spice" value="${ing.clownSpice}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
             </div>
-            <div class="ingredient-input-card mirac">
-              <label>🥩 Mirac Meat</label>
-              <input type="number" id="current-mirac-meat" value="${ing.miracMeat}" min="0" max="9999" class="ingredient-input">
+            <div class="card card-md border-mirac bg-mirac" style="text-align: center;">
+              <label style="display: block; font-weight: bold; margin-bottom: 8px;">🥩 Mirac Meat</label>
+              <input type="number" id="current-mirac-meat" value="${ing.miracMeat}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
             </div>
-            <div class="ingredient-input-card mirac">
-              <label>🥬 Mirac Veggie</label>
-              <input type="number" id="current-mirac-veggie" value="${ing.miracVeggie}" min="0" max="9999" class="ingredient-input">
+            <div class="card card-md border-mirac bg-mirac" style="text-align: center;">
+              <label style="display: block; font-weight: bold; margin-bottom: 8px;">🥬 Mirac Veggie</label>
+              <input type="number" id="current-mirac-veggie" value="${ing.miracVeggie}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
             </div>
-            <div class="ingredient-input-card mirac">
-              <label>🌶️ Mirac Spice</label>
-              <input type="number" id="current-mirac-spice" value="${ing.miracSpice}" min="0" max="9999" class="ingredient-input">
+            <div class="card card-md border-mirac bg-mirac" style="text-align: center;">
+              <label style="display: block; font-weight: bold; margin-bottom: 8px;">🌶️ Mirac Spice</label>
+              <input type="number" id="current-mirac-spice" value="${ing.miracSpice}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
             </div>
           </div>
         </div>
       </div>
       
       <!-- Current Ingredients Optimizer -->
-      <div class="recipe-section${optimizerCollapsed}" data-accordion-id="current-optimizer" style="margin-bottom: 20px;">
-        <div class="recipe-section-header" onclick="toggleAccordion(this)">
-          <span class="section-toggle">▼</span>
-          <h3>🎯 Current Ingredients Optimizer</h3>
+      <div class="panel${optimizerCollapsed}" data-accordion-id="current-optimizer" style="margin-bottom: 20px;">
+        <div class="panel-header" onclick="toggleAccordion(this)">
+          <span class="panel-toggle">▼</span>
+          <h3 class="panel-title">🎯 Current Ingredients Optimizer</h3>
         </div>
-        <div class="recipe-section-content">
+        <div class="panel-content">
           <div id="optimizer-results"></div>
         </div>
       </div>
       
       <!-- Mega Stew Calculator -->
-      <div class="recipe-section${stewCollapsed}" data-accordion-id="mega-stew">
-        <div class="recipe-section-header" onclick="toggleAccordion(this)">
-          <span class="section-toggle">▼</span>
-          <h3>🎲 Mega Stew Calculator</h3>
+      <div class="panel${stewCollapsed}" data-accordion-id="mega-stew">
+        <div class="panel-header" onclick="toggleAccordion(this)">
+          <span class="panel-toggle">▼</span>
+          <h3 class="panel-title">🎲 Mega Stew Calculator</h3>
         </div>
-        <div class="recipe-section-content">
+        <div class="panel-content">
           <div id="stew-calculator"></div>
         </div>
       </div>
@@ -1434,92 +1434,92 @@ function updateStewCalculator(root) {
   if (!container) return;
   
   container.innerHTML = `
-    <div class="stew-simulator">
+    <div style="width: 100%;">
       <div class="info-blurb" style="margin-bottom: 15px; font-size: 0.95em;">
         Uses the ingredient quantities entered above. Requires at least 100 ingredients total.
       </div>
       
       <!-- Ingredient Value Reference -->
-      <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e0e0e0;">
+      <div class="card card-md" style="margin-bottom: 20px;">
         <h5 style="margin: 0 0 10px 0; color: #4a4e69; text-align: center;">Mega Stew Value Ranges (per ingredient)</h5>
-        <div class="ingredient-grid">
-          <div class="ingredient-card clown" style="padding: 10px;">
+        <div class="grid-responsive grid-sm gap-md">
+          <div class="card card-md border-clown" style="text-align: center;">
             <div style="font-weight: bold; margin-bottom: 4px;">🥩 Clown Meat</div>
-            <div class="ingredient-stats">
-              <div class="range" style="font-size: 0.9em;">10 - 48 gold</div>
-              <div style="font-size: 0.85em;">Expected: 29.00</div>
+            <div style="font-size: 0.85em; color: #666;">
+              <div style="font-family: monospace; font-size: 0.9em; margin-bottom: 2px;">10 - 48 gold</div>
+              <div>Expected: 29.00</div>
             </div>
           </div>
           
-          <div class="ingredient-card clown" style="padding: 10px;">
+          <div class="card card-md border-clown" style="text-align: center;">
             <div style="font-weight: bold; margin-bottom: 4px;">🥬 Clown Veggie</div>
-            <div class="ingredient-stats">
-              <div class="range" style="font-size: 0.9em;">29 - 144 gold</div>
-              <div style="font-size: 0.85em;">Expected: 86.50</div>
+            <div style="font-size: 0.85em; color: #666;">
+              <div style="font-family: monospace; font-size: 0.9em; margin-bottom: 2px;">29 - 144 gold</div>
+              <div>Expected: 86.50</div>
             </div>
           </div>
           
-          <div class="ingredient-card clown" style="padding: 10px;">
+          <div class="card card-md border-clown" style="text-align: center;">
             <div style="font-weight: bold; margin-bottom: 4px;">🌶️ Clown Spice</div>
-            <div class="ingredient-stats">
-              <div class="range" style="font-size: 0.9em;">72 - 240 gold</div>
-              <div style="font-size: 0.85em;">Expected: 156.00</div>
+            <div style="font-size: 0.85em; color: #666;">
+              <div style="font-family: monospace; font-size: 0.9em; margin-bottom: 2px;">72 - 240 gold</div>
+              <div>Expected: 156.00</div>
             </div>
           </div>
           
-          <div class="ingredient-card mirac" style="padding: 10px;">
+          <div class="card card-md border-mirac" style="text-align: center;">
             <div style="font-weight: bold; margin-bottom: 4px;">🥩 Mirac Meat</div>
-            <div class="ingredient-stats">
-              <div class="range" style="font-size: 0.9em;">12 - 60 gold</div>
-              <div style="font-size: 0.85em;">Expected: 36.00</div>
+            <div style="font-size: 0.85em; color: #666;">
+              <div style="font-family: monospace; font-size: 0.9em; margin-bottom: 2px;">12 - 60 gold</div>
+              <div>Expected: 36.00</div>
             </div>
           </div>
           
-          <div class="ingredient-card mirac" style="padding: 10px;">
+          <div class="card card-md border-mirac" style="text-align: center;">
             <div style="font-weight: bold; margin-bottom: 4px;">🥬 Mirac Veggie</div>
-            <div class="ingredient-stats">
-              <div class="range" style="font-size: 0.9em;">36 - 180 gold</div>
-              <div style="font-size: 0.85em;">Expected: 108.00</div>
+            <div style="font-size: 0.85em; color: #666;">
+              <div style="font-family: monospace; font-size: 0.9em; margin-bottom: 2px;">36 - 180 gold</div>
+              <div>Expected: 108.00</div>
             </div>
           </div>
         </div>
       </div>
       
       <!-- Total Count -->
-      <div class="total-count" id="stew-total-count">
+      <div style="text-align: center; font-size: 1em; color: #4a4e69; margin-bottom: 12px; padding: 8px; background: #f2e9e4; border-radius: 6px;" id="stew-total-count">
         Total Ingredients: <strong>0</strong> (minimum 100 required)
       </div>
       
       <!-- Warning -->
-      <div class="warning" id="stew-min-warning">
+      <div style="background: #fff3cd; border: 1px solid #ffc107; color: #856404; padding: 12px; border-radius: 6px; text-align: center; margin-bottom: 15px;" id="stew-min-warning">
         ⚠️ Mega Stew requires at least 100 ingredients!
       </div>
       
       <!-- Range Results -->
-      <div class="stew-results-container">
-        <div class="stew-results-card">
-          <h4>📊 Expected Range</h4>
-          <div class="range-display">
-            <div class="range-value min">
-              <div class="label">Minimum</div>
-              <div class="value" id="stew-range-min">0</div>
+      <div class="grid grid-2 gap-md" style="margin-bottom: 20px;">
+        <div class="card card-md">
+          <h4 class="card-header">📊 Expected Range</h4>
+          <div class="d-flex justify-between items-center" style="margin: 12px 0;">
+            <div style="text-align: center;">
+              <div style="font-size: 0.75em; color: #777; text-transform: uppercase; margin-bottom: 4px;">Minimum</div>
+              <div style="font-size: 1.4em; font-weight: bold; color: #2e7d32;" id="stew-range-min">0</div>
             </div>
             <div class="range-bar"></div>
-            <div class="range-value max">
-              <div class="label">Maximum</div>
-              <div class="value" id="stew-range-max">0</div>
+            <div style="text-align: center;">
+              <div style="font-size: 0.75em; color: #777; text-transform: uppercase; margin-bottom: 4px;">Maximum</div>
+              <div style="font-size: 1.4em; font-weight: bold; color: #c62828;" id="stew-range-max">0</div>
             </div>
           </div>
           <div style="text-align: center; margin-top: 15px;">
-            <div class="range-value mid">
-              <div class="label">Expected Value</div>
-              <div class="value" id="stew-range-mid">0</div>
+            <div style="text-align: center;">
+              <div style="font-size: 0.75em; color: #777; text-transform: uppercase; margin-bottom: 4px;">Expected Value</div>
+              <div style="font-size: 1.4em; font-weight: bold; color: #1565c0;" id="stew-range-mid">0</div>
             </div>
           </div>
         </div>
         
-        <div class="stew-results-card">
-          <h4>📈 Value Per Ingredient</h4>
+        <div class="card card-md">
+          <h4 class="card-header">📈 Value Per Ingredient</h4>
           <div style="text-align: center; padding: 20px 10px;">
             <div style="font-size: 0.85em; color: #666; margin-bottom: 5px;">AVERAGE</div>
             <div style="font-size: 1.8em; font-weight: bold; color: #1565c0;" id="stew-per-ingredient">0.00</div>
@@ -1529,28 +1529,28 @@ function updateStewCalculator(root) {
       </div>
       
       <!-- Simulate Button -->
-      <button class="simulate-btn" id="stew-simulate-btn" disabled>
+      <button class="btn btn-primary btn-gradient btn-full simulate-btn" id="stew-simulate-btn" disabled>
         🎲 Run 10,000 Simulations
       </button>
       
       <!-- Simulation Stats -->
-      <div class="stats-grid" id="stew-sim-stats" style="display: none;">
-        <div class="stat-card green">
-          <div class="stat-value" id="stew-sim-min">-</div>
-          <div class="stat-label">Sim Minimum</div>
+      <div class="grid grid-3 gap-md" id="stew-sim-stats" style="display: none; margin-bottom: 25px;">
+        <div class="card card-md text-center">
+          <div style="font-size: 2rem; font-weight: bold; margin-bottom: 5px; color: #2e7d32;" id="stew-sim-min">-</div>
+          <div style="color: #666; font-size: 0.9rem;">Sim Minimum</div>
         </div>
-        <div class="stat-card blue">
-          <div class="stat-value" id="stew-sim-mean">-</div>
-          <div class="stat-label">Sim Mean</div>
+        <div class="card card-md text-center">
+          <div style="font-size: 2rem; font-weight: bold; margin-bottom: 5px; color: #1565c0;" id="stew-sim-mean">-</div>
+          <div style="color: #666; font-size: 0.9rem;">Sim Mean</div>
         </div>
-        <div class="stat-card red">
-          <div class="stat-value" id="stew-sim-max">-</div>
-          <div class="stat-label">Sim Maximum</div>
+        <div class="card card-md text-center">
+          <div style="font-size: 2rem; font-weight: bold; margin-bottom: 5px; color: #c62828;" id="stew-sim-max">-</div>
+          <div style="color: #666; font-size: 0.9rem;">Sim Maximum</div>
         </div>
       </div>
       
       <!-- Chart -->
-      <div class="chart-container" id="stew-chart-container" style="display: none;">
+      <div class="card card-lg" id="stew-chart-container" style="display: none; height: 600px; padding: 20px;">
         <canvas id="stewDistributionChart"></canvas>
       </div>
     </div>
