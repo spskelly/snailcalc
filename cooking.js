@@ -9,15 +9,15 @@ let cookingState = {
   shop: {},         // shop purchase configurations
   results: [],      // calculated results
   filters: {        // recipe filters
-    clown: { meat: false, veggie: false, spice: false },
-    miraculand: { meat: false, veggie: false, spice: false }
+    clown: { meat: false, vegetable: false, spice: false },
+    miraculand: { meat: false, vegetable: false, spice: false }
   },
   currentIngredients: {  // current ingredient inventory
     clownMeat: 0,
-    clownVeggie: 0,
+    clownVegetable: 0,
     clownSpice: 0,
     miracMeat: 0,
-    miracVeggie: 0,
+    miracVegetable: 0,
     miracSpice: 0
   }
 };
@@ -34,6 +34,7 @@ function initCookingCalculator() {
   loadCookingDefaults();
   
   // build UI components
+  buildDailySummary(root);
   buildVendorConfig(root);
   buildShopConfig(root);
   buildRecipeManager(root);
@@ -73,6 +74,370 @@ function loadCookingDefaults() {
 
 // ============== UI BUILDERS ==============
 
+function buildDailySummary(root) {
+  const container = root.querySelector('#cooking-daily-summary');
+  if (!container) return;
+  
+  container.innerHTML = `
+    <div class="daily-summary-card">
+      <div class="daily-summary-header">
+        <h3>💰 Daily Income Summary</h3>
+        <span class="daily-summary-subtitle">Based on 24 hours of passive supply order generation</span>
+      </div>
+      <div class="daily-summary-content">
+        <div class="daily-summary-loading">Configure recipes below to see daily projections</div>
+      </div>
+    </div>
+  `;
+}
+
+function updateDailySummary(root) {
+  const container = root.querySelector('#cooking-daily-summary .daily-summary-content');
+  if (!container) return;
+  
+  const shop = cookingState.shop;
+  const results = cookingState.results;
+  const clown = cookingState.vendors.clown;
+  const mirac = cookingState.vendors.miraculand;
+  
+  // Check if we have any enabled recipes
+  if (results.length === 0) {
+    container.innerHTML = `
+      <div class="daily-summary-loading">
+        <span style="color: #666;">Enable recipes and set prices to see daily income projections</span>
+      </div>
+    `;
+    return;
+  }
+  
+  // Calculate daily supply orders
+  const baseOrdersPerDay = shop.supplyOrdersPerHour * 24;
+  const bonusOrders = shop.supplyDeals.enabled ? shop.supplyDeals.quantity * shop.supplyDeals.supplyOrdersEach : 0;
+  const totalDailyOrders = baseOrdersPerDay + bonusOrders;
+  
+  // Shop costs
+  let shopCosts = 0;
+  if (shop.supplyDeals.enabled && shop.supplyDeals.quantity > 0) {
+    shopCosts += shop.supplyDeals.quantity * shop.supplyDeals.cost;
+  }
+  if (shop.vegetablePurchase.enabled && shop.vegetablePurchase.quantity > 0) {
+    shopCosts += shop.vegetablePurchase.quantity * shop.vegetablePurchase.cost;
+  }
+  if (shop.spicePurchase.enabled && shop.spicePurchase.quantity > 0) {
+    shopCosts += shop.spicePurchase.quantity * shop.spicePurchase.cost;
+  }
+  if (shop.miracVegetablePurchase.enabled && shop.miracVegetablePurchase.quantity > 0) {
+    shopCosts += shop.miracVegetablePurchase.quantity * shop.miracVegetablePurchase.cost;
+  }
+  if (shop.skillBooks.enabled && shop.skillBooks.quantity > 0) {
+    shopCosts += shop.skillBooks.quantity * shop.skillBooks.cost;
+  }
+  
+  // === STRATEGY SUMMARY APPROACH ===
+  // Get best dish and best meat-only dish from results
+  const bestDish = results[0];
+  const bestDishRecipe = COOKING_RECIPES[bestDish.id];
+  const bestDishState = cookingState.recipes[bestDish.id];
+  
+  // Determine which vendor the best dish uses
+  const usesClown = bestDishRecipe.clownMeat > 0 || bestDishRecipe.clownVegetable > 0 || bestDishRecipe.clownSpice > 0;
+  const usesMirac = bestDishRecipe.miracMeat > 0 || bestDishRecipe.miracVegetable > 0 || bestDishRecipe.miracSpice > 0;
+  
+  // Find best meat-only dish for excess meat (must match the same vendor!)
+  const meatOnlyDishes = results.filter(r => {
+    const recipe = COOKING_RECIPES[r.id];
+    // Must be meat-only (no vegetable, no spice)
+    const isMeatOnly = recipe.clownVegetable === 0 && recipe.clownSpice === 0 && 
+                       recipe.miracVegetable === 0 && recipe.miracSpice === 0;
+    if (!isMeatOnly) return false;
+    
+    // Must match the vendor of the best dish
+    if (usesClown && !usesMirac) {
+      // Best dish uses Clown, so meat dish must use Clown meat
+      return recipe.clownMeat > 0;
+    } else if (usesMirac) {
+      // Best dish uses Miraculand, so meat dish must use Mirac meat
+      return recipe.miracMeat > 0;
+    }
+    return false;
+  });
+  const bestMeatDish = meatOnlyDishes.length > 0 ? meatOnlyDishes[0] : null;
+  const bestMeatRecipe = bestMeatDish ? COOKING_RECIPES[bestMeatDish.id] : null;
+  const bestMeatState = bestMeatDish ? cookingState.recipes[bestMeatDish.id] : null;
+  
+  // === STEP 1: Calculate total daily ingredients from vendor ===
+  let dailyIngredients = {
+    clownMeat: 0,
+    clownVegetable: 0,
+    clownSpice: 0,
+    miracMeat: 0,
+    miracVegetable: 0,
+    miracSpice: 0
+  };
+  
+  // Generate ingredients from all supply orders based on best dish's vendor
+  if (usesClown && !usesMirac) {
+    dailyIngredients.clownMeat = totalDailyOrders * clown.meatRate;
+    dailyIngredients.clownVegetable = totalDailyOrders * clown.vegetableRate;
+    dailyIngredients.clownSpice = totalDailyOrders * clown.spiceRate;
+  } else if (usesMirac) {
+    dailyIngredients.miracMeat = totalDailyOrders * mirac.meatRate;
+    dailyIngredients.miracVegetable = totalDailyOrders * mirac.vegetableRate;
+    dailyIngredients.miracSpice = totalDailyOrders * mirac.spiceRate;
+  }
+  
+  // Add shop-purchased ingredients
+  const shopVegetables = shop.vegetablePurchase.enabled ? shop.vegetablePurchase.quantity : 0;
+  const shopSpice = shop.spicePurchase.enabled ? shop.spicePurchase.quantity : 0;
+  const shopMiracVegetables = shop.miracVegetablePurchase.enabled ? shop.miracVegetablePurchase.quantity : 0;
+  dailyIngredients.clownVegetable += shopVegetables;
+  dailyIngredients.clownSpice += shopSpice;
+  dailyIngredients.miracVegetable += shopMiracVegetables;
+  
+  // Store original ingredients for display
+  const originalIngredients = { ...dailyIngredients };
+  
+  // === STEP 2: Make best dish until limiting ingredient runs out ===
+  const productionSteps = [];
+  let remaining = { ...dailyIngredients };
+  let totalGold = 0;
+  
+  // Calculate how many best dishes we can make
+  const bestDishLimits = [];
+  if (bestDishRecipe.clownMeat > 0 && remaining.clownMeat > 0) 
+    bestDishLimits.push(Math.floor(remaining.clownMeat / bestDishRecipe.clownMeat));
+  if (bestDishRecipe.clownVegetable > 0 && remaining.clownVegetable > 0) 
+    bestDishLimits.push(Math.floor(remaining.clownVegetable / bestDishRecipe.clownVegetable));
+  if (bestDishRecipe.clownSpice > 0 && remaining.clownSpice > 0) 
+    bestDishLimits.push(Math.floor(remaining.clownSpice / bestDishRecipe.clownSpice));
+  if (bestDishRecipe.miracMeat > 0 && remaining.miracMeat > 0) 
+    bestDishLimits.push(Math.floor(remaining.miracMeat / bestDishRecipe.miracMeat));
+  if (bestDishRecipe.miracVegetable > 0 && remaining.miracVegetable > 0) 
+    bestDishLimits.push(Math.floor(remaining.miracVegetable / bestDishRecipe.miracVegetable));
+  if (bestDishRecipe.miracSpice > 0 && remaining.miracSpice > 0) 
+    bestDishLimits.push(Math.floor(remaining.miracSpice / bestDishRecipe.miracSpice));
+  
+  const bestDishQty = bestDishLimits.length > 0 ? Math.min(...bestDishLimits) : 0;
+  
+  if (bestDishQty > 0) {
+    const gold = bestDishQty * bestDishState.price;
+    totalGold += gold;
+    
+    // Subtract used ingredients
+    remaining.clownMeat -= bestDishQty * bestDishRecipe.clownMeat;
+    remaining.clownVegetable -= bestDishQty * bestDishRecipe.clownVegetable;
+    remaining.clownSpice -= bestDishQty * bestDishRecipe.clownSpice;
+    remaining.miracMeat -= bestDishQty * bestDishRecipe.miracMeat;
+    remaining.miracVegetable -= bestDishQty * bestDishRecipe.miracVegetable;
+    remaining.miracSpice -= bestDishQty * bestDishRecipe.miracSpice;
+    
+    // Determine what limited us
+    let limitedBy = 'Vegetable';
+    if (bestDishRecipe.clownSpice > 0 && remaining.clownSpice < bestDishRecipe.clownSpice) limitedBy = 'Spice';
+    if (bestDishRecipe.miracSpice > 0 && remaining.miracSpice < bestDishRecipe.miracSpice) limitedBy = 'Spice';
+    if (bestDishRecipe.clownVegetable > 0 && remaining.clownVegetable < bestDishRecipe.clownVegetable) limitedBy = 'Vegetable';
+    if (bestDishRecipe.miracVegetable > 0 && remaining.miracVegetable < bestDishRecipe.miracVegetable) limitedBy = 'Vegetable';
+    
+    productionSteps.push({
+      step: 1,
+      name: bestDish.name,
+      quantity: bestDishQty,
+      gold: gold,
+      note: `Limited by ${limitedBy}`
+    });
+  }
+  
+  // === STEP 3: Use excess meat on meat-only dish ===
+  if (bestMeatDish && bestMeatRecipe) {
+    const excessMeat = Math.max(0, remaining.clownMeat) + Math.max(0, remaining.miracMeat);
+    
+    if (excessMeat > 0) {
+      // Calculate how many meat dishes we can make
+      const meatDishLimits = [];
+      if (bestMeatRecipe.clownMeat > 0 && remaining.clownMeat > 0)
+        meatDishLimits.push(Math.floor(remaining.clownMeat / bestMeatRecipe.clownMeat));
+      if (bestMeatRecipe.miracMeat > 0 && remaining.miracMeat > 0)
+        meatDishLimits.push(Math.floor(remaining.miracMeat / bestMeatRecipe.miracMeat));
+      
+      const meatDishQty = meatDishLimits.length > 0 ? Math.min(...meatDishLimits) : 0;
+      
+      if (meatDishQty > 0) {
+        const gold = meatDishQty * bestMeatState.price;
+        totalGold += gold;
+        
+        remaining.clownMeat -= meatDishQty * bestMeatRecipe.clownMeat;
+        remaining.miracMeat -= meatDishQty * bestMeatRecipe.miracMeat;
+        
+        productionSteps.push({
+          step: 2,
+          name: bestMeatDish.name,
+          quantity: meatDishQty,
+          gold: gold,
+          note: 'Excess meat'
+        });
+      }
+    }
+  }
+  
+  // === STEP 4: Calculate Mega Stew value for remaining ingredients ===
+  // Ensure no negative values
+  for (const key of Object.keys(remaining)) {
+    remaining[key] = Math.max(0, remaining[key]);
+  }
+  
+  const totalRemaining = Object.values(remaining).reduce((a, b) => a + b, 0);
+  
+  // Always calculate stew value for display purposes
+  let stewValue = 
+    remaining.clownMeat * MEGA_STEW_VALUES.clownMeat +
+    remaining.clownVegetable * MEGA_STEW_VALUES.clownVegetable +
+    remaining.clownSpice * MEGA_STEW_VALUES.clownSpice +
+    remaining.miracMeat * MEGA_STEW_VALUES.miracMeat +
+    remaining.miracVegetable * MEGA_STEW_VALUES.miracVegetable +
+    remaining.miracSpice * MEGA_STEW_VALUES.miracSpice;
+  
+  // Only add to production steps if can actually make stew (100+ ingredients)
+  if (totalRemaining >= 100) {
+    productionSteps.push({
+      step: productionSteps.length + 1,
+      name: 'Mega Stew',
+      quantity: Math.round(totalRemaining),
+      gold: Math.round(stewValue),
+      note: 'Remaining ingredients'
+    });
+  }
+  
+  // === STEP 5: Calculate totals ===
+  const netDailyProfit = totalGold + stewValue - shopCosts;
+  const profitClass = netDailyProfit >= 0 ? 'positive' : 'negative';
+  
+  // === BUILD HTML ===
+  // Format ingredient display helper
+  const formatIngredient = (val) => Math.round(val).toLocaleString();
+  
+  let html = `
+    <div class="daily-summary-grid">
+      <!-- Daily Ingredients Generated -->
+      <div class="daily-summary-section">
+        <div class="daily-summary-section-title">📦 Daily Ingredients (24hr)</div>
+        <div class="daily-summary-row">
+          <span>Supply Orders</span>
+          <span class="daily-value">${totalDailyOrders.toLocaleString()}</span>
+        </div>
+        <div style="margin: 10px 0; padding: 10px; background: var(--bg-alt); border-radius: 6px; font-size: 0.9em;">
+          ${usesClown ? `
+            <div style="margin-bottom: 6px;"><strong>🤡 Clown Vendor:</strong></div>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-left: 8px;">
+              <span>🥩 ${formatIngredient(totalDailyOrders * clown.meatRate)} Meat</span>
+              ${clown.vegetableRate > 0 ? `<span>🥬 ${formatIngredient(totalDailyOrders * clown.vegetableRate)} Vegetable</span>` : ''}
+              ${clown.spiceRate > 0 ? `<span>🌶️ ${formatIngredient(totalDailyOrders * clown.spiceRate)} Spice</span>` : ''}
+            </div>
+          ` : ''}
+          ${usesMirac ? `
+            <div style="margin-bottom: 6px;"><strong>🎪 Miraculand Vendor:</strong></div>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-left: 8px;">
+              <span>🥩 ${formatIngredient(totalDailyOrders * mirac.meatRate)} Meat</span>
+              ${mirac.vegetableRate > 0 ? `<span>🥬 ${formatIngredient(totalDailyOrders * mirac.vegetableRate)} Vegetable</span>` : ''}
+              ${mirac.spiceRate > 0 ? `<span>🌶️ ${formatIngredient(totalDailyOrders * mirac.spiceRate)} Spice</span>` : ''}
+            </div>
+          ` : ''}
+          ${(shopVegetables > 0 || shopSpice > 0 || shopMiracVegetables > 0) ? `
+            <div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed #ccc;">
+              <div style="margin-bottom: 6px;"><strong>🛒 Shop Purchases:</strong></div>
+              ${(shopVegetables > 0 || shopSpice > 0) ? `
+                <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-left: 8px; margin-bottom: 4px;">
+                  <span style="font-size: 0.9em; color: #666; font-weight: bold;">Clown:</span>
+                  ${shopVegetables > 0 ? `<span>🥬 ${formatIngredient(shopVegetables)} Vegetable</span>` : ''}
+                  ${shopSpice > 0 ? `<span>🌶️ ${formatIngredient(shopSpice)} Spice</span>` : ''}
+                </div>
+              ` : ''}
+              ${shopMiracVegetables > 0 ? `
+                <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-left: 8px;">
+                  <span style="font-size: 0.9em; color: #666; font-weight: bold;">Miraculand:</span>
+                  <span>🥬 ${formatIngredient(shopMiracVegetables)} Vegetable</span>
+                </div>
+              ` : ''}
+            </div>
+          ` : ''}
+        </div>
+      </div>
+      
+      <!-- Recipe Production -->
+      <div class="daily-summary-section">
+        <div class="daily-summary-section-title">🍳 Recipe Production</div>
+        ${productionSteps.map(step => `
+          <div class="daily-summary-row" style="padding: 8px 0; ${step.step === 1 ? 'background: rgba(46, 125, 50, 0.1); border-radius: 6px; padding: 8px;' : ''}">
+            <div>
+              <strong>${step.step === 1 ? '⭐ ' : ''}${step.name}</strong>
+              <div style="font-size: 0.85em; color: #666;">${step.note}</div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-weight: bold;">${step.quantity}×</div>
+              <div style="color: #2e7d32; font-weight: bold;">${step.gold.toLocaleString()}g</div>
+            </div>
+          </div>
+        `).join('')}
+        ${productionSteps.length === 0 ? `
+          <div style="text-align: center; color: #666; padding: 10px;">
+            No dishes can be produced with current settings
+          </div>
+        ` : ''}
+      </div>
+      
+      <!-- Remaining Ingredients -->
+      <div class="daily-summary-section">
+        <div class="daily-summary-section-title">📦 Remaining Ingredients</div>
+        <div style="padding: 10px; background: var(--bg-alt); border-radius: 6px;">
+          ${Object.values(remaining).reduce((a, b) => a + b, 0) > 0 ? `
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-size: 0.9em;">
+              ${remaining.clownMeat > 0 ? `<span>🥩 ${formatIngredient(remaining.clownMeat)} Meat</span>` : ''}
+              ${remaining.clownVegetable > 0 ? `<span>🥬 ${formatIngredient(remaining.clownVegetable)} Vegetable</span>` : ''}
+              ${remaining.clownSpice > 0 ? `<span>🌶️ ${formatIngredient(remaining.clownSpice)} Spice</span>` : ''}
+              ${remaining.miracMeat > 0 ? `<span>🥩 ${formatIngredient(remaining.miracMeat)} mMeat</span>` : ''}
+              ${remaining.miracVegetable > 0 ? `<span>🥬 ${formatIngredient(remaining.miracVegetable)} mVegetable</span>` : ''}
+              ${remaining.miracSpice > 0 ? `<span>🌶️ ${formatIngredient(remaining.miracSpice)} mSpice</span>` : ''}
+            </div>
+            <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ccc; text-align: center;">
+              🍲 Mega Stew Value: <strong style="color: #2e7d32;">${Math.round(stewValue).toLocaleString()}g</strong>
+              ${totalRemaining < 100 ? `<div style="color: #666; font-size: 0.85em; margin-top: 4px;">(need ${Math.round(100 - totalRemaining)} more to craft)</div>` : ''}
+            </div>
+          ` : `
+            <div style="text-align: center; color: #2e7d32; font-weight: bold;">
+              ✅ All ingredients used perfectly!
+            </div>
+          `}
+        </div>
+      </div>
+    </div>
+    
+    <!-- Net Daily Profit -->
+    <div class="daily-summary-total">
+      <div class="daily-summary-row">
+        <span>Recipe Sales</span>
+        <span class="daily-value positive">+${totalGold.toLocaleString()}g</span>
+      </div>
+      ${stewValue > 0 ? `
+        <div class="daily-summary-row">
+          <span>Mega Stew</span>
+          <span class="daily-value positive">+${Math.round(stewValue).toLocaleString()}g</span>
+        </div>
+      ` : ''}
+      ${shopCosts > 0 ? `
+        <div class="daily-summary-row">
+          <span>Shop Costs</span>
+          <span class="daily-value negative">-${shopCosts.toLocaleString()}g</span>
+        </div>
+      ` : ''}
+      <div class="daily-summary-row" style="font-size: 1.2em; padding-top: 10px; border-top: 2px solid var(--border-color);">
+        <span><strong>Net Daily Profit</strong></span>
+        <span class="daily-value ${profitClass}" style="font-size: 1.3em;"><strong>${netDailyProfit >= 0 ? '+' : ''}${netDailyProfit.toLocaleString()}g</strong></span>
+      </div>
+    </div>
+  `;
+  
+  container.innerHTML = html;
+}
+
 function buildVendorConfig(root) {
   const container = root.querySelector('#cooking-vendor-config');
   if (!container) return;
@@ -96,10 +461,10 @@ function buildVendorConfig(root) {
           <input type="radio" name="clown-preset" value="meat-only"> Meat Only (100%)
         </label>
         <label style="display: block; margin-bottom: 8px;">
-          <input type="radio" name="clown-preset" value="meat-veggie"> Meat + Veggie (72% / 28%)
+          <input type="radio" name="clown-preset" value="meat-vegetable"> Meat + Vegetable (72% / 28%)
         </label>
         <label style="display: block; margin-bottom: 8px;">
-          <input type="radio" name="clown-preset" value="all-three" checked> All 3 (65% / 25% / 10%)
+          <input type="radio" name="clown-preset" value="all-three" checked> Meat + Vegetable + Spice (65% / 25% / 10%)
         </label>
       </div>
     </div>
@@ -117,10 +482,10 @@ function buildVendorConfig(root) {
           <input type="radio" name="mirac-preset" value="meat-only" checked> Meat Only (100%)
         </label>
         <label style="display: block; margin-bottom: 8px;">
-          <input type="radio" name="mirac-preset" value="meat-veggie"> Meat + Veggie (72% / 28%)
+          <input type="radio" name="mirac-preset" value="meat-vegetable"> Meat + Vegetable (72% / 28%)
         </label>
         <label style="display: block; margin-bottom: 8px;">
-          <input type="radio" name="mirac-preset" value="all-three"> All 3 (65% / 25% / 10%)
+          <input type="radio" name="mirac-preset" value="all-three"> Meat + Vegetable + Spice (65% / 25% / 10%)
         </label>
       </div>
     </div>
@@ -163,9 +528,14 @@ function buildShopConfig(root) {
   html += '<div class="shop-layout-container">';
   
   // Left column: shop items
-  html += '<div class="card card-lg shop-items-card">';
+  html += '<div class="card shop-items-card">';
   html += '<h4 class="card-header">🛒 Shop Items</h4>';
   html += '<div class="shop-items-list">';
+  
+  // Row 1: General items (non-vendor specific)
+  html += '<div class="shop-row">';
+  html += '<div class="shop-row-label">General</div>';
+  html += '<div class="shop-row-items">';
   
   // supply deals
   html += `
@@ -182,27 +552,50 @@ function buildShopConfig(root) {
     </div>
   `;
   
-  // veggie purchase
+  // skill books purchase
   html += `
     <div class="shop-item">
       <label>
-        <input type="checkbox" id="shop-veggie-enabled" ${shop.veggiePurchase.enabled ? 'checked' : ''}>
-        <strong>Buy Veggies</strong>
+        <input type="checkbox" id="shop-skillbooks-enabled" ${shop.skillBooks.enabled ? 'checked' : ''}>
+        <strong>📚 Skill Books</strong>
       </label>
       <div class="d-flex items-center gap-sm">
-        <label>Qty: <input type="number" id="shop-veggie-qty" value="${shop.veggiePurchase.quantity}" min="0" max="99" step="1" class="form-control form-control-xs"></label>
-        <label>@ <span class="fixed-price">220g</span> each</label>
+        <label>Qty: <input type="number" id="shop-skillbooks-qty" value="${shop.skillBooks.quantity}" min="0" max="4" step="1" class="form-control form-control-xs"></label>
+        <label>@ <span class="fixed-price">5,000g</span> each</label>
       </div>
-      <div class="shop-result" id="shop-veggie-result"></div>
+      <div class="shop-result" id="shop-skillbooks-result"></div>
     </div>
   `;
   
-  // spice purchase
+  html += '</div>'; // end shop-row-items
+  html += '</div>'; // end shop-row
+  
+  // Row 2: Clown vendor items
+  html += '<div class="shop-row">';
+  html += '<div class="shop-row-label">🤡 Clown</div>';
+  html += '<div class="shop-row-items">';
+  
+  // clown vegetable purchase
+  html += `
+    <div class="shop-item">
+      <label>
+        <input type="checkbox" id="shop-vegetable-enabled" ${shop.vegetablePurchase.enabled ? 'checked' : ''}>
+        <strong>🥬 Vegetables</strong>
+      </label>
+      <div class="d-flex items-center gap-sm">
+        <label>Qty: <input type="number" id="shop-vegetable-qty" value="${shop.vegetablePurchase.quantity}" min="0" max="99" step="1" class="form-control form-control-xs"></label>
+        <label>@ <span class="fixed-price">220g</span> each</label>
+      </div>
+      <div class="shop-result" id="shop-vegetable-result"></div>
+    </div>
+  `;
+  
+  // clown spice purchase
   html += `
     <div class="shop-item">
       <label>
         <input type="checkbox" id="shop-spice-enabled" ${shop.spicePurchase.enabled ? 'checked' : ''}>
-        <strong>Buy Spice</strong>
+        <strong>🌶️ Spice</strong>
       </label>
       <div class="d-flex items-center gap-sm">
         <label>Qty: <input type="number" id="shop-spice-qty" value="${shop.spicePurchase.quantity}" min="0" max="99" step="1" class="form-control form-control-xs"></label>
@@ -211,6 +604,32 @@ function buildShopConfig(root) {
       <div class="shop-result" id="shop-spice-result"></div>
     </div>
   `;
+  
+  html += '</div>'; // end shop-row-items
+  html += '</div>'; // end shop-row
+  
+  // Row 3: Miraculand vendor items
+  html += '<div class="shop-row">';
+  html += '<div class="shop-row-label">🎪 Mirac</div>';
+  html += '<div class="shop-row-items">';
+  
+  // miraculand vegetable purchase
+  html += `
+    <div class="shop-item">
+      <label>
+        <input type="checkbox" id="shop-mirac-vegetable-enabled" ${shop.miracVegetablePurchase.enabled ? 'checked' : ''}>
+        <strong>🥬 Vegetables</strong>
+      </label>
+      <div class="d-flex items-center gap-sm">
+        <label>Qty: <input type="number" id="shop-mirac-vegetable-qty" value="${shop.miracVegetablePurchase.quantity}" min="0" max="5" step="1" class="form-control form-control-xs"></label>
+        <label>@ <span class="fixed-price">270g</span> each</label>
+      </div>
+      <div class="shop-result" id="shop-mirac-vegetable-result"></div>
+    </div>
+  `;
+  
+  html += '</div>'; // end shop-row-items
+  html += '</div>'; // end shop-row
   
   html += '</div>'; // end shop-items-list
   html += '</div>'; // end shop-items-card
@@ -239,7 +658,7 @@ function buildRecipeManager(root) {
   
   for (const id of RECIPE_ORDER) {
     const recipe = COOKING_RECIPES[id];
-    const usesMirac = recipe.miracMeat > 0 || recipe.miracVeggie > 0 || recipe.miracSpice > 0;
+    const usesMirac = recipe.miracMeat > 0 || recipe.miracVegetable > 0 || recipe.miracSpice > 0;
     if (usesMirac) {
       miracRecipes.push(id);
     } else {
@@ -263,7 +682,7 @@ function buildRecipeManager(root) {
       <div class="panel-content">
         <div class="ingredient-filters">
           <label><input type="checkbox" class="filter-ingredient" data-vendor="clown" data-ingredient="meat"> Meat</label>
-          <label><input type="checkbox" class="filter-ingredient" data-vendor="clown" data-ingredient="veggie"> Veggie</label>
+          <label><input type="checkbox" class="filter-ingredient" data-vendor="clown" data-ingredient="vegetable"> Vegetable</label>
           <label><input type="checkbox" class="filter-ingredient" data-vendor="clown" data-ingredient="spice"> Spice</label>
         </div>
         <div class="grid-responsive grid-md gap-md clown-recipes">
@@ -283,7 +702,7 @@ function buildRecipeManager(root) {
       <div class="panel-content">
         <div class="ingredient-filters">
           <label><input type="checkbox" class="filter-ingredient" data-vendor="miraculand" data-ingredient="meat"> Meat</label>
-          <label><input type="checkbox" class="filter-ingredient" data-vendor="miraculand" data-ingredient="veggie"> Veggie</label>
+          <label><input type="checkbox" class="filter-ingredient" data-vendor="miraculand" data-ingredient="vegetable"> Vegetable</label>
           <label><input type="checkbox" class="filter-ingredient" data-vendor="miraculand" data-ingredient="spice"> Spice</label>
         </div>
         <div class="grid-responsive grid-md gap-md mirac-recipes">
@@ -346,21 +765,21 @@ function buildRecipeCards(recipeIds, isMirac) {
     // build ingredient display
     let ingredients = [];
     if (recipe.clownMeat > 0) ingredients.push(`${recipe.clownMeat}M`);
-    if (recipe.clownVeggie > 0) ingredients.push(`${recipe.clownVeggie}V`);
+    if (recipe.clownVegetable > 0) ingredients.push(`${recipe.clownVegetable}V`);
     if (recipe.clownSpice > 0) ingredients.push(`${recipe.clownSpice}S`);
     if (recipe.miracMeat > 0) ingredients.push(`${recipe.miracMeat}mM`);
-    if (recipe.miracVeggie > 0) ingredients.push(`${recipe.miracVeggie}mV`);
+    if (recipe.miracVegetable > 0) ingredients.push(`${recipe.miracVegetable}mV`);
     if (recipe.miracSpice > 0) ingredients.push(`${recipe.miracSpice}mS`);
     const ingredientStr = ingredients.join(' ');
     
     // determine which ingredients are used for filtering
     const hasMeat = isMirac ? recipe.miracMeat > 0 : recipe.clownMeat > 0;
-    const hasVeggie = isMirac ? recipe.miracVeggie > 0 : recipe.clownVeggie > 0;
+    const hasVegetable = isMirac ? recipe.miracVegetable > 0 : recipe.clownVegetable > 0;
     const hasSpice = isMirac ? recipe.miracSpice > 0 : recipe.clownSpice > 0;
     
     html += `
       <div class="recipe-card" data-recipe-id="${id}" 
-           data-has-meat="${hasMeat}" data-has-veggie="${hasVeggie}" data-has-spice="${hasSpice}">
+           data-has-meat="${hasMeat}" data-has-vegetable="${hasVegetable}" data-has-spice="${hasSpice}">
         <div class="d-flex justify-between items-center p-sm bg-alt border-b">
           <label class="d-flex items-center gap-sm cursor-pointer">
             <input type="checkbox" class="recipe-enabled" data-recipe="${id}" ${state.enabled ? 'checked' : ''}>
@@ -399,10 +818,10 @@ function updateCurrentIngredients(root) {
   
   cookingState.currentIngredients = {
     clownMeat: parseInt(container.querySelector('#current-clown-meat')?.value) || 0,
-    clownVeggie: parseInt(container.querySelector('#current-clown-veggie')?.value) || 0,
+    clownVegetable: parseInt(container.querySelector('#current-clown-vegetable')?.value) || 0,
     clownSpice: parseInt(container.querySelector('#current-clown-spice')?.value) || 0,
     miracMeat: parseInt(container.querySelector('#current-mirac-meat')?.value) || 0,
-    miracVeggie: parseInt(container.querySelector('#current-mirac-veggie')?.value) || 0,
+    miracVegetable: parseInt(container.querySelector('#current-mirac-vegetable')?.value) || 0,
     miracSpice: parseInt(container.querySelector('#current-mirac-spice')?.value) || 0
   };
   
@@ -439,20 +858,20 @@ function calculateIngredientOptimizer(root) {
       // Check if we have enough ingredients
       const canMake = 
         remaining.clownMeat >= recipe.clownMeat &&
-        remaining.clownVeggie >= recipe.clownVeggie &&
+        remaining.clownVegetable >= recipe.clownVegetable &&
         remaining.clownSpice >= recipe.clownSpice &&
         remaining.miracMeat >= recipe.miracMeat &&
-        remaining.miracVeggie >= recipe.miracVeggie &&
+        remaining.miracVegetable >= recipe.miracVegetable &&
         remaining.miracSpice >= recipe.miracSpice;
       
       if (canMake) {
         // Calculate how many we can make
         const maxCanMake = [];
         if (recipe.clownMeat > 0) maxCanMake.push(Math.floor(remaining.clownMeat / recipe.clownMeat));
-        if (recipe.clownVeggie > 0) maxCanMake.push(Math.floor(remaining.clownVeggie / recipe.clownVeggie));
+        if (recipe.clownVegetable > 0) maxCanMake.push(Math.floor(remaining.clownVegetable / recipe.clownVegetable));
         if (recipe.clownSpice > 0) maxCanMake.push(Math.floor(remaining.clownSpice / recipe.clownSpice));
         if (recipe.miracMeat > 0) maxCanMake.push(Math.floor(remaining.miracMeat / recipe.miracMeat));
-        if (recipe.miracVeggie > 0) maxCanMake.push(Math.floor(remaining.miracVeggie / recipe.miracVeggie));
+        if (recipe.miracVegetable > 0) maxCanMake.push(Math.floor(remaining.miracVegetable / recipe.miracVegetable));
         if (recipe.miracSpice > 0) maxCanMake.push(Math.floor(remaining.miracSpice / recipe.miracSpice));
         
         const quantity = Math.min(...maxCanMake);
@@ -461,10 +880,10 @@ function calculateIngredientOptimizer(root) {
         // Calculate opportunity cost based on Mega Stew values
         const opportunityCost = 
           (recipe.clownMeat * MEGA_STEW_VALUES.clownMeat) +
-          (recipe.clownVeggie * MEGA_STEW_VALUES.clownVeggie) +
+          (recipe.clownVegetable * MEGA_STEW_VALUES.clownVegetable) +
           (recipe.clownSpice * MEGA_STEW_VALUES.clownSpice) +
           (recipe.miracMeat * MEGA_STEW_VALUES.miracMeat) +
-          (recipe.miracVeggie * MEGA_STEW_VALUES.miracVeggie) +
+          (recipe.miracVegetable * MEGA_STEW_VALUES.miracVegetable) +
           (recipe.miracSpice * MEGA_STEW_VALUES.miracSpice);
         
         const profit = totalGold - (opportunityCost * quantity);
@@ -474,8 +893,8 @@ function calculateIngredientOptimizer(root) {
         
         // Calculate ingredients used for display purposes
         const ingredientsUsed = 
-          (recipe.clownMeat + recipe.clownVeggie + recipe.clownSpice +
-           recipe.miracMeat + recipe.miracVeggie + recipe.miracSpice) * quantity;
+          (recipe.clownMeat + recipe.clownVegetable + recipe.clownSpice +
+           recipe.miracMeat + recipe.miracVegetable + recipe.miracSpice) * quantity;
         const goldPerIngredient = ingredientsUsed > 0 ? totalGold / ingredientsUsed : 0;
         
         viableRecipes.push({
@@ -519,10 +938,10 @@ function calculateIngredientOptimizer(root) {
     // Update remaining ingredients
     remaining = {
       clownMeat: remaining.clownMeat - (best.recipe.clownMeat * best.quantity),
-      clownVeggie: remaining.clownVeggie - (best.recipe.clownVeggie * best.quantity),
+      clownVegetable: remaining.clownVegetable - (best.recipe.clownVegetable * best.quantity),
       clownSpice: remaining.clownSpice - (best.recipe.clownSpice * best.quantity),
       miracMeat: remaining.miracMeat - (best.recipe.miracMeat * best.quantity),
-      miracVeggie: remaining.miracVeggie - (best.recipe.miracVeggie * best.quantity),
+      miracVegetable: remaining.miracVegetable - (best.recipe.miracVegetable * best.quantity),
       miracSpice: remaining.miracSpice - (best.recipe.miracSpice * best.quantity)
     };
   }
@@ -539,26 +958,26 @@ function calculateIngredientOptimizer(root) {
     // We have enough for stew - show stew-only output
     let stewValue = 
       remaining.clownMeat * MEGA_STEW_VALUES.clownMeat +
-      remaining.clownVeggie * MEGA_STEW_VALUES.clownVeggie +
+      remaining.clownVegetable * MEGA_STEW_VALUES.clownVegetable +
       remaining.clownSpice * MEGA_STEW_VALUES.clownSpice +
       remaining.miracMeat * MEGA_STEW_VALUES.miracMeat +
-      remaining.miracVeggie * MEGA_STEW_VALUES.miracVeggie +
+      remaining.miracVegetable * MEGA_STEW_VALUES.miracVegetable +
       remaining.miracSpice * MEGA_STEW_VALUES.miracSpice;
     
     let stewWarning = null;
-    const totalVeggies = remaining.clownVeggie + remaining.miracVeggie;
+    const totalVegetables = remaining.clownVegetable + remaining.miracVegetable;
     const totalMeat = remaining.clownMeat + remaining.miracMeat;
     
-    const veggieWarningThreshold = 30;
+    const vegetableWarningThreshold = 30;
     const meatWarningThreshold = 40;
     
-    if (totalVeggies >= veggieWarningThreshold || totalMeat >= meatWarningThreshold) {
-      const wastedVeggieValue = totalVeggies * MEGA_STEW_VALUES.clownVeggie;
+    if (totalVegetables >= vegetableWarningThreshold || totalMeat >= meatWarningThreshold) {
+      const wastedVegetableValue = totalVegetables * MEGA_STEW_VALUES.clownVegetable;
       const wastedMeatValue = totalMeat * MEGA_STEW_VALUES.clownMeat;
       
       const warnings = [];
-      if (totalVeggies >= veggieWarningThreshold) {
-        warnings.push(`${totalVeggies} veggies (${Math.round(wastedVeggieValue).toLocaleString()}g in stew)`);
+      if (totalVegetables >= vegetableWarningThreshold) {
+        warnings.push(`${totalVegetables} vegetables (${Math.round(wastedVegetableValue).toLocaleString()}g in stew)`);
       }
       if (totalMeat >= meatWarningThreshold) {
         warnings.push(`${totalMeat} meat (${Math.round(wastedMeatValue).toLocaleString()}g in stew)`);
@@ -566,7 +985,7 @@ function calculateIngredientOptimizer(root) {
       
       stewWarning = {
         message: warnings.join(' and '),
-        veggies: totalVeggies,
+        vegetables: totalVegetables,
         meat: totalMeat
       };
     }
@@ -581,10 +1000,10 @@ function calculateIngredientOptimizer(root) {
           <h5>📦 Your Ingredients (${remainingTotal} total)</h5>
           <div class="remaining-grid">
             ${remaining.clownMeat > 0 ? `<p><strong>${remaining.clownMeat}</strong> Clown Meat</p>` : ''}
-            ${remaining.clownVeggie > 0 ? `<p><strong>${remaining.clownVeggie}</strong> Clown Veggie</p>` : ''}
+            ${remaining.clownVegetable > 0 ? `<p><strong>${remaining.clownVegetable}</strong> Clown Vegetable</p>` : ''}
             ${remaining.clownSpice > 0 ? `<p><strong>${remaining.clownSpice}</strong> Clown Spice</p>` : ''}
             ${remaining.miracMeat > 0 ? `<p><strong>${remaining.miracMeat}</strong> Mirac Meat</p>` : ''}
-            ${remaining.miracVeggie > 0 ? `<p><strong>${remaining.miracVeggie}</strong> Mirac Veggie</p>` : ''}
+            ${remaining.miracVegetable > 0 ? `<p><strong>${remaining.miracVegetable}</strong> Mirac Vegetable</p>` : ''}
             ${remaining.miracSpice > 0 ? `<p><strong>${remaining.miracSpice}</strong> Mirac Spice</p>` : ''}
           </div>
           ${stewWarning ? `
@@ -597,9 +1016,9 @@ function calculateIngredientOptimizer(root) {
                     Making Mega Stew will use ${stewWarning.message}
                   </div>
                   <div style="color: #856404; font-size: 0.9em; line-height: 1.4;">
-                    ${stewWarning.veggies >= 30 ? `<div>• <strong>Veggies</strong> are high-value ingredients that work much better in recipes paired with meat</div>` : ''}
+                    ${stewWarning.vegetables >= 30 ? `<div>• <strong>Vegetables</strong> are high-value ingredients that work much better in recipes paired with meat</div>` : ''}
                     ${stewWarning.meat >= 40 ? `<div>• <strong>Meat</strong> is better used in recipes than stew</div>` : ''}
-                    <div style="margin-top: 8px; font-style: italic;">💡 Consider waiting to gather ${stewWarning.veggies >= 30 && stewWarning.meat < 20 ? 'meat' : stewWarning.meat >= 40 && stewWarning.veggies < 20 ? 'veggies' : 'balanced ingredients'} for making recipes instead</div>
+                    <div style="margin-top: 8px; font-style: italic;">💡 Consider waiting to gather ${stewWarning.vegetables >= 30 && stewWarning.meat < 20 ? 'meat' : stewWarning.meat >= 40 && stewWarning.vegetables < 20 ? 'vegetables' : 'balanced ingredients'} for making recipes instead</div>
                   </div>
                 </div>
               </div>
@@ -632,35 +1051,35 @@ function calculateIngredientOptimizer(root) {
   if (remainingTotal >= 100) {
     stewValue = 
       remaining.clownMeat * MEGA_STEW_VALUES.clownMeat +
-      remaining.clownVeggie * MEGA_STEW_VALUES.clownVeggie +
+      remaining.clownVegetable * MEGA_STEW_VALUES.clownVegetable +
       remaining.clownSpice * MEGA_STEW_VALUES.clownSpice +
       remaining.miracMeat * MEGA_STEW_VALUES.miracMeat +
-      remaining.miracVeggie * MEGA_STEW_VALUES.miracVeggie +
+      remaining.miracVegetable * MEGA_STEW_VALUES.miracVegetable +
       remaining.miracSpice * MEGA_STEW_VALUES.miracSpice;
     
-    // Check if we're wasting valuable veggies or meat in stew
-    const totalVeggies = remaining.clownVeggie + remaining.miracVeggie;
+    // Check if we're wasting valuable vegetables or meat in stew
+    const totalVegetables = remaining.clownVegetable + remaining.miracVegetable;
     const totalMeat = remaining.clownMeat + remaining.miracMeat;
     const totalSpice = remaining.clownSpice + remaining.miracSpice;
     
     // Calculate percentage of non-spice ingredients
-    const nonSpiceTotal = totalVeggies + totalMeat;
-    const veggiePercent = nonSpiceTotal > 0 ? (totalVeggies / nonSpiceTotal) * 100 : 0;
+    const nonSpiceTotal = totalVegetables + totalMeat;
+    const vegetablePercent = nonSpiceTotal > 0 ? (totalVegetables / nonSpiceTotal) * 100 : 0;
     const meatPercent = nonSpiceTotal > 0 ? (totalMeat / nonSpiceTotal) * 100 : 0;
     
-    // Warn if we're using significant veggies or meat (which are better in recipes)
-    const veggieWarningThreshold = 30; // 30+ veggies is significant waste
+    // Warn if we're using significant vegetables or meat (which are better in recipes)
+    const vegetableWarningThreshold = 30; // 30+ vegetables is significant waste
     const meatWarningThreshold = 40; // 40+ meat is significant waste
     
-    if (totalVeggies >= veggieWarningThreshold || totalMeat >= meatWarningThreshold) {
-      const wastedVeggieValue = totalVeggies * MEGA_STEW_VALUES.clownVeggie; // Use clown value as average
+    if (totalVegetables >= vegetableWarningThreshold || totalMeat >= meatWarningThreshold) {
+      const wastedVegetableValue = totalVegetables * MEGA_STEW_VALUES.clownVegetable; // Use clown value as average
       const wastedMeatValue = totalMeat * MEGA_STEW_VALUES.clownMeat;
       
       let warningMsg = '';
       const warnings = [];
       
-      if (totalVeggies >= veggieWarningThreshold) {
-        warnings.push(`${totalVeggies} veggies (${Math.round(wastedVeggieValue).toLocaleString()}g in stew)`);
+      if (totalVegetables >= vegetableWarningThreshold) {
+        warnings.push(`${totalVegetables} vegetables (${Math.round(wastedVegetableValue).toLocaleString()}g in stew)`);
       }
       if (totalMeat >= meatWarningThreshold) {
         warnings.push(`${totalMeat} meat (${Math.round(wastedMeatValue).toLocaleString()}g in stew)`);
@@ -670,9 +1089,9 @@ function calculateIngredientOptimizer(root) {
       
       stewWarning = {
         message: warningMsg,
-        veggies: totalVeggies,
+        vegetables: totalVegetables,
         meat: totalMeat,
-        veggiePercent,
+        vegetablePercent,
         meatPercent
       };
     }
@@ -711,10 +1130,10 @@ function calculateIngredientOptimizer(root) {
         <h5>📦 Final Remaining Ingredients (${remainingTotal} total)</h5>
         <div class="remaining-grid">
           ${remaining.clownMeat > 0 ? `<p><strong>${remaining.clownMeat}</strong> Clown Meat</p>` : ''}
-          ${remaining.clownVeggie > 0 ? `<p><strong>${remaining.clownVeggie}</strong> Clown Veggie</p>` : ''}
+          ${remaining.clownVegetable > 0 ? `<p><strong>${remaining.clownVegetable}</strong> Clown Vegetable</p>` : ''}
           ${remaining.clownSpice > 0 ? `<p><strong>${remaining.clownSpice}</strong> Clown Spice</p>` : ''}
           ${remaining.miracMeat > 0 ? `<p><strong>${remaining.miracMeat}</strong> Mirac Meat</p>` : ''}
-          ${remaining.miracVeggie > 0 ? `<p><strong>${remaining.miracVeggie}</strong> Mirac Veggie</p>` : ''}
+          ${remaining.miracVegetable > 0 ? `<p><strong>${remaining.miracVegetable}</strong> Mirac Vegetable</p>` : ''}
           ${remaining.miracSpice > 0 ? `<p><strong>${remaining.miracSpice}</strong> Mirac Spice</p>` : ''}
         </div>
         ${remainingTotal >= 100 ? `
@@ -728,9 +1147,9 @@ function calculateIngredientOptimizer(root) {
                     Making Mega Stew will use ${stewWarning.message}
                   </div>
                   <div style="color: #856404; font-size: 0.9em; line-height: 1.4;">
-                    ${stewWarning.veggies >= 30 ? `<div>• <strong>Veggies</strong> are high-value ingredients that work much better in recipes paired with meat</div>` : ''}
+                    ${stewWarning.vegetables >= 30 ? `<div>• <strong>Vegetables</strong> are high-value ingredients that work much better in recipes paired with meat</div>` : ''}
                     ${stewWarning.meat >= 40 ? `<div>• <strong>Meat</strong> is better used in recipes than stew</div>` : ''}
-                    <div style="margin-top: 8px; font-style: italic;">💡 Consider waiting to gather ${stewWarning.veggies >= 30 && stewWarning.meat < 20 ? 'meat' : stewWarning.meat >= 40 && stewWarning.veggies < 20 ? 'veggies' : 'balanced ingredients'} for making recipes instead</div>
+                    <div style="margin-top: 8px; font-style: italic;">💡 Consider waiting to gather ${stewWarning.vegetables >= 30 && stewWarning.meat < 20 ? 'meat' : stewWarning.meat >= 40 && stewWarning.vegetables < 20 ? 'vegetables' : 'balanced ingredients'} for making recipes instead</div>
                   </div>
                 </div>
               </div>
@@ -795,8 +1214,8 @@ function buildResultsDashboard(root) {
               <input type="number" id="current-clown-meat" value="${ing.clownMeat}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
             </div>
             <div class="card card-md border-clown bg-clown" style="text-align: center;">
-              <label style="display: block; font-weight: bold; margin-bottom: 8px;">🥬 Clown Veggie</label>
-              <input type="number" id="current-clown-veggie" value="${ing.clownVeggie}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
+              <label style="display: block; font-weight: bold; margin-bottom: 8px;">🥬 Clown Vegetable</label>
+              <input type="number" id="current-clown-vegetable" value="${ing.clownVegetable}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
             </div>
             <div class="card card-md border-clown bg-clown" style="text-align: center;">
               <label style="display: block; font-weight: bold; margin-bottom: 8px;">🌶️ Clown Spice</label>
@@ -807,8 +1226,8 @@ function buildResultsDashboard(root) {
               <input type="number" id="current-mirac-meat" value="${ing.miracMeat}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
             </div>
             <div class="card card-md border-mirac bg-mirac" style="text-align: center;">
-              <label style="display: block; font-weight: bold; margin-bottom: 8px;">🥬 Mirac Veggie</label>
-              <input type="number" id="current-mirac-veggie" value="${ing.miracVeggie}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
+              <label style="display: block; font-weight: bold; margin-bottom: 8px;">🥬 Mirac Vegetable</label>
+              <input type="number" id="current-mirac-vegetable" value="${ing.miracVegetable}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
             </div>
             <div class="card card-md border-mirac bg-mirac" style="text-align: center;">
               <label style="display: block; font-weight: bold; margin-bottom: 8px;">🌶️ Mirac Spice</label>
@@ -845,7 +1264,7 @@ function buildResultsDashboard(root) {
   container.innerHTML = html;
   
   // Set up event listeners for shared ingredient inputs
-  ['clown-meat', 'clown-veggie', 'clown-spice', 'mirac-meat', 'mirac-veggie', 'mirac-spice'].forEach(id => {
+  ['clown-meat', 'clown-vegetable', 'clown-spice', 'mirac-meat', 'mirac-vegetable', 'mirac-spice'].forEach(id => {
     const input = container.querySelector(`#current-${id}`);
     if (input) {
       input.addEventListener('input', () => {
@@ -874,7 +1293,7 @@ function setupCookingEventListeners(root) {
   
   // checkbox to enable/disable rate inputs
   ['clown', 'mirac'].forEach(vendor => {
-    ['meat', 'veggie', 'spice'].forEach(type => {
+    ['meat', 'vegetable', 'spice'].forEach(type => {
       const checkbox = root.querySelector(`#${vendor}-${type}-enabled`);
       const rateInput = root.querySelector(`#${vendor}-${type}-rate`);
       if (checkbox && rateInput) {
@@ -971,7 +1390,7 @@ function setupCookingEventListeners(root) {
 
 function applyRecipeFilters(root, vendor) {
   const filters = cookingState.filters[vendor];
-  const hasActiveFilters = filters.meat || filters.veggie || filters.spice;
+  const hasActiveFilters = filters.meat || filters.vegetable || filters.spice;
   
   const gridClass = vendor === 'clown' ? '.clown-recipes' : '.mirac-recipes';
   const recipeCards = root.querySelectorAll(`${gridClass} .recipe-card`);
@@ -985,19 +1404,19 @@ function applyRecipeFilters(root, vendor) {
     
     // check if recipe matches ALL selected filters
     const hasMeat = card.dataset.hasMeat === 'true';
-    const hasVeggie = card.dataset.hasVeggie === 'true';
+    const hasVegetable = card.dataset.hasVegetable === 'true';
     const hasSpice = card.dataset.hasSpice === 'true';
     
     let matches = true;
     
     // recipe must have ALL selected ingredients
     if (filters.meat && !hasMeat) matches = false;
-    if (filters.veggie && !hasVeggie) matches = false;
+    if (filters.vegetable && !hasVegetable) matches = false;
     if (filters.spice && !hasSpice) matches = false;
     
     // recipe must NOT have ingredients that are NOT selected
     if (!filters.meat && hasMeat) matches = false;
-    if (!filters.veggie && hasVeggie) matches = false;
+    if (!filters.vegetable && hasVegetable) matches = false;
     if (!filters.spice && hasSpice) matches = false;
     
     card.style.display = matches ? '' : 'none';
@@ -1010,22 +1429,22 @@ function updateVendorState(root) {
   if (clownPreset === 'meat-only') {
     cookingState.vendors.clown.meatEnabled = true;
     cookingState.vendors.clown.meatRate = 1.00;
-    cookingState.vendors.clown.veggieEnabled = false;
-    cookingState.vendors.clown.veggieRate = 0;
+    cookingState.vendors.clown.vegetableEnabled = false;
+    cookingState.vendors.clown.vegetableRate = 0;
     cookingState.vendors.clown.spiceEnabled = false;
     cookingState.vendors.clown.spiceRate = 0;
-  } else if (clownPreset === 'meat-veggie') {
+  } else if (clownPreset === 'meat-vegetable') {
     cookingState.vendors.clown.meatEnabled = true;
     cookingState.vendors.clown.meatRate = 0.7222;
-    cookingState.vendors.clown.veggieEnabled = true;
-    cookingState.vendors.clown.veggieRate = 0.2778;
+    cookingState.vendors.clown.vegetableEnabled = true;
+    cookingState.vendors.clown.vegetableRate = 0.2778;
     cookingState.vendors.clown.spiceEnabled = false;
     cookingState.vendors.clown.spiceRate = 0;
   } else { // all-three
     cookingState.vendors.clown.meatEnabled = true;
     cookingState.vendors.clown.meatRate = 0.65;
-    cookingState.vendors.clown.veggieEnabled = true;
-    cookingState.vendors.clown.veggieRate = 0.25;
+    cookingState.vendors.clown.vegetableEnabled = true;
+    cookingState.vendors.clown.vegetableRate = 0.25;
     cookingState.vendors.clown.spiceEnabled = true;
     cookingState.vendors.clown.spiceRate = 0.10;
   }
@@ -1036,29 +1455,29 @@ function updateVendorState(root) {
   if (miracPreset === 'none') {
     cookingState.vendors.miraculand.meatEnabled = false;
     cookingState.vendors.miraculand.meatRate = 0;
-    cookingState.vendors.miraculand.veggieEnabled = false;
-    cookingState.vendors.miraculand.veggieRate = 0;
+    cookingState.vendors.miraculand.vegetableEnabled = false;
+    cookingState.vendors.miraculand.vegetableRate = 0;
     cookingState.vendors.miraculand.spiceEnabled = false;
     cookingState.vendors.miraculand.spiceRate = 0;
   } else if (miracPreset === 'meat-only') {
     cookingState.vendors.miraculand.meatEnabled = true;
     cookingState.vendors.miraculand.meatRate = 1.00;
-    cookingState.vendors.miraculand.veggieEnabled = false;
-    cookingState.vendors.miraculand.veggieRate = 0;
+    cookingState.vendors.miraculand.vegetableEnabled = false;
+    cookingState.vendors.miraculand.vegetableRate = 0;
     cookingState.vendors.miraculand.spiceEnabled = false;
     cookingState.vendors.miraculand.spiceRate = 0;
-  } else if (miracPreset === 'meat-veggie') {
+  } else if (miracPreset === 'meat-vegetable') {
     cookingState.vendors.miraculand.meatEnabled = true;
     cookingState.vendors.miraculand.meatRate = 0.7222;
-    cookingState.vendors.miraculand.veggieEnabled = true;
-    cookingState.vendors.miraculand.veggieRate = 0.2778;
+    cookingState.vendors.miraculand.vegetableEnabled = true;
+    cookingState.vendors.miraculand.vegetableRate = 0.2778;
     cookingState.vendors.miraculand.spiceEnabled = false;
     cookingState.vendors.miraculand.spiceRate = 0;
   } else { // all-three
     cookingState.vendors.miraculand.meatEnabled = true;
     cookingState.vendors.miraculand.meatRate = 0.65;
-    cookingState.vendors.miraculand.veggieEnabled = true;
-    cookingState.vendors.miraculand.veggieRate = 0.25;
+    cookingState.vendors.miraculand.vegetableEnabled = true;
+    cookingState.vendors.miraculand.vegetableRate = 0.25;
     cookingState.vendors.miraculand.spiceEnabled = true;
     cookingState.vendors.miraculand.spiceRate = 0.10;
   }
@@ -1075,13 +1494,21 @@ function updateShopState(root) {
   cookingState.shop.supplyDeals.enabled = root.querySelector('#shop-supply-enabled')?.checked ?? true;
   cookingState.shop.supplyDeals.quantity = parseInt(root.querySelector('#shop-supply-qty')?.value) || 0;
   
-  // veggie purchase
-  cookingState.shop.veggiePurchase.enabled = root.querySelector('#shop-veggie-enabled')?.checked ?? true;
-  cookingState.shop.veggiePurchase.quantity = parseInt(root.querySelector('#shop-veggie-qty')?.value) || 0;
+  // vegetable purchase
+  cookingState.shop.vegetablePurchase.enabled = root.querySelector('#shop-vegetable-enabled')?.checked ?? true;
+  cookingState.shop.vegetablePurchase.quantity = parseInt(root.querySelector('#shop-vegetable-qty')?.value) || 0;
   
   // spice purchase
   cookingState.shop.spicePurchase.enabled = root.querySelector('#shop-spice-enabled')?.checked ?? false;
   cookingState.shop.spicePurchase.quantity = parseInt(root.querySelector('#shop-spice-qty')?.value) || 0;
+  
+  // miraculand vegetable purchase
+  cookingState.shop.miracVegetablePurchase.enabled = root.querySelector('#shop-mirac-vegetable-enabled')?.checked ?? false;
+  cookingState.shop.miracVegetablePurchase.quantity = parseInt(root.querySelector('#shop-mirac-vegetable-qty')?.value) || 0;
+  
+  // skill books purchase
+  cookingState.shop.skillBooks.enabled = root.querySelector('#shop-skillbooks-enabled')?.checked ?? false;
+  cookingState.shop.skillBooks.quantity = parseInt(root.querySelector('#shop-skillbooks-qty')?.value) || 0;
   
   saveCookingToStorage();
 }
@@ -1099,10 +1526,10 @@ function recalculateCooking() {
   // calculate supply order costs per ingredient
   const supplyOrderCosts = {
     clownMeat: clown.meatEnabled && clown.meatRate > 0 ? 1 / clown.meatRate : Infinity,
-    clownVeggie: clown.veggieEnabled && clown.veggieRate > 0 ? 1 / clown.veggieRate : Infinity,
+    clownVegetable: clown.vegetableEnabled && clown.vegetableRate > 0 ? 1 / clown.vegetableRate : Infinity,
     clownSpice: clown.spiceEnabled && clown.spiceRate > 0 ? 1 / clown.spiceRate : Infinity,
     miracMeat: mirac.meatEnabled && mirac.meatRate > 0 ? 1 / mirac.meatRate : Infinity,
-    miracVeggie: mirac.veggieEnabled && mirac.veggieRate > 0 ? 1 / mirac.veggieRate : Infinity,
+    miracVegetable: mirac.vegetableEnabled && mirac.vegetableRate > 0 ? 1 / mirac.vegetableRate : Infinity,
     miracSpice: mirac.spiceEnabled && mirac.spiceRate > 0 ? 1 / mirac.spiceRate : Infinity
   };
   
@@ -1116,8 +1543,8 @@ function recalculateCooking() {
     const price = state.price;
     
     // determine which vendor to use based on recipe ingredients
-    const usesClown = recipe.clownMeat > 0 || recipe.clownVeggie > 0 || recipe.clownSpice > 0;
-    const usesMirac = recipe.miracMeat > 0 || recipe.miracVeggie > 0 || recipe.miracSpice > 0;
+    const usesClown = recipe.clownMeat > 0 || recipe.clownVegetable > 0 || recipe.clownSpice > 0;
+    const usesMirac = recipe.miracMeat > 0 || recipe.miracVegetable > 0 || recipe.miracSpice > 0;
     
     // calculate supply orders needed for each ingredient
     let ordersNeeded = [];
@@ -1125,13 +1552,13 @@ function recalculateCooking() {
     
     if (usesClown) {
       if (recipe.clownMeat > 0) ordersNeeded.push({ type: 'Clown Meat', orders: recipe.clownMeat * supplyOrderCosts.clownMeat });
-      if (recipe.clownVeggie > 0) ordersNeeded.push({ type: 'Clown Veggie', orders: recipe.clownVeggie * supplyOrderCosts.clownVeggie });
+      if (recipe.clownVegetable > 0) ordersNeeded.push({ type: 'Clown Vegetable', orders: recipe.clownVegetable * supplyOrderCosts.clownVegetable });
       if (recipe.clownSpice > 0) ordersNeeded.push({ type: 'Clown Spice', orders: recipe.clownSpice * supplyOrderCosts.clownSpice });
     }
     
     if (usesMirac) {
       if (recipe.miracMeat > 0) ordersNeeded.push({ type: 'Mirac Meat', orders: recipe.miracMeat * supplyOrderCosts.miracMeat });
-      if (recipe.miracVeggie > 0) ordersNeeded.push({ type: 'Mirac Veggie', orders: recipe.miracVeggie * supplyOrderCosts.miracVeggie });
+      if (recipe.miracVegetable > 0) ordersNeeded.push({ type: 'Mirac Vegetable', orders: recipe.miracVegetable * supplyOrderCosts.miracVegetable });
       if (recipe.miracSpice > 0) ordersNeeded.push({ type: 'Mirac Spice', orders: recipe.miracSpice * supplyOrderCosts.miracSpice });
     }
     
@@ -1151,35 +1578,35 @@ function recalculateCooking() {
     let byproductValue = 0;
     
     // 1. Calculate Clown Byproducts (only if recipe uses Clown ingredients)
-    if (usesClown && (clown.meatEnabled || clown.veggieEnabled || clown.spiceEnabled)) {
+    if (usesClown && (clown.meatEnabled || clown.vegetableEnabled || clown.spiceEnabled)) {
       const expectedMeat = totalOrders * clown.meatRate;
-      const expectedVeggie = totalOrders * clown.veggieRate;
+      const expectedVegetable = totalOrders * clown.vegetableRate;
       const expectedSpice = totalOrders * clown.spiceRate;
       
       // Subtract what the recipe consumes (defaults to 0 if ingredient not used)
       const excessMeat = Math.max(0, expectedMeat - recipe.clownMeat);
-      const excessVeggie = Math.max(0, expectedVeggie - recipe.clownVeggie);
+      const excessVegetable = Math.max(0, expectedVegetable - recipe.clownVegetable);
       const excessSpice = Math.max(0, expectedSpice - recipe.clownSpice);
       
       byproductValue += 
         excessMeat * MEGA_STEW_VALUES.clownMeat +
-        excessVeggie * MEGA_STEW_VALUES.clownVeggie +
+        excessVegetable * MEGA_STEW_VALUES.clownVegetable +
         excessSpice * MEGA_STEW_VALUES.clownSpice;
     }
     
     // 2. Calculate Miraculand Byproducts (only if recipe uses Mirac ingredients)
-    if (usesMirac && (mirac.meatEnabled || mirac.veggieEnabled || mirac.spiceEnabled)) {
+    if (usesMirac && (mirac.meatEnabled || mirac.vegetableEnabled || mirac.spiceEnabled)) {
       const expectedMiracMeat = totalOrders * mirac.meatRate;
-      const expectedMiracVeggie = totalOrders * mirac.veggieRate;
+      const expectedMiracVegetable = totalOrders * mirac.vegetableRate;
       const expectedMiracSpice = totalOrders * mirac.spiceRate;
       
       const excessMiracMeat = Math.max(0, expectedMiracMeat - recipe.miracMeat);
-      const excessMiracVeggie = Math.max(0, expectedMiracVeggie - recipe.miracVeggie);
+      const excessMiracVegetable = Math.max(0, expectedMiracVegetable - recipe.miracVegetable);
       const excessMiracSpice = Math.max(0, expectedMiracSpice - recipe.miracSpice);
       
       byproductValue += 
         excessMiracMeat * MEGA_STEW_VALUES.miracMeat +
-        excessMiracVeggie * MEGA_STEW_VALUES.miracVeggie +
+        excessMiracVegetable * MEGA_STEW_VALUES.miracVegetable +
         excessMiracSpice * MEGA_STEW_VALUES.miracSpice;
     }
     
@@ -1211,6 +1638,7 @@ function recalculateCooking() {
   cookingState.results = results;
   
   // update UI
+  updateDailySummary(root);
   updateRankingTable(root, results);
   updateShopROI(root);
   updateStrategySummary(root, results);
@@ -1257,11 +1685,13 @@ function updateShopROI(root) {
   
   // clear inline results first
   const supplyResult = root.querySelector('#shop-supply-result');
-  const veggieResult = root.querySelector('#shop-veggie-result');
+  const vegetableResult = root.querySelector('#shop-vegetable-result');
   const spiceResult = root.querySelector('#shop-spice-result');
+  const miracVegetableResult = root.querySelector('#shop-mirac-vegetable-result');
   if (supplyResult) supplyResult.innerHTML = '';
-  if (veggieResult) veggieResult.innerHTML = '';
+  if (vegetableResult) vegetableResult.innerHTML = '';
   if (spiceResult) spiceResult.innerHTML = '';
+  if (miracVegetableResult) miracVegetableResult.innerHTML = '';
   
   // supply deals
   if (shop.supplyDeals.enabled && shop.supplyDeals.quantity > 0) {
@@ -1292,11 +1722,11 @@ function updateShopROI(root) {
     if (supplyResult) supplyResult.innerHTML = `<span class="${profitClass}">${profit >= 0 ? '+' : ''}${profit.toFixed(0).toLocaleString()}g (${roi}%)</span>`;
   }
   
-  // veggie purchase - value based on supply order savings
-  if (shop.veggiePurchase.enabled && shop.veggiePurchase.quantity > 0) {
-    const cost = shop.veggiePurchase.quantity * shop.veggiePurchase.cost;
-    const orderCost = cookingState.vendors.clown.veggieRate > 0 ? 1 / cookingState.vendors.clown.veggieRate : 4;
-    const value = shop.veggiePurchase.quantity * orderCost * topGoldPerOrder;
+  // vegetable purchase - value based on supply order savings
+  if (shop.vegetablePurchase.enabled && shop.vegetablePurchase.quantity > 0) {
+    const cost = shop.vegetablePurchase.quantity * shop.vegetablePurchase.cost;
+    const orderCost = cookingState.vendors.clown.vegetableRate > 0 ? 1 / cookingState.vendors.clown.vegetableRate : 4;
+    const value = shop.vegetablePurchase.quantity * orderCost * topGoldPerOrder;
     const profit = value - cost;
     const roi = cost > 0 ? ((value / cost - 1) * 100).toFixed(0) : 0;
     
@@ -1306,7 +1736,7 @@ function updateShopROI(root) {
     const profitClass = profit >= 0 ? 'positive' : 'negative';
     html += `
       <div class="roi-item">
-        <div class="roi-name">Veggies (×${shop.veggiePurchase.quantity})</div>
+        <div class="roi-name">Vegetables (×${shop.vegetablePurchase.quantity})</div>
         <div class="roi-details">
           <span>Cost: ${cost.toLocaleString()}g</span>
           <span>Value: ${value.toFixed(0).toLocaleString()}g</span>
@@ -1317,7 +1747,7 @@ function updateShopROI(root) {
       </div>
     `;
     
-    if (veggieResult) veggieResult.innerHTML = `<span class="${profitClass}">${profit >= 0 ? '+' : ''}${profit.toFixed(0).toLocaleString()}g (${roi}%)</span>`;
+    if (vegetableResult) vegetableResult.innerHTML = `<span class="${profitClass}">${profit >= 0 ? '+' : ''}${profit.toFixed(0).toLocaleString()}g (${roi}%)</span>`;
   }
   
   // spice purchase - value based on mega stew
@@ -1345,6 +1775,34 @@ function updateShopROI(root) {
     `;
     
     if (spiceResult) spiceResult.innerHTML = `<span class="${profitClass}">${profit >= 0 ? '+' : ''}${profit.toFixed(0).toLocaleString()}g (${roi}%)</span>`;
+  }
+  
+  // miraculand vegetable purchase - value based on supply order savings (using mirac vegetable rate)
+  if (shop.miracVegetablePurchase.enabled && shop.miracVegetablePurchase.quantity > 0) {
+    const cost = shop.miracVegetablePurchase.quantity * shop.miracVegetablePurchase.cost;
+    const orderCost = cookingState.vendors.miraculand.vegetableRate > 0 ? 1 / cookingState.vendors.miraculand.vegetableRate : 3.6;
+    const value = shop.miracVegetablePurchase.quantity * orderCost * topGoldPerOrder;
+    const profit = value - cost;
+    const roi = cost > 0 ? ((value / cost - 1) * 100).toFixed(0) : 0;
+    
+    totalCost += cost;
+    totalProfit += profit;
+    
+    const profitClass = profit >= 0 ? 'positive' : 'negative';
+    html += `
+      <div class="roi-item">
+        <div class="roi-name">Mirac Vegetables (×${shop.miracVegetablePurchase.quantity})</div>
+        <div class="roi-details">
+          <span>Cost: ${cost.toLocaleString()}g</span>
+          <span>Value: ${value.toFixed(0).toLocaleString()}g</span>
+        </div>
+        <div class="roi-result ${profitClass}">
+          ${profit >= 0 ? '+' : ''}${profit.toFixed(0).toLocaleString()}g (${roi}% ROI)
+        </div>
+      </div>
+    `;
+    
+    if (miracVegetableResult) miracVegetableResult.innerHTML = `<span class="${profitClass}">${profit >= 0 ? '+' : ''}${profit.toFixed(0).toLocaleString()}g (${roi}%)</span>`;
   }
   
   // total
@@ -1377,7 +1835,7 @@ function updateStrategySummary(root, results) {
   // find best meat-only dish for excess meat
   const meatOnlyDishes = results.filter(r => {
     const recipe = COOKING_RECIPES[r.id];
-    return recipe.clownVeggie === 0 && recipe.clownSpice === 0 && recipe.clownMeat > 0;
+    return recipe.clownVegetable === 0 && recipe.clownSpice === 0 && recipe.clownMeat > 0;
   });
   const bestMeatDish = meatOnlyDishes.length > 0 ? meatOnlyDishes[0] : null;
   
@@ -1394,7 +1852,7 @@ function updateStrategySummary(root, results) {
     </div>
   `;
   
-  if (bestMeatDish && best.limiting.includes('Veggie')) {
+  if (bestMeatDish && best.limiting.includes('Vegetable')) {
     html += `
       <div class="strategy-item">
         <div class="strategy-label">Excess Meat →</div>
@@ -1422,10 +1880,10 @@ let stewChart = null;
 // Ingredient ranges for mega stew
 const INGREDIENT_RANGES = {
   clownMeat: { min: 10, max: 48, mid: 29.00 },
-  clownVeggie: { min: 29, max: 144, mid: 86.50 },
+  clownVegetable: { min: 29, max: 144, mid: 86.50 },
   clownSpice: { min: 72, max: 240, mid: 156.00 },
   miracMeat: { min: 12, max: 60, mid: 36.00 },
-  miracVeggie: { min: 36, max: 180, mid: 108 },
+  miracVegetable: { min: 36, max: 180, mid: 108 },
   miracSpice: { min: 0, max: 0, mid: 0 }
 };
 
@@ -1452,7 +1910,7 @@ function updateStewCalculator(root) {
           </div>
           
           <div class="card card-md border-clown" style="text-align: center;">
-            <div style="font-weight: bold; margin-bottom: 4px;">🥬 Clown Veggie</div>
+            <div style="font-weight: bold; margin-bottom: 4px;">🥬 Clown Vegetable</div>
             <div style="font-size: 0.85em; color: #666;">
               <div style="font-family: monospace; font-size: 0.9em; margin-bottom: 2px;">29 - 144 gold</div>
               <div>Expected: 86.50</div>
@@ -1476,7 +1934,7 @@ function updateStewCalculator(root) {
           </div>
           
           <div class="card card-md border-mirac" style="text-align: center;">
-            <div style="font-weight: bold; margin-bottom: 4px;">🥬 Mirac Veggie</div>
+            <div style="font-weight: bold; margin-bottom: 4px;">🥬 Mirac Vegetable</div>
             <div style="font-size: 0.85em; color: #666;">
               <div style="font-family: monospace; font-size: 0.9em; margin-bottom: 2px;">36 - 180 gold</div>
               <div>Expected: 108.00</div>
@@ -1573,10 +2031,10 @@ function calculateStewRanges(root) {
   
   const quantities = {
     clownMeat: parseInt(ingredientContainer.querySelector('#current-clown-meat')?.value) || 0,
-    clownVeggie: parseInt(ingredientContainer.querySelector('#current-clown-veggie')?.value) || 0,
+    clownVegetable: parseInt(ingredientContainer.querySelector('#current-clown-vegetable')?.value) || 0,
     clownSpice: parseInt(ingredientContainer.querySelector('#current-clown-spice')?.value) || 0,
     miracMeat: parseInt(ingredientContainer.querySelector('#current-mirac-meat')?.value) || 0,
-    miracVeggie: parseInt(ingredientContainer.querySelector('#current-mirac-veggie')?.value) || 0
+    miracVegetable: parseInt(ingredientContainer.querySelector('#current-mirac-vegetable')?.value) || 0
   };
   
   const container = root.querySelector('#stew-calculator');
@@ -1892,11 +2350,21 @@ function refreshCookingUI(root) {
   root.querySelector('#shop-supply-enabled').checked = shop.supplyDeals.enabled;
   root.querySelector('#shop-supply-qty').value = shop.supplyDeals.quantity;
   
-  root.querySelector('#shop-veggie-enabled').checked = shop.veggiePurchase.enabled;
-  root.querySelector('#shop-veggie-qty').value = shop.veggiePurchase.quantity;
+  root.querySelector('#shop-vegetable-enabled').checked = shop.vegetablePurchase.enabled;
+  root.querySelector('#shop-vegetable-qty').value = shop.vegetablePurchase.quantity;
   
   root.querySelector('#shop-spice-enabled').checked = shop.spicePurchase.enabled;
   root.querySelector('#shop-spice-qty').value = shop.spicePurchase.quantity;
+  
+  const miracVegetableEnabled = root.querySelector('#shop-mirac-vegetable-enabled');
+  const miracVegetableQty = root.querySelector('#shop-mirac-vegetable-qty');
+  if (miracVegetableEnabled) miracVegetableEnabled.checked = shop.miracVegetablePurchase.enabled;
+  if (miracVegetableQty) miracVegetableQty.value = shop.miracVegetablePurchase.quantity;
+  
+  const skillBooksEnabled = root.querySelector('#shop-skillbooks-enabled');
+  const skillBooksQty = root.querySelector('#shop-skillbooks-qty');
+  if (skillBooksEnabled) skillBooksEnabled.checked = shop.skillBooks.enabled;
+  if (skillBooksQty) skillBooksQty.value = shop.skillBooks.quantity;
   
   // refresh recipe UI
   for (const [id, state] of Object.entries(cookingState.recipes)) {
