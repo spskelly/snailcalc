@@ -7,10 +7,10 @@ const COOKING_RECIPES = {
     defaultStars: 1,
     defaultPrice: 0,
     clownMeat: 1,
-    clownVeggie: 0,
+    clownVegetable: 0,
     clownSpice: 0,
     miracMeat: 0,
-    miracVeggie: 0,
+    miracVegetable: 0,
     miracSpice: 0
   },
   "goblin_burger": {
@@ -18,10 +18,10 @@ const COOKING_RECIPES = {
     defaultStars: 1,
     defaultPrice: 0,
     clownMeat: 3,
-    clownVeggie: 0,
+    clownVegetable: 0,
     clownSpice: 0,
     miracMeat: 0,
-    miracVeggie: 0,
+    miracVegetable: 0,
     miracSpice: 0
   },
   "toad_egg_salad": {
@@ -29,10 +29,10 @@ const COOKING_RECIPES = {
     defaultStars: 1,
     defaultPrice: 0,
     clownMeat: 5,
-    clownVeggie: 0,
+    clownVegetable: 0,
     clownSpice: 0,
     miracMeat: 0,
-    miracVeggie: 0,
+    miracVegetable: 0,
     miracSpice: 0
   },
   "rust_pudding": {
@@ -40,10 +40,10 @@ const COOKING_RECIPES = {
     defaultStars: 1,
     defaultPrice: 0,
     clownMeat: 2,
-    clownVeggie: 1,
+    clownVegetable: 1,
     clownSpice: 0,
     miracMeat: 0,
-    miracVeggie: 0,
+    miracVegetable: 0,
     miracSpice: 0
   },
   "braised_gumball": {
@@ -51,10 +51,10 @@ const COOKING_RECIPES = {
     defaultStars: 1,
     defaultPrice: 0,
     clownMeat: 3,
-    clownVeggie: 2,
+    clownVegetable: 2,
     clownSpice: 0,
     miracMeat: 0,
-    miracVeggie: 0,
+    miracVegetable: 0,
     miracSpice: 0
   },
   "garlic_dried_gecko": {
@@ -62,10 +62,10 @@ const COOKING_RECIPES = {
     defaultStars: 1,
     defaultPrice: 0,
     clownMeat: 4,
-    clownVeggie: 2,
+    clownVegetable: 2,
     clownSpice: 0,
     miracMeat: 0,
-    miracVeggie: 0,
+    miracVegetable: 0,
     miracSpice: 0
   },
   "fried_demon_beef_rib": {
@@ -73,10 +73,10 @@ const COOKING_RECIPES = {
     defaultStars: 1,
     defaultPrice: 0,
     clownMeat: 6,
-    clownVeggie: 3,
+    clownVegetable: 3,
     clownSpice: 0,
     miracMeat: 0,
-    miracVeggie: 0,
+    miracVegetable: 0,
     miracSpice: 0
   },
   "teriyaki_blood_elf": {
@@ -84,10 +84,10 @@ const COOKING_RECIPES = {
     defaultStars: 1,
     defaultPrice: 0,
     clownMeat: 8,
-    clownVeggie: 4,
+    clownVegetable: 4,
     clownSpice: 0,
     miracMeat: 0,
-    miracVeggie: 0,
+    miracVegetable: 0,
     miracSpice: 0
   },
   "worm_cheese": {
@@ -95,10 +95,10 @@ const COOKING_RECIPES = {
     defaultStars: 1,
     defaultPrice: 0,
     clownMeat: 10,
-    clownVeggie: 6,
+    clownVegetable: 6,
     clownSpice: 0,
     miracMeat: 0,
-    miracVeggie: 0,
+    miracVegetable: 0,
     miracSpice: 0
   },
   "spider_eyeball_soup": {
@@ -106,10 +106,10 @@ const COOKING_RECIPES = {
     defaultStars: 1,
     defaultPrice: 0,
     clownMeat: 5,
-    clownVeggie: 2,
+    clownVegetable: 2,
     clownSpice: 1,
     miracMeat: 0,
-    miracVeggie: 0,
+    miracVegetable: 0,
     miracSpice: 0
   },
   "spicy_griffon_claw": {
@@ -117,10 +117,10 @@ const COOKING_RECIPES = {
     defaultStars: 1,
     defaultPrice: 0,
     clownMeat: 8,
-    clownVeggie: 5,
+    clownVegetable: 5,
     clownSpice: 3,
     miracMeat: 0,
-    miracVeggie: 0,
+    miracVegetable: 0,
     miracSpice: 0
   },
   "nuclear_bbq_oyster": {
@@ -128,10 +128,10 @@ const COOKING_RECIPES = {
     defaultStars: 1,
     defaultPrice: 0,
     clownMeat: 0,
-    clownVeggie: 0,
+    clownVegetable: 0,
     clownSpice: 0,
     miracMeat: 1,
-    miracVeggie: 0,
+    miracVegetable: 0,
     miracSpice: 0
   },
   "marinated_octopus": {
@@ -139,10 +139,10 @@ const COOKING_RECIPES = {
     defaultStars: 1,
     defaultPrice: 0,
     clownMeat: 0,
-    clownVeggie: 0,
+    clownVegetable: 0,
     clownSpice: 0,
     miracMeat: 3,
-    miracVeggie: 0,
+    miracVegetable: 0,
     miracSpice: 0
   },
   "engine_cheese_biscuit": {
@@ -150,10 +150,10 @@ const COOKING_RECIPES = {
     defaultStars: 1,
     defaultPrice: 0,
     clownMeat: 20,
-    clownVeggie: 10,
+    clownVegetable: 10,
     clownSpice: 5,
     miracMeat: 0,
-    miracVeggie: 0,
+    miracVegetable: 0,
     miracSpice: 0
   },
   "manta_ray_sashimi": {
@@ -161,10 +161,10 @@ const COOKING_RECIPES = {
     defaultStars: 1,
     defaultPrice: 0,
     clownMeat: 0,
-    clownVeggie: 0,
+    clownVegetable: 0,
     clownSpice: 0,
     miracMeat: 5,
-    miracVeggie: 0,
+    miracVegetable: 0,
     miracSpice: 0
   },
   "braised_dire_shrimp": {
@@ -172,10 +172,10 @@ const COOKING_RECIPES = {
     defaultStars: 1,
     defaultPrice: 0,
     clownMeat: 0,
-    clownVeggie: 0,
+    clownVegetable: 0,
     clownSpice: 0,
     miracMeat: 2,
-    miracVeggie: 1,
+    miracVegetable: 1,
     miracSpice: 0
   },
   "stir_fried_sea_dragon": {
@@ -183,10 +183,10 @@ const COOKING_RECIPES = {
     defaultStars: 1,
     defaultPrice: 0,
     clownMeat: 0,
-    clownVeggie: 0,
+    clownVegetable: 0,
     clownSpice: 0,
     miracMeat: 3,
-    miracVeggie: 2,
+    miracVegetable: 2,
     miracSpice: 0
   },
   "sea_salt_cheese": {
@@ -194,10 +194,10 @@ const COOKING_RECIPES = {
     defaultStars: 1,
     defaultPrice: 0,
     clownMeat: 0,
-    clownVeggie: 0,
+    clownVegetable: 0,
     clownSpice: 0,
     miracMeat: 4,
-    miracVeggie: 2,
+    miracVegetable: 2,
     miracSpice: 0
   },
 };
@@ -209,8 +209,8 @@ const DEFAULT_VENDORS = {
     enabled: true,
     meatEnabled: true,
     meatRate: 0.65,
-    veggieEnabled: true,
-    veggieRate: 0.25,
+    vegetableEnabled: true,
+    vegetableRate: 0.25,
     spiceEnabled: true,
     spiceRate: 0.10
   },
@@ -219,8 +219,8 @@ const DEFAULT_VENDORS = {
     enabled: true,
     meatEnabled: true,
     meatRate: 1.00,
-    veggieEnabled: false,
-    veggieRate: 0.00,
+    vegetableEnabled: false,
+    vegetableRate: 0.00,
     spiceEnabled: false,
     spiceRate: 0.00
   }
@@ -235,7 +235,7 @@ const DEFAULT_SHOP = {
     cost: 100,
     supplyOrdersEach: 20
   },
-  veggiePurchase: {
+  vegetablePurchase: {
     enabled: false,
     quantity: 0,
     cost: 220
@@ -244,16 +244,26 @@ const DEFAULT_SHOP = {
     enabled: false,
     quantity: 0,
     cost: 360
+  },
+  miracVegetablePurchase: {
+    enabled: false,
+    quantity: 0,
+    cost: 270
+  },
+  skillBooks: {
+    enabled: false,
+    quantity: 0,
+    cost: 5000
   }
 };
 
 // Mega Stew values (empirically derived)
 const MEGA_STEW_VALUES = {
   clownMeat: 29.00,
-  clownVeggie: 86.50,
+  clownVegetable: 86.50,
   clownSpice: 156.00,
   miracMeat: 36.00, 
-  miracVeggie: 108,
+  miracVegetable: 108,
   miracSpice: 193.5 // est
 };
 
