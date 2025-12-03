@@ -203,6 +203,16 @@
   font-size: 0.95em;
 }
 
+/* Reset heading margins inside card headers to prevent unwanted whitespace */
+.card-header h1,
+.card-header h2,
+.card-header h3,
+.card-header h4,
+.card-header h5,
+.card-header h6 {
+  margin: 0;
+}
+
 /* When card-header is inside a padded card, use negative margin to counteract parent padding */
 .card-lg > .card-header:first-child {
   margin: -20px -20px 15px -20px;
@@ -1658,6 +1668,12 @@ h1, h2 {
   box-sizing: border-box;
   overflow: hidden;
   word-wrap: break-word;
+}
+
+/* Fix for h4.card-header inside optimal-ranking-strategy */
+.optimal-ranking-strategy > .card-header {
+  margin: -20px -20px 15px -20px;
+  padding: 10px 15px;
 }
 
 /* Strategy Summary */
