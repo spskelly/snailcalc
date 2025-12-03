@@ -8,10 +8,6 @@ let cookingState = {
   vendors: {},      // vendor configurations  
   shop: {},         // shop purchase configurations
   results: [],      // calculated results
-  filters: {        // recipe filters
-    clown: { meat: false, vegetable: false, spice: false },
-    miraculand: { meat: false, vegetable: false, spice: false }
-  },
   currentIngredients: {  // current ingredient inventory
     clownMeat: 0,
     clownVegetable: 0,
@@ -564,19 +560,53 @@ function buildRecipeManager(root) {
   const container = root.querySelector('#cooking-recipe-manager');
   if (!container) return;
   
-  // separate recipes by vendor
-  const clownRecipes = [];
-  const miracRecipes = [];
+  // separate recipes by vendor and categorize by ingredient complexity
+  const clownRecipes = {
+    meatOnly: [],
+    meatVeg: [],
+    meatVegSpice: []
+  };
+  const miracRecipes = {
+    meatOnly: [],
+    meatVeg: [],
+    meatVegSpice: []
+  };
   
   for (const id of RECIPE_ORDER) {
     const recipe = COOKING_RECIPES[id];
     const usesMirac = recipe.miracMeat > 0 || recipe.miracVegetable > 0 || recipe.miracSpice > 0;
+    
     if (usesMirac) {
-      miracRecipes.push(id);
+      // Categorize miraculand recipes
+      const hasMeat = recipe.miracMeat > 0;
+      const hasVeg = recipe.miracVegetable > 0;
+      const hasSpice = recipe.miracSpice > 0;
+      
+      if (hasMeat && !hasVeg && !hasSpice) {
+        miracRecipes.meatOnly.push(id);
+      } else if (hasMeat && hasVeg && !hasSpice) {
+        miracRecipes.meatVeg.push(id);
+      } else if (hasMeat && hasVeg && hasSpice) {
+        miracRecipes.meatVegSpice.push(id);
+      }
     } else {
-      clownRecipes.push(id);
+      // Categorize clown recipes
+      const hasMeat = recipe.clownMeat > 0;
+      const hasVeg = recipe.clownVegetable > 0;
+      const hasSpice = recipe.clownSpice > 0;
+      
+      if (hasMeat && !hasVeg && !hasSpice) {
+        clownRecipes.meatOnly.push(id);
+      } else if (hasMeat && hasVeg && !hasSpice) {
+        clownRecipes.meatVeg.push(id);
+      } else if (hasMeat && hasVeg && hasSpice) {
+        clownRecipes.meatVegSpice.push(id);
+      }
     }
   }
+  
+  const clownTotal = clownRecipes.meatOnly.length + clownRecipes.meatVeg.length + clownRecipes.meatVegSpice.length;
+  const miracTotal = miracRecipes.meatOnly.length + miracRecipes.meatVeg.length + miracRecipes.meatVegSpice.length;
   
   let html = '<div class="recipe-sections">';
   
@@ -584,42 +614,32 @@ function buildRecipeManager(root) {
   const miracCollapsed = getAccordionState('mirac-recipes') ? '' : ' collapsed';
   const rankingCollapsed = getAccordionState('optimal-ranking') ? '' : ' collapsed';
   
-  // Clown recipes section
+  // Clown recipes section with nested groups
   html += `
     <div class="panel${clownCollapsed}" data-accordion-id="clown-recipes">
       <div class="panel-header" onclick="toggleAccordion(this)">
         <span class="panel-toggle">▼</span>
-        <h3 class="panel-title">🤡 Clown Vendor Recipes (${clownRecipes.length})</h3>
+        <h3 class="panel-title">🤡 Clown Vendor Recipes (${clownTotal})</h3>
       </div>
       <div class="panel-content">
-        <div class="ingredient-filters">
-          <label><input type="checkbox" class="filter-ingredient" data-vendor="clown" data-ingredient="meat"> Meat</label>
-          <label><input type="checkbox" class="filter-ingredient" data-vendor="clown" data-ingredient="vegetable"> Vegetable</label>
-          <label><input type="checkbox" class="filter-ingredient" data-vendor="clown" data-ingredient="spice"> Spice</label>
-        </div>
-        <div class="grid-responsive grid-md gap-md clown-recipes">
-          ${buildRecipeCards(clownRecipes, false)}
-        </div>
+        ${buildRecipeGroup('clown-meat-only', '🥩 Meat Only', clownRecipes.meatOnly, false)}
+        ${buildRecipeGroup('clown-meat-veg', '🥩🥬 Meat + Vegetable', clownRecipes.meatVeg, false)}
+        ${buildRecipeGroup('clown-meat-veg-spice', '🥩🥬🌶️ Meat + Vegetable + Spice', clownRecipes.meatVegSpice, false)}
       </div>
     </div>
   `;
   
-  // Miraculand recipes section
+  // Miraculand recipes section with nested groups
   html += `
     <div class="panel${miracCollapsed}" data-accordion-id="mirac-recipes">
       <div class="panel-header" onclick="toggleAccordion(this)">
         <span class="panel-toggle">▼</span>
-        <h3 class="panel-title">🎪 Miraculand Vendor Recipes (${miracRecipes.length})</h3>
+        <h3 class="panel-title">🎪 Miraculand Vendor Recipes (${miracTotal})</h3>
       </div>
       <div class="panel-content">
-        <div class="ingredient-filters">
-          <label><input type="checkbox" class="filter-ingredient" data-vendor="miraculand" data-ingredient="meat"> Meat</label>
-          <label><input type="checkbox" class="filter-ingredient" data-vendor="miraculand" data-ingredient="vegetable"> Vegetable</label>
-          <label><input type="checkbox" class="filter-ingredient" data-vendor="miraculand" data-ingredient="spice"> Spice</label>
-        </div>
-        <div class="grid-responsive grid-md gap-md mirac-recipes">
-          ${buildRecipeCards(miracRecipes, true)}
-        </div>
+        ${buildRecipeGroup('mirac-meat-only', '🥩 Meat Only', miracRecipes.meatOnly, true)}
+        ${buildRecipeGroup('mirac-meat-veg', '🥩🥬 Meat + Vegetable', miracRecipes.meatVeg, true)}
+        ${buildRecipeGroup('mirac-meat-veg-spice', '🥩🥬🌶️ Meat + Vegetable + Spice', miracRecipes.meatVegSpice, true)}
       </div>
     </div>
   `;
@@ -629,9 +649,34 @@ function buildRecipeManager(root) {
     <div class="panel${rankingCollapsed}" data-accordion-id="optimal-ranking">
       <div class="panel-header" onclick="toggleAccordion(this)">
         <span class="panel-toggle">▼</span>
-        <h3 class="panel-title">📊 Optimal Dish Ranking</h3>
+        <h3 class="panel-title">
+          📊 Optimal Dish Ranking
+          <span class="info-icon" onclick="event.stopPropagation(); toggleRankingInfo()" title="How is this calculated?" style="cursor: pointer; margin-left: 8px; font-size: 0.9em; color: #2e7d32;">ℹ️</span>
+        </h3>
       </div>
       <div class="panel-content">
+        <!-- Explanation Popup (hidden by default) -->
+        <div id="ranking-info-popup" style="display: none; margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-left: 4px solid #2e7d32; border-radius: 6px;">
+          <div style="display: flex; align-items: start; gap: 10px;">
+            <div style="font-size: 1.5em;">ℹ️</div>
+            <div style="flex: 1;">
+              <div style="font-weight: bold; color: #2e7d32; margin-bottom: 8px;">How Ranking is Calculated</div>
+              <div style="font-size: 0.9em; line-height: 1.6; color: #555;">
+                <strong>g/Order</strong> measures gold efficiency per supply order spent:
+                <ul style="margin: 8px 0; padding-left: 20px;">
+                  <li><strong>Supply Orders Needed:</strong> Calculated based on vendor drop rates. The ingredient requiring the most orders becomes the "limiting" ingredient.</li>
+                  <li><strong>Byproduct Value:</strong> While farming for the limiting ingredient, you'll generate excess ingredients. These are valued at Mega Stew rates.</li>
+                  <li><strong>Total Value:</strong> Recipe sale price + byproduct value from excess ingredients.</li>
+                  <li><strong>Final Metric:</strong> Total value ÷ supply orders needed = g/Order</li>
+                </ul>
+                <div style="margin-top: 8px; padding: 8px; background: #fff; border-radius: 4px; font-style: italic;">
+                  💡 <strong>Best for:</strong> Maximizing gold when supply orders are your limiting factor. Higher g/Order = more efficient use of supply orders.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
         <!-- 75/25 Layout: Table on left, Strategy on right -->
         <div class="optimal-ranking-layout">
           <!-- Ranking Table (75%) -->
@@ -667,31 +712,46 @@ function buildRecipeManager(root) {
   container.innerHTML = html;
 }
 
-function buildRecipeCards(recipeIds, isMirac) {
+function buildRecipeGroup(groupId, groupTitle, recipeIds, isMirac) {
+  if (recipeIds.length === 0) return '';
+  
+  const isCollapsed = getAccordionState(groupId) ? '' : ' collapsed';
+  const borderClass = isMirac ? 'border-mirac' : 'border-clown';
+  
+  return `
+    <div class="panel${isCollapsed}" data-accordion-id="${groupId}" style="margin-bottom: 15px;">
+      <div class="panel-header" onclick="toggleAccordion(this)" style="background: var(--bg-alt); padding: 10px 15px;">
+        <span class="panel-toggle">▼</span>
+        <h4 class="panel-title" style="margin: 0; font-size: 1em;">${groupTitle} (${recipeIds.length})</h4>
+      </div>
+      <div class="panel-content" style="padding-top: 15px;">
+        <div class="grid-responsive grid-md gap-md">
+          ${buildRecipeCards(recipeIds, isMirac, borderClass)}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function buildRecipeCards(recipeIds, isMirac, borderClass) {
   let html = '';
   
   for (const id of recipeIds) {
     const recipe = COOKING_RECIPES[id];
     const state = cookingState.recipes[id];
     
-    // build ingredient display
+    // build ingredient display with icons
     let ingredients = [];
-    if (recipe.clownMeat > 0) ingredients.push(`${recipe.clownMeat}M`);
-    if (recipe.clownVegetable > 0) ingredients.push(`${recipe.clownVegetable}V`);
-    if (recipe.clownSpice > 0) ingredients.push(`${recipe.clownSpice}S`);
-    if (recipe.miracMeat > 0) ingredients.push(`${recipe.miracMeat}mM`);
-    if (recipe.miracVegetable > 0) ingredients.push(`${recipe.miracVegetable}mV`);
-    if (recipe.miracSpice > 0) ingredients.push(`${recipe.miracSpice}mS`);
-    const ingredientStr = ingredients.join(' ');
-    
-    // determine which ingredients are used for filtering
-    const hasMeat = isMirac ? recipe.miracMeat > 0 : recipe.clownMeat > 0;
-    const hasVegetable = isMirac ? recipe.miracVegetable > 0 : recipe.clownVegetable > 0;
-    const hasSpice = isMirac ? recipe.miracSpice > 0 : recipe.clownSpice > 0;
+    if (recipe.clownMeat > 0) ingredients.push(`🥩: ${recipe.clownMeat}`);
+    if (recipe.clownVegetable > 0) ingredients.push(`🥬: ${recipe.clownVegetable}`);
+    if (recipe.clownSpice > 0) ingredients.push(`🌶️: ${recipe.clownSpice}`);
+    if (recipe.miracMeat > 0) ingredients.push(`🥩: ${recipe.miracMeat}`);
+    if (recipe.miracVegetable > 0) ingredients.push(`🥬: ${recipe.miracVegetable}`);
+    if (recipe.miracSpice > 0) ingredients.push(`🌶️: ${recipe.miracSpice}`);
+    const ingredientStr = ingredients.join('  ');
     
     html += `
-      <div class="recipe-card" data-recipe-id="${id}" 
-           data-has-meat="${hasMeat}" data-has-vegetable="${hasVegetable}" data-has-spice="${hasSpice}">
+      <div class="recipe-card ${borderClass}" data-recipe-id="${id}">
         <div class="d-flex justify-between items-center p-sm bg-alt border-b">
           <label class="d-flex items-center gap-sm cursor-pointer">
             <input type="checkbox" class="recipe-enabled" data-recipe="${id}" ${state.enabled ? 'checked' : ''}>
@@ -1119,31 +1179,42 @@ function buildResultsDashboard(root) {
           <span class="panel-toggle">▼</span>
           <h3 class="panel-title">📦 Current Inventory</h3>
         </div>
-        <div class="panel-content">
-          <div class="grid-responsive grid-sm gap-md" id="cooking-ingredient-optimizer">
-            <div class="card card-md border-clown bg-clown" style="text-align: center;">
-              <label style="display: block; font-weight: bold; margin-bottom: 8px;">🥩 Clown Meat</label>
-              <input type="number" id="current-clown-meat" value="${ing.clownMeat}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
+        <div class="panel-content" id="cooking-ingredient-optimizer">
+          <!-- Clown Vendor Row -->
+          <div class="ingredient-row-clown">
+            <div class="ingredient-row-label">🤡 Clown Vendor</div>
+            <div class="ingredient-row">
+              <div class="card card-md ingredient-card border-clown" style="text-align: center;">
+                <label style="display: block; font-weight: bold; margin-bottom: 8px;">🥩 Meat</label>
+                <input type="number" id="current-clown-meat" value="${ing.clownMeat}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
+              </div>
+              <div class="card card-md ingredient-card border-clown" style="text-align: center;">
+                <label style="display: block; font-weight: bold; margin-bottom: 8px;">🥬 Vegetable</label>
+                <input type="number" id="current-clown-vegetable" value="${ing.clownVegetable}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
+              </div>
+              <div class="card card-md ingredient-card border-clown" style="text-align: center;">
+                <label style="display: block; font-weight: bold; margin-bottom: 8px;">🌶️ Spice</label>
+                <input type="number" id="current-clown-spice" value="${ing.clownSpice}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
+              </div>
             </div>
-            <div class="card card-md border-clown bg-clown" style="text-align: center;">
-              <label style="display: block; font-weight: bold; margin-bottom: 8px;">🥬 Clown Vegetable</label>
-              <input type="number" id="current-clown-vegetable" value="${ing.clownVegetable}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
-            </div>
-            <div class="card card-md border-clown bg-clown" style="text-align: center;">
-              <label style="display: block; font-weight: bold; margin-bottom: 8px;">🌶️ Clown Spice</label>
-              <input type="number" id="current-clown-spice" value="${ing.clownSpice}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
-            </div>
-            <div class="card card-md border-mirac bg-mirac" style="text-align: center;">
-              <label style="display: block; font-weight: bold; margin-bottom: 8px;">🥩 Mirac Meat</label>
-              <input type="number" id="current-mirac-meat" value="${ing.miracMeat}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
-            </div>
-            <div class="card card-md border-mirac bg-mirac" style="text-align: center;">
-              <label style="display: block; font-weight: bold; margin-bottom: 8px;">🥬 Mirac Vegetable</label>
-              <input type="number" id="current-mirac-vegetable" value="${ing.miracVegetable}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
-            </div>
-            <div class="card card-md border-mirac bg-mirac" style="text-align: center;">
-              <label style="display: block; font-weight: bold; margin-bottom: 8px;">🌶️ Mirac Spice</label>
-              <input type="number" id="current-mirac-spice" value="${ing.miracSpice}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
+          </div>
+          
+          <!-- Miraculand Vendor Row -->
+          <div class="ingredient-row-mirac">
+            <div class="ingredient-row-label">🎪 Miraculand Vendor</div>
+            <div class="ingredient-row">
+              <div class="card card-md ingredient-card border-mirac" style="text-align: center;">
+                <label style="display: block; font-weight: bold; margin-bottom: 8px;">🥩 Meat</label>
+                <input type="number" id="current-mirac-meat" value="${ing.miracMeat}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
+              </div>
+              <div class="card card-md ingredient-card border-mirac" style="text-align: center;">
+                <label style="display: block; font-weight: bold; margin-bottom: 8px;">🥬 Vegetable</label>
+                <input type="number" id="current-mirac-vegetable" value="${ing.miracVegetable}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
+              </div>
+              <div class="card card-md ingredient-card border-mirac" style="text-align: center;">
+                <label style="display: block; font-weight: bold; margin-bottom: 8px;">🌶️ Spice</label>
+                <input type="number" id="current-mirac-spice" value="${ing.miracSpice}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
+              </div>
             </div>
           </div>
         </div>
@@ -1294,54 +1365,8 @@ function setupCookingEventListeners(root) {
     });
   }
   
-  // ingredient filter checkboxes
-  root.querySelectorAll('.filter-ingredient').forEach(checkbox => {
-    checkbox.addEventListener('change', (e) => {
-      const vendor = e.target.dataset.vendor;
-      const ingredient = e.target.dataset.ingredient;
-      cookingState.filters[vendor][ingredient] = e.target.checked;
-      applyRecipeFilters(root, vendor);
-      saveCookingToStorage();
-    });
-  });
-  
   // Export/Import listeners
   setupExportImportListeners(root);
-}
-
-function applyRecipeFilters(root, vendor) {
-  const filters = cookingState.filters[vendor];
-  const hasActiveFilters = filters.meat || filters.vegetable || filters.spice;
-  
-  const gridClass = vendor === 'clown' ? '.clown-recipes' : '.mirac-recipes';
-  const recipeCards = root.querySelectorAll(`${gridClass} .recipe-card`);
-  
-  recipeCards.forEach(card => {
-    if (!hasActiveFilters) {
-      // no filters active, show all
-      card.style.display = '';
-      return;
-    }
-    
-    // check if recipe matches ALL selected filters
-    const hasMeat = card.dataset.hasMeat === 'true';
-    const hasVegetable = card.dataset.hasVegetable === 'true';
-    const hasSpice = card.dataset.hasSpice === 'true';
-    
-    let matches = true;
-    
-    // recipe must have ALL selected ingredients
-    if (filters.meat && !hasMeat) matches = false;
-    if (filters.vegetable && !hasVegetable) matches = false;
-    if (filters.spice && !hasSpice) matches = false;
-    
-    // recipe must NOT have ingredients that are NOT selected
-    if (!filters.meat && hasMeat) matches = false;
-    if (!filters.vegetable && hasVegetable) matches = false;
-    if (!filters.spice && hasSpice) matches = false;
-    
-    card.style.display = matches ? '' : 'none';
-  });
 }
 
 function updateVendorState(root) {
@@ -2063,52 +2088,63 @@ function updateStewCalculator(root) {
       <!-- Ingredient Value Reference -->
       <div class="card card-md" style="margin-bottom: 20px;">
         <h5 style="margin: 0 0 10px 0; color: #4a4e69; text-align: center;">Mega Stew Value Ranges (per ingredient)</h5>
-        <div class="grid-responsive grid-sm gap-md">
-          <div class="card card-md border-clown" style="text-align: center;">
-            <div style="font-weight: bold; margin-bottom: 4px;">🥩 Clown Meat</div>
-            <div style="font-size: 0.85em; color: #666;">
-              <div style="font-family: monospace; font-size: 0.9em; margin-bottom: 2px;">10 - 48 gold</div>
-              <div>Expected: 29.00</div>
+        
+        <!-- Clown Vendor Row -->
+        <div class="ingredient-row-clown" style="margin-bottom: 15px;">
+          <div class="ingredient-row-label">🤡 Clown Vendor</div>
+          <div class="ingredient-row">
+            <div class="card card-md ingredient-card border-clown" style="text-align: center;">
+              <div style="font-weight: bold; margin-bottom: 4px;">🥩 Meat</div>
+              <div style="font-size: 0.85em; color: #666;">
+                <div style="font-family: monospace; font-size: 0.9em; margin-bottom: 2px;">10 - 48 gold</div>
+                <div>Expected: 29.00</div>
+              </div>
+            </div>
+            
+            <div class="card card-md ingredient-card border-clown" style="text-align: center;">
+              <div style="font-weight: bold; margin-bottom: 4px;">🥬 Vegetable</div>
+              <div style="font-size: 0.85em; color: #666;">
+                <div style="font-family: monospace; font-size: 0.9em; margin-bottom: 2px;">29 - 144 gold</div>
+                <div>Expected: 86.50</div>
+              </div>
+            </div>
+            
+            <div class="card card-md ingredient-card border-clown" style="text-align: center;">
+              <div style="font-weight: bold; margin-bottom: 4px;">🌶️ Spice</div>
+              <div style="font-size: 0.85em; color: #666;">
+                <div style="font-family: monospace; font-size: 0.9em; margin-bottom: 2px;">72 - 240 gold</div>
+                <div>Expected: 156.00</div>
+              </div>
             </div>
           </div>
-          
-          <div class="card card-md border-clown" style="text-align: center;">
-            <div style="font-weight: bold; margin-bottom: 4px;">🥬 Clown Vegetable</div>
-            <div style="font-size: 0.85em; color: #666;">
-              <div style="font-family: monospace; font-size: 0.9em; margin-bottom: 2px;">29 - 144 gold</div>
-              <div>Expected: 86.50</div>
+        </div>
+        
+        <!-- Miraculand Vendor Row -->
+        <div class="ingredient-row-mirac">
+          <div class="ingredient-row-label">🎪 Miraculand Vendor</div>
+          <div class="ingredient-row">
+            <div class="card card-md ingredient-card border-mirac" style="text-align: center;">
+              <div style="font-weight: bold; margin-bottom: 4px;">🥩 Meat</div>
+              <div style="font-size: 0.85em; color: #666;">
+                <div style="font-family: monospace; font-size: 0.9em; margin-bottom: 2px;">12 - 60 gold</div>
+                <div>Expected: 36.00</div>
+              </div>
             </div>
-          </div>
-          
-          <div class="card card-md border-clown" style="text-align: center;">
-            <div style="font-weight: bold; margin-bottom: 4px;">🌶️ Clown Spice</div>
-            <div style="font-size: 0.85em; color: #666;">
-              <div style="font-family: monospace; font-size: 0.9em; margin-bottom: 2px;">72 - 240 gold</div>
-              <div>Expected: 156.00</div>
+            
+            <div class="card card-md ingredient-card border-mirac" style="text-align: center;">
+              <div style="font-weight: bold; margin-bottom: 4px;">🥬 Vegetable</div>
+              <div style="font-size: 0.85em; color: #666;">
+                <div style="font-family: monospace; font-size: 0.9em; margin-bottom: 2px;">36 - 180 gold</div>
+                <div>Expected: 108.00</div>
+              </div>
             </div>
-          </div>
-          
-          <div class="card card-md border-mirac" style="text-align: center;">
-            <div style="font-weight: bold; margin-bottom: 4px;">🥩 Mirac Meat</div>
-            <div style="font-size: 0.85em; color: #666;">
-              <div style="font-family: monospace; font-size: 0.9em; margin-bottom: 2px;">12 - 60 gold</div>
-              <div>Expected: 36.00</div>
-            </div>
-          </div>
-          
-          <div class="card card-md border-mirac" style="text-align: center;">
-            <div style="font-weight: bold; margin-bottom: 4px;">🥬 Mirac Vegetable</div>
-            <div style="font-size: 0.85em; color: #666;">
-              <div style="font-family: monospace; font-size: 0.9em; margin-bottom: 2px;">36 - 180 gold</div>
-              <div>Expected: 108.00</div>
-            </div>
-          </div>
-          
-          <div class="card card-md border-mirac" style="text-align: center;">
-            <div style="font-weight: bold; margin-bottom: 4px;">🌶️ Mirac Spice</div>
-            <div style="font-size: 0.85em; color: #666;">
-              <div style="font-family: monospace; font-size: 0.9em; margin-bottom: 2px;">90 - 300 gold</div>
-              <div>Expected: 195.00</div>
+            
+            <div class="card card-md ingredient-card border-mirac" style="text-align: center;">
+              <div style="font-weight: bold; margin-bottom: 4px;">🌶️ Spice</div>
+              <div style="font-size: 0.85em; color: #666;">
+                <div style="font-family: monospace; font-size: 0.9em; margin-bottom: 2px;">90 - 300 gold</div>
+                <div>Expected: 195.00</div>
+              </div>
             </div>
           </div>
         </div>
@@ -2803,9 +2839,19 @@ function setupExportImportListeners(root) {
   });
 }
 
+// ============== RANKING INFO TOGGLE ==============
+
+function toggleRankingInfo() {
+  const popup = document.getElementById('ranking-info-popup');
+  if (popup) {
+    popup.style.display = popup.style.display === 'none' ? 'block' : 'none';
+  }
+}
+
 // Export for module use
 if (typeof window !== 'undefined') {
   window.initCookingCalculator = initCookingCalculator;
   window.toggleAccordion = toggleAccordion;
   window.closeCookingModal = closeCookingModal;
+  window.toggleRankingInfo = toggleRankingInfo;
 }

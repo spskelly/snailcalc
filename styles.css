@@ -402,6 +402,88 @@
 .border-mirac { border-left: 4px solid var(--vendor-mirac-border) !important; }
 .bg-mirac     { background: linear-gradient(to bottom, var(--bg-card), var(--vendor-mirac-bg)); }
 
+/* Ingredient Card Enhancements */
+.ingredient-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-width: 2px;
+}
+
+.ingredient-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+.ingredient-card.border-clown {
+  border-left-width: 5px;
+  background: linear-gradient(135deg, var(--bg-card) 0%, var(--vendor-clown-bg) 100%);
+}
+
+.ingredient-card.border-mirac {
+  border-left-width: 5px;
+  background: linear-gradient(135deg, var(--bg-card) 0%, var(--vendor-mirac-bg) 100%);
+}
+
+/* Ingredient Row Containers */
+.ingredient-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.ingredient-row-clown {
+  padding: 15px;
+  background: var(--vendor-clown-bg);
+  border-radius: 12px;
+  border: 2px solid var(--vendor-clown-border);
+}
+
+.ingredient-row-mirac {
+  padding: 15px;
+  background: var(--vendor-mirac-bg);
+  border-radius: 12px;
+  border: 2px solid var(--vendor-mirac-border);
+}
+
+.ingredient-row-label {
+  font-weight: bold;
+  font-size: 1.1em;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  padding-left: 5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ingredient-row-label::before {
+  content: '';
+  width: 4px;
+  height: 20px;
+  border-radius: 2px;
+}
+
+.ingredient-row-clown .ingredient-row-label::before {
+  background: var(--vendor-clown-border);
+}
+
+.ingredient-row-mirac .ingredient-row-label::before {
+  background: var(--vendor-mirac-border);
+}
+
+/* Responsive ingredient rows */
+@media (max-width: 900px) {
+  .ingredient-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .ingredient-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ============================================
    UTILITY CLASSES - FLEXBOX TOOLKIT
    ============================================ */
