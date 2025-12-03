@@ -286,12 +286,12 @@ function updateDailySummary(root) {
         <div style="padding: 10px; background: var(--bg-alt); border-radius: 6px;">
           ${Object.values(remaining).reduce((a, b) => a + b, 0) > 0 ? `
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-size: 0.9em;">
-              ${remaining.clownMeat > 0 ? `<span>🥩: ${formatIngredient(remaining.clownMeat)}</span>` : ''}
-              ${remaining.clownVegetable > 0 ? `<span>🥬: ${formatIngredient(remaining.clownVegetable)}</span>` : ''}
-              ${remaining.clownSpice > 0 ? `<span>🌶️: ${formatIngredient(remaining.clownSpice)}</span>` : ''}
-              ${remaining.miracMeat > 0 ? `<span>🥩: ${formatIngredient(remaining.miracMeat)} (m)</span>` : ''}
-              ${remaining.miracVegetable > 0 ? `<span>🥬: ${formatIngredient(remaining.miracVegetable)} (m)</span>` : ''}
-              ${remaining.miracSpice > 0 ? `<span>🌶️: ${formatIngredient(remaining.miracSpice)} (m)</span>` : ''}
+              ${Math.round(remaining.clownMeat) > 0 ? `<span>🥩: ${formatIngredient(remaining.clownMeat)}</span>` : ''}
+              ${Math.round(remaining.clownVegetable) > 0 ? `<span>🥬: ${formatIngredient(remaining.clownVegetable)}</span>` : ''}
+              ${Math.round(remaining.clownSpice) > 0 ? `<span>🌶️: ${formatIngredient(remaining.clownSpice)}</span>` : ''}
+              ${Math.round(remaining.miracMeat) > 0 ? `<span>🥩: ${formatIngredient(remaining.miracMeat)} (m)</span>` : ''}
+              ${Math.round(remaining.miracVegetable) > 0 ? `<span>🥬: ${formatIngredient(remaining.miracVegetable)} (m)</span>` : ''}
+              ${Math.round(remaining.miracSpice) > 0 ? `<span>🌶️: ${formatIngredient(remaining.miracSpice)} (m)</span>` : ''}
             </div>
             <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ccc; text-align: center;">
               🍲 Mega Stew Value: <strong style="color: #2e7d32;">${Math.round(stewValue).toLocaleString()}g</strong>
