@@ -124,31 +124,36 @@ function updateDailySummary(root) {
   const bonusOrders = shop.supplyDeals.enabled ? shop.supplyDeals.quantity * shop.supplyDeals.supplyOrdersEach : 0;
   const totalDailyOrders = baseOrdersPerDay + bonusOrders;
   
-  // Shop costs
-  let shopCosts = 0;
-  if (shop.supplyDeals.enabled && shop.supplyDeals.quantity > 0) {
-    shopCosts += shop.supplyDeals.quantity * shop.supplyDeals.cost;
-  }
-  if (shop.vegetablePurchase.enabled && shop.vegetablePurchase.quantity > 0) {
-    shopCosts += shop.vegetablePurchase.quantity * shop.vegetablePurchase.cost;
-  }
-  if (shop.spicePurchase.enabled && shop.spicePurchase.quantity > 0) {
-    shopCosts += shop.spicePurchase.quantity * shop.spicePurchase.cost;
-  }
-  if (shop.miracVegetablePurchase.enabled && shop.miracVegetablePurchase.quantity > 0) {
-    shopCosts += shop.miracVegetablePurchase.quantity * shop.miracVegetablePurchase.cost;
-  }
-  if (shop.miracSpicePurchase.enabled && shop.miracSpicePurchase.quantity > 0) {
-    shopCosts += shop.miracSpicePurchase.quantity * shop.miracSpicePurchase.cost;
-  }
-  if (shop.skillBooks.enabled && shop.skillBooks.quantity > 0) {
-    shopCosts += shop.skillBooks.quantity * shop.skillBooks.cost;
-  }
-  
   // Use user-selected vendor from toggle
   const selectedVendor = cookingState.dailySummaryVendor; // 'clown' or 'miraculand'
   const usesClown = selectedVendor === 'clown';
   const usesMirac = selectedVendor === 'miraculand';
+  
+  // Shop costs - only include vendor-agnostic items and items matching selected vendor
+  let shopCosts = 0;
+  // Always include vendor-agnostic items
+  if (shop.supplyDeals.enabled && shop.supplyDeals.quantity > 0) {
+    shopCosts += shop.supplyDeals.quantity * shop.supplyDeals.cost;
+  }
+  if (shop.skillBooks.enabled && shop.skillBooks.quantity > 0) {
+    shopCosts += shop.skillBooks.quantity * shop.skillBooks.cost;
+  }
+  // Only include shop items matching the selected vendor
+  if (usesClown) {
+    if (shop.vegetablePurchase.enabled && shop.vegetablePurchase.quantity > 0) {
+      shopCosts += shop.vegetablePurchase.quantity * shop.vegetablePurchase.cost;
+    }
+    if (shop.spicePurchase.enabled && shop.spicePurchase.quantity > 0) {
+      shopCosts += shop.spicePurchase.quantity * shop.spicePurchase.cost;
+    }
+  } else if (usesMirac) {
+    if (shop.miracVegetablePurchase.enabled && shop.miracVegetablePurchase.quantity > 0) {
+      shopCosts += shop.miracVegetablePurchase.quantity * shop.miracVegetablePurchase.cost;
+    }
+    if (shop.miracSpicePurchase.enabled && shop.miracSpicePurchase.quantity > 0) {
+      shopCosts += shop.miracSpicePurchase.quantity * shop.miracSpicePurchase.cost;
+    }
+  }
   
   // === STEP 1: Calculate total daily ingredients from vendor ===
   let dailyIngredients = {
@@ -165,21 +170,27 @@ function updateDailySummary(root) {
     dailyIngredients.clownMeat = totalDailyOrders * clown.meatRate;
     dailyIngredients.clownVegetable = totalDailyOrders * clown.vegetableRate;
     dailyIngredients.clownSpice = totalDailyOrders * clown.spiceRate;
+    
+    // Add shop-purchased ingredients for Clown vendor only
+    if (shop.vegetablePurchase.enabled) {
+      dailyIngredients.clownVegetable += shop.vegetablePurchase.quantity;
+    }
+    if (shop.spicePurchase.enabled) {
+      dailyIngredients.clownSpice += shop.spicePurchase.quantity;
+    }
   } else if (usesMirac) {
     dailyIngredients.miracMeat = totalDailyOrders * mirac.meatRate;
     dailyIngredients.miracVegetable = totalDailyOrders * mirac.vegetableRate;
     dailyIngredients.miracSpice = totalDailyOrders * mirac.spiceRate;
+    
+    // Add shop-purchased ingredients for Miraculand vendor only
+    if (shop.miracVegetablePurchase.enabled) {
+      dailyIngredients.miracVegetable += shop.miracVegetablePurchase.quantity;
+    }
+    if (shop.miracSpicePurchase.enabled) {
+      dailyIngredients.miracSpice += shop.miracSpicePurchase.quantity;
+    }
   }
-  
-  // Add shop-purchased ingredients
-  const shopVegetables = shop.vegetablePurchase.enabled ? shop.vegetablePurchase.quantity : 0;
-  const shopSpice = shop.spicePurchase.enabled ? shop.spicePurchase.quantity : 0;
-  const shopMiracVegetables = shop.miracVegetablePurchase.enabled ? shop.miracVegetablePurchase.quantity : 0;
-  const shopMiracSpice = shop.miracSpicePurchase.enabled ? shop.miracSpicePurchase.quantity : 0;
-  dailyIngredients.clownVegetable += shopVegetables;
-  dailyIngredients.clownSpice += shopSpice;
-  dailyIngredients.miracVegetable += shopMiracVegetables;
-  dailyIngredients.miracSpice += shopMiracSpice;
   
   // === STEP 2: Use shared phase-based sequencing algorithm ===
   // Build list of all enabled dishes with their recipes
@@ -220,36 +231,28 @@ function updateDailySummary(root) {
           ${usesClown ? `
             <div style="margin-bottom: 6px;"><strong>🤡 Clown Vendor:</strong></div>
             <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-left: 8px;">
-              <span>🥩 ${formatIngredient(totalDailyOrders * clown.meatRate)} Meat</span>
-              ${clown.vegetableRate > 0 ? `<span>🥬 ${formatIngredient(totalDailyOrders * clown.vegetableRate)} Vegetable</span>` : ''}
-              ${clown.spiceRate > 0 ? `<span>🌶️ ${formatIngredient(totalDailyOrders * clown.spiceRate)} Spice</span>` : ''}
+              <span>🥩: ${formatIngredient(totalDailyOrders * clown.meatRate)}</span>
+              ${clown.vegetableRate > 0 ? `<span>🥬: ${formatIngredient(totalDailyOrders * clown.vegetableRate)}</span>` : ''}
+              ${clown.spiceRate > 0 ? `<span>🌶️: ${formatIngredient(totalDailyOrders * clown.spiceRate)}</span>` : ''}
             </div>
           ` : ''}
           ${usesMirac ? `
             <div style="margin-bottom: 6px;"><strong>🎪 Miraculand Vendor:</strong></div>
             <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-left: 8px;">
-              <span>🥩 ${formatIngredient(totalDailyOrders * mirac.meatRate)} Meat</span>
-              ${mirac.vegetableRate > 0 ? `<span>🥬 ${formatIngredient(totalDailyOrders * mirac.vegetableRate)} Vegetable</span>` : ''}
-              ${mirac.spiceRate > 0 ? `<span>🌶️ ${formatIngredient(totalDailyOrders * mirac.spiceRate)} Spice</span>` : ''}
+              <span>🥩: ${formatIngredient(totalDailyOrders * mirac.meatRate)}</span>
+              ${mirac.vegetableRate > 0 ? `<span>🥬: ${formatIngredient(totalDailyOrders * mirac.vegetableRate)}</span>` : ''}
+              ${mirac.spiceRate > 0 ? `<span>🌶️: ${formatIngredient(totalDailyOrders * mirac.spiceRate)}</span>` : ''}
             </div>
           ` : ''}
-          ${(shopVegetables > 0 || shopSpice > 0 || shopMiracVegetables > 0 || shopMiracSpice > 0) ? `
+          ${(usesClown && (shop.vegetablePurchase.enabled && shop.vegetablePurchase.quantity > 0 || shop.spicePurchase.enabled && shop.spicePurchase.quantity > 0)) || (usesMirac && (shop.miracVegetablePurchase.enabled && shop.miracVegetablePurchase.quantity > 0 || shop.miracSpicePurchase.enabled && shop.miracSpicePurchase.quantity > 0)) ? `
             <div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed #ccc;">
               <div style="margin-bottom: 6px;"><strong>🛒 Shop Purchases:</strong></div>
-              ${(shopVegetables > 0 || shopSpice > 0) ? `
-                <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-left: 8px; margin-bottom: 4px;">
-                  <span style="font-size: 0.9em; color: #666; font-weight: bold;">Clown:</span>
-                  ${shopVegetables > 0 ? `<span>🥬 ${formatIngredient(shopVegetables)} Vegetable</span>` : ''}
-                  ${shopSpice > 0 ? `<span>🌶️ ${formatIngredient(shopSpice)} Spice</span>` : ''}
-                </div>
-              ` : ''}
-              ${(shopMiracVegetables > 0 || shopMiracSpice > 0) ? `
-                <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-left: 8px;">
-                  <span style="font-size: 0.9em; color: #666; font-weight: bold;">Miraculand:</span>
-                  ${shopMiracVegetables > 0 ? `<span>🥬 ${formatIngredient(shopMiracVegetables)} Vegetable</span>` : ''}
-                  ${shopMiracSpice > 0 ? `<span>🌶️ ${formatIngredient(shopMiracSpice)} Spice</span>` : ''}
-                </div>
-              ` : ''}
+              <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-left: 8px;">
+                ${usesClown && shop.vegetablePurchase.enabled && shop.vegetablePurchase.quantity > 0 ? `<span>🥬: ${formatIngredient(shop.vegetablePurchase.quantity)}</span>` : ''}
+                ${usesClown && shop.spicePurchase.enabled && shop.spicePurchase.quantity > 0 ? `<span>🌶️: ${formatIngredient(shop.spicePurchase.quantity)}</span>` : ''}
+                ${usesMirac && shop.miracVegetablePurchase.enabled && shop.miracVegetablePurchase.quantity > 0 ? `<span>🥬: ${formatIngredient(shop.miracVegetablePurchase.quantity)}</span>` : ''}
+                ${usesMirac && shop.miracSpicePurchase.enabled && shop.miracSpicePurchase.quantity > 0 ? `<span>🌶️: ${formatIngredient(shop.miracSpicePurchase.quantity)}</span>` : ''}
+              </div>
             </div>
           ` : ''}
         </div>
@@ -283,12 +286,12 @@ function updateDailySummary(root) {
         <div style="padding: 10px; background: var(--bg-alt); border-radius: 6px;">
           ${Object.values(remaining).reduce((a, b) => a + b, 0) > 0 ? `
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-size: 0.9em;">
-              ${remaining.clownMeat > 0 ? `<span>🥩 ${formatIngredient(remaining.clownMeat)} Meat</span>` : ''}
-              ${remaining.clownVegetable > 0 ? `<span>🥬 ${formatIngredient(remaining.clownVegetable)} Vegetable</span>` : ''}
-              ${remaining.clownSpice > 0 ? `<span>🌶️ ${formatIngredient(remaining.clownSpice)} Spice</span>` : ''}
-              ${remaining.miracMeat > 0 ? `<span>🥩 ${formatIngredient(remaining.miracMeat)} mMeat</span>` : ''}
-              ${remaining.miracVegetable > 0 ? `<span>🥬 ${formatIngredient(remaining.miracVegetable)} mVegetable</span>` : ''}
-              ${remaining.miracSpice > 0 ? `<span>🌶️ ${formatIngredient(remaining.miracSpice)} mSpice</span>` : ''}
+              ${remaining.clownMeat > 0 ? `<span>🥩: ${formatIngredient(remaining.clownMeat)}</span>` : ''}
+              ${remaining.clownVegetable > 0 ? `<span>🥬: ${formatIngredient(remaining.clownVegetable)}</span>` : ''}
+              ${remaining.clownSpice > 0 ? `<span>🌶️: ${formatIngredient(remaining.clownSpice)}</span>` : ''}
+              ${remaining.miracMeat > 0 ? `<span>🥩: ${formatIngredient(remaining.miracMeat)} (m)</span>` : ''}
+              ${remaining.miracVegetable > 0 ? `<span>🥬: ${formatIngredient(remaining.miracVegetable)} (m)</span>` : ''}
+              ${remaining.miracSpice > 0 ? `<span>🌶️: ${formatIngredient(remaining.miracSpice)} (m)</span>` : ''}
             </div>
             <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ccc; text-align: center;">
               🍲 Mega Stew Value: <strong style="color: #2e7d32;">${Math.round(stewValue).toLocaleString()}g</strong>
