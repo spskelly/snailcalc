@@ -200,6 +200,17 @@ const COOKING_RECIPES = {
     miracVegetable: 2,
     miracSpice: 0
   },
+  "sour_merman_fin": {
+    name: "Sour Merman Fin",
+    defaultStars: 1,
+    defaultPrice: 0,
+    clownMeat: 0,
+    clownVegetable: 0,
+    clownSpice: 0,
+    miracMeat: 5,
+    miracVegetable: 2,
+    miracSpice: 1
+  },
 };
 
 // Default vendor configurations
@@ -228,7 +239,7 @@ const DEFAULT_VENDORS = {
 
 // Default shop configurations
 const DEFAULT_SHOP = {
-  supplyOrdersPerHour: 30,
+  supplyOrdersPerHour: 0,
   supplyDeals: {
     enabled: false,
     quantity: 0,
@@ -250,6 +261,11 @@ const DEFAULT_SHOP = {
     quantity: 0,
     cost: 270
   },
+  miracSpicePurchase: {
+    enabled: false,
+    quantity: 0,
+    cost: 450
+  },
   skillBooks: {
     enabled: false,
     quantity: 0,
@@ -264,7 +280,7 @@ const MEGA_STEW_VALUES = {
   clownSpice: 156.00,
   miracMeat: 36.00, 
   miracVegetable: 108,
-  miracSpice: 193.5 // est
+  miracSpice: 195.00
 };
 
 // Recipe order for display (roughly by complexity/unlock order)
@@ -287,4 +303,5 @@ const RECIPE_ORDER = [
   "braised_dire_shrimp",
   "stir_fried_sea_dragon",
   "sea_salt_cheese",
+  "sour_merman_fin"
 ];
