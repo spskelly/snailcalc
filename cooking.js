@@ -685,19 +685,21 @@ function buildRecipeManager(root) {
           <!-- Ranking Table (75%) -->
           <div class="optimal-ranking-table">
             <div class="ranking-table-container">
-              <table class="cost-table" id="cooking-ranking-table">
-                <thead>
-                  <tr>
-                    <th>Rank</th>
-                    <th>Dish</th>
-                    <th>g/Order</th>
-                    <th>g/Hour</th>
-                    <th>Limiting</th>
-                  </tr>
-                </thead>
-                <tbody id="cooking-ranking-body">
-                </tbody>
-              </table>
+              <div class="table-responsive-wrapper">
+                <table class="cost-table" id="cooking-ranking-table">
+                  <thead>
+                    <tr>
+                      <th>Rank</th>
+                      <th>Dish</th>
+                      <th>g/Order</th>
+                      <th>g/Hour</th>
+                      <th>Limiting</th>
+                    </tr>
+                  </thead>
+                  <tbody id="cooking-ranking-body">
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
           
@@ -743,40 +745,55 @@ function buildRecipeCards(recipeIds, isMirac, borderClass) {
     const recipe = COOKING_RECIPES[id];
     const state = cookingState.recipes[id];
     
-    // build ingredient display with icons
-    let ingredients = [];
-    if (recipe.clownMeat > 0) ingredients.push(`🥩: ${recipe.clownMeat}`);
-    if (recipe.clownVegetable > 0) ingredients.push(`🥬: ${recipe.clownVegetable}`);
-    if (recipe.clownSpice > 0) ingredients.push(`🌶️: ${recipe.clownSpice}`);
-    if (recipe.miracMeat > 0) ingredients.push(`🥩: ${recipe.miracMeat}`);
-    if (recipe.miracVegetable > 0) ingredients.push(`🥬: ${recipe.miracVegetable}`);
-    if (recipe.miracSpice > 0) ingredients.push(`🌶️: ${recipe.miracSpice}`);
-    const ingredientStr = ingredients.join('  ');
+    // Build ingredient display with icons only (no text labels) - now horizontal
+    let ingredientItems = [];
+    if (recipe.clownMeat > 0) {
+      ingredientItems.push(`<span class="recipe-ingredient-item"><span class="ingredient-icon">🥩</span><span class="ingredient-amount">${recipe.clownMeat}</span></span>`);
+    }
+    if (recipe.clownVegetable > 0) {
+      ingredientItems.push(`<span class="recipe-ingredient-item"><span class="ingredient-icon">🥬</span><span class="ingredient-amount">${recipe.clownVegetable}</span></span>`);
+    }
+    if (recipe.clownSpice > 0) {
+      ingredientItems.push(`<span class="recipe-ingredient-item"><span class="ingredient-icon">🌶️</span><span class="ingredient-amount">${recipe.clownSpice}</span></span>`);
+    }
+    if (recipe.miracMeat > 0) {
+      ingredientItems.push(`<span class="recipe-ingredient-item"><span class="ingredient-icon">🥩</span><span class="ingredient-amount">${recipe.miracMeat}</span></span>`);
+    }
+    if (recipe.miracVegetable > 0) {
+      ingredientItems.push(`<span class="recipe-ingredient-item"><span class="ingredient-icon">🥬</span><span class="ingredient-amount">${recipe.miracVegetable}</span></span>`);
+    }
+    if (recipe.miracSpice > 0) {
+      ingredientItems.push(`<span class="recipe-ingredient-item"><span class="ingredient-icon">🌶️</span><span class="ingredient-amount">${recipe.miracSpice}</span></span>`);
+    }
+    const ingredientHtml = ingredientItems.join('');
     
     html += `
       <div class="recipe-card ${borderClass}" data-recipe-id="${id}">
-        <div class="d-flex justify-between items-center p-sm bg-alt border-b">
-          <label class="d-flex items-center gap-sm cursor-pointer">
+        <span class="recipe-rank" data-recipe-rank="${id}"></span>
+        <div class="recipe-card-header">
+          <label class="recipe-toggle">
             <input type="checkbox" class="recipe-enabled" data-recipe="${id}" ${state.enabled ? 'checked' : ''}>
             <span class="recipe-name">${recipe.name}</span>
           </label>
         </div>
-        <div class="d-flex flex-col gap-sm p-sm">
-          <div class="recipe-field">
-            <label>Stars</label>
-            <select class="recipe-stars" data-recipe="${id}">
-              <option value="1" ${state.stars === 1 ? 'selected' : ''}>1★</option>
-              <option value="2" ${state.stars === 2 ? 'selected' : ''}>2★</option>
-              <option value="3" ${state.stars === 3 ? 'selected' : ''}>3★</option>
-              <option value="4" ${state.stars === 4 ? 'selected' : ''}>4★</option>
-            </select>
-          </div>
-          <div class="recipe-field">
-            <label>Price</label>
-            <input type="number" class="recipe-price" data-recipe="${id}" value="${state.price}" min="1">
-          </div>
-          <div class="recipe-ingredients">
-            ${ingredientStr}
+        <div class="recipe-card-body">
+          <div class="recipe-controls-row">
+            <div class="recipe-field">
+              <label>Stars</label>
+              <select class="recipe-stars" data-recipe="${id}">
+                <option value="1" ${state.stars === 1 ? 'selected' : ''}>1★</option>
+                <option value="2" ${state.stars === 2 ? 'selected' : ''}>2★</option>
+                <option value="3" ${state.stars === 3 ? 'selected' : ''}>3★</option>
+                <option value="4" ${state.stars === 4 ? 'selected' : ''}>4★</option>
+              </select>
+            </div>
+            <div class="recipe-field">
+              <label>Price</label>
+              <input type="number" class="recipe-price" data-recipe="${id}" value="${state.price}" min="1">
+            </div>
+            <div class="recipe-ingredients-inline">
+              ${ingredientHtml}
+            </div>
           </div>
         </div>
       </div>
@@ -1773,6 +1790,37 @@ function updateRankingTable(root, results) {
   }
   
   tbody.innerHTML = html;
+  
+  // Update recipe card rank badges
+  updateRecipeRankBadges(root, results);
+}
+
+function updateRecipeRankBadges(root, results) {
+  // Clear all existing rank badges first
+  root.querySelectorAll('.recipe-rank').forEach(badge => {
+    badge.textContent = '';
+    badge.className = 'recipe-rank';
+    badge.style.display = 'none';
+  });
+  
+  // Update badges for ranked recipes
+  results.forEach((r, i) => {
+    const badge = root.querySelector(`.recipe-rank[data-recipe-rank="${r.id}"]`);
+    if (badge) {
+      const rank = i + 1;
+      badge.textContent = `#${rank}`;
+      badge.style.display = 'block';
+      
+      // Add special styling for top 3
+      if (rank === 1) {
+        badge.classList.add('rank-1');
+      } else if (rank === 2) {
+        badge.classList.add('rank-2');
+      } else if (rank === 3) {
+        badge.classList.add('rank-3');
+      }
+    }
+  });
 }
 
 function updateShopROI(root) {
