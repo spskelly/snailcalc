@@ -1967,7 +1967,8 @@ function updateStrategySummary(root, results) {
   const mirac = cookingState.vendors.miraculand;
   
   const baseOrdersPerHour = shop.supplyOrdersPerHour;
-  const dailyOrders = baseOrdersPerHour * 24;
+  const bonusOrders = shop.supplyDeals.enabled ? shop.supplyDeals.quantity * shop.supplyDeals.supplyOrdersEach : 0;
+  const dailyOrders = (baseOrdersPerHour * 24) + bonusOrders;
   
   // Build list of available dishes
   const availableDishes = results.map(r => ({
@@ -1981,14 +1982,30 @@ function updateStrategySummary(root, results) {
   // === CALCULATE CLOWN VENDOR SEQUENCE ===
   const clownIngredients = {
     clownMeat: dailyOrders * clown.meatRate,
-    clownVegetable: dailyOrders * clown.vegetableRate,
-    clownSpice: dailyOrders * clown.spiceRate,
+    clownVegetable: dailyOrders * clown.vegetableRate + (shop.vegetablePurchase.enabled ? shop.vegetablePurchase.quantity : 0),
+    clownSpice: dailyOrders * clown.spiceRate + (shop.spicePurchase.enabled ? shop.spicePurchase.quantity : 0),
     miracMeat: 0,
     miracVegetable: 0,
     miracSpice: 0
   };
   const clownResult = calculatePhaseBasedSequence(clownIngredients, availableDishes);
-  const clownDailyGold = clownResult.totalGold + clownResult.stewValue;
+  
+  // Calculate shop costs for Clown vendor
+  let clownShopCosts = 0;
+  if (shop.supplyDeals.enabled && shop.supplyDeals.quantity > 0) {
+    clownShopCosts += shop.supplyDeals.quantity * shop.supplyDeals.cost;
+  }
+  if (shop.skillBooks.enabled && shop.skillBooks.quantity > 0) {
+    clownShopCosts += shop.skillBooks.quantity * shop.skillBooks.cost;
+  }
+  if (shop.vegetablePurchase.enabled && shop.vegetablePurchase.quantity > 0) {
+    clownShopCosts += shop.vegetablePurchase.quantity * shop.vegetablePurchase.cost;
+  }
+  if (shop.spicePurchase.enabled && shop.spicePurchase.quantity > 0) {
+    clownShopCosts += shop.spicePurchase.quantity * shop.spicePurchase.cost;
+  }
+  
+  const clownDailyGold = clownResult.totalGold + clownResult.stewValue - clownShopCosts;
   
   // === CALCULATE MIRACULAND VENDOR SEQUENCE ===
   const miracIngredients = {
@@ -1996,11 +2013,27 @@ function updateStrategySummary(root, results) {
     clownVegetable: 0,
     clownSpice: 0,
     miracMeat: dailyOrders * mirac.meatRate,
-    miracVegetable: dailyOrders * mirac.vegetableRate,
-    miracSpice: dailyOrders * mirac.spiceRate
+    miracVegetable: dailyOrders * mirac.vegetableRate + (shop.miracVegetablePurchase.enabled ? shop.miracVegetablePurchase.quantity : 0),
+    miracSpice: dailyOrders * mirac.spiceRate + (shop.miracSpicePurchase.enabled ? shop.miracSpicePurchase.quantity : 0)
   };
   const miracResult = calculatePhaseBasedSequence(miracIngredients, availableDishes);
-  const miracDailyGold = miracResult.totalGold + miracResult.stewValue;
+  
+  // Calculate shop costs for Miraculand vendor
+  let miracShopCosts = 0;
+  if (shop.supplyDeals.enabled && shop.supplyDeals.quantity > 0) {
+    miracShopCosts += shop.supplyDeals.quantity * shop.supplyDeals.cost;
+  }
+  if (shop.skillBooks.enabled && shop.skillBooks.quantity > 0) {
+    miracShopCosts += shop.skillBooks.quantity * shop.skillBooks.cost;
+  }
+  if (shop.miracVegetablePurchase.enabled && shop.miracVegetablePurchase.quantity > 0) {
+    miracShopCosts += shop.miracVegetablePurchase.quantity * shop.miracVegetablePurchase.cost;
+  }
+  if (shop.miracSpicePurchase.enabled && shop.miracSpicePurchase.quantity > 0) {
+    miracShopCosts += shop.miracSpicePurchase.quantity * shop.miracSpicePurchase.cost;
+  }
+  
+  const miracDailyGold = miracResult.totalGold + miracResult.stewValue - miracShopCosts;
   
   // === DETERMINE OPTIMAL VENDOR ===
   const useClown = clownDailyGold >= miracDailyGold;
@@ -2024,6 +2057,10 @@ function updateStrategySummary(root, results) {
   const alternateVendor = useClown ? 'Miraculand' : 'Clown';
   const comparisonColor = goldDifference > 0 ? '#2e7d32' : '#666';
   
+  // Calculate net profits for display (after shop costs)
+  const clownNetProfit = clownDailyGold;
+  const miracNetProfit = miracDailyGold;
+  
   let html = `
     <div style="margin-bottom: 15px;">
       <div style="font-size: 1.1em; font-weight: bold; color: #4a4e69; margin-bottom: 8px;">
@@ -2032,7 +2069,7 @@ function updateStrategySummary(root, results) {
       <div style="font-size: 0.9em; color: ${comparisonColor}; padding: 8px; background: #f0f7f0; border-radius: 4px; border-left: 3px solid #2e7d32;">
         <strong>+${goldDifference.toLocaleString()}g daily</strong> over ${alternateVendor}
         <div style="font-size: 0.85em; color: #666; margin-top: 4px;">
-          ${optimalVendor}: ${Math.round(optimalGold).toLocaleString()}g • ${alternateVendor}: ${Math.round(alternateGold).toLocaleString()}g
+          Clown: ${Math.round(clownNetProfit).toLocaleString()}g • Miraculand: ${Math.round(miracNetProfit).toLocaleString()}g
         </div>
       </div>
     </div>
