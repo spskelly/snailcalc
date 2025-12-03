@@ -431,7 +431,7 @@ function renderSnailMainTable() {
   }
   // Presets
   const presets = [1, 2, 3].map(getSnailPresetTotals);
-  let html = '<table class="cost-table"><tr>';
+  let html = '<div class="table-responsive-wrapper"><table class="cost-table"><tr>';
   headers.forEach(h => html += `<th>${h}</th>`);
   html += "</tr>";
   rows.forEach(([label, key]) => {
@@ -442,7 +442,7 @@ function renderSnailMainTable() {
     }
     html += "</tr>";
   });
-  html += "</table>";
+  html += "</table></div>";
   tableDiv.innerHTML = html;
 }
 
@@ -498,7 +498,7 @@ function renderMinionMainTable() {
   }
   // Presets
   const presets = [1, 2, 3].map(getMinionPresetTotals);
-  let html = '<table class="cost-table"><tr>';
+  let html = '<div class="table-responsive-wrapper"><table class="cost-table"><tr>';
   headers.forEach(h => html += `<th>${h}</th>`);
   html += "</tr>";
   rows.forEach(([label, key]) => {
@@ -509,7 +509,7 @@ function renderMinionMainTable() {
     }
     html += "</tr>";
   });
-  html += "</table>";
+  html += "</table></div>";
   tableDiv.innerHTML = html;
 }
 
@@ -1162,7 +1162,7 @@ function calculateAndRenderRocketCabinSummary(cabinKey) {
   const presetTotals = presetData.map(pd => calcTotals(pd.tiers, pd.excess));
 
   // Build the HTML table for the summary
-  let html = '<table class="cost-table"><tr><th>Material</th><th>Current</th><th>Preset 1</th><th>Preset 2</th><th>Preset 3</th></tr>';
+  let html = '<div class="table-responsive-wrapper"><table class="cost-table"><tr><th>Material</th><th>Current</th><th>Preset 1</th><th>Preset 2</th><th>Preset 3</th></tr>';
 
   materialNames.forEach(({ key, name }) => {
     html += `<tr><td>${name}</td>`;
@@ -1176,7 +1176,7 @@ function calculateAndRenderRocketCabinSummary(cabinKey) {
     html += "</tr>";
   });
 
-  html += "</table>";
+  html += "</table></div>";
   tableDiv.innerHTML = html;
 }
 
@@ -1419,4 +1419,108 @@ function initThemeToggle() {
 // Initialize theme toggle on page load
 document.addEventListener("DOMContentLoaded", () => {
   initThemeToggle();
+  initContactModal();
 });
+
+// --- Contact Modal Logic ---
+function initContactModal() {
+  const openBtn = document.getElementById('openContactModal');
+  const closeBtn = document.getElementById('closeContactModal');
+  const cancelBtn = document.getElementById('cancelContactForm');
+  const modal = document.getElementById('contactModal');
+  const form = document.getElementById('contactForm');
+  const statusDiv = document.getElementById('contactFormStatus');
+  const submitBtn = document.getElementById('submitContactForm');
+
+  if (!modal || !form) return;
+
+  // Open modal
+  if (openBtn) {
+    openBtn.addEventListener('click', () => {
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden'; // Prevent background scroll
+    });
+  }
+
+  // Close modal function
+  function closeModal() {
+    modal.style.display = 'none';
+    document.body.style.overflow = ''; // Restore scroll
+    // Reset form and status
+    form.reset();
+    statusDiv.style.display = 'none';
+    statusDiv.className = 'form-status';
+    statusDiv.textContent = '';
+    submitBtn.disabled = false;
+    submitBtn.textContent = '📤 Send Message';
+  }
+
+  // Close modal on X button
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closeModal);
+  }
+
+  // Close modal on Cancel button
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', closeModal);
+  }
+
+  // Close modal on overlay click (outside the dialog)
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      closeModal();
+    }
+  });
+
+  // Close modal on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.style.display === 'flex') {
+      closeModal();
+    }
+  });
+
+  // Handle form submission with AJAX
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    // Show loading state
+    submitBtn.disabled = true;
+    submitBtn.textContent = '⏳ Sending...';
+    statusDiv.style.display = 'block';
+    statusDiv.className = 'form-status loading';
+    statusDiv.textContent = 'Sending your message...';
+
+    try {
+      const formData = new FormData(form);
+      const response = await fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        // Success
+        statusDiv.className = 'form-status success';
+        statusDiv.textContent = '✅ Thank you! Your message has been sent successfully.';
+        submitBtn.textContent = '✅ Sent!';
+        
+        // Reset form after short delay, then close modal
+        setTimeout(() => {
+          closeModal();
+        }, 2000);
+      } else {
+        // Error from server
+        const data = await response.json();
+        throw new Error(data.error || 'Something went wrong. Please try again.');
+      }
+    } catch (error) {
+      // Error
+      statusDiv.className = 'form-status error';
+      statusDiv.textContent = '❌ ' + (error.message || 'Failed to send message. Please try again.');
+      submitBtn.disabled = false;
+      submitBtn.textContent = '📤 Send Message';
+    }
+  });
+}

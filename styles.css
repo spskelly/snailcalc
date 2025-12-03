@@ -661,6 +661,11 @@
   overflow: hidden;
 }
 
+/* Add vertical spacing to direct children of panel-content */
+.panel-content > * + * {
+  margin-top: 15px;
+}
+
 /* Panel variants */
 .panel-flat {
   box-shadow: none;
@@ -692,18 +697,29 @@ body {
 /* Theme Toggle Button */
 .theme-toggle {
   position: fixed;
-  top: 20px;
+  bottom: 20px; /* Move to bottom right - easier for thumb reach on mobile */
   right: 20px;
-  z-index: 1000;
-  padding: 10px 15px;
-  background-color: var(--btn-primary-bg);
+  top: auto;    /* Reset top */
+  z-index: 9999;
+  
+  /* Add a glassmorphism effect so it looks nice over content */
+  background-color: rgba(74, 78, 105, 0.9); 
+  backdrop-filter: blur(4px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  
+  width: 50px;
+  height: 50px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
   color: var(--btn-text-active);
   border: 2px solid var(--btn-primary-bg);
   border-radius: 50px;
   cursor: pointer;
   font-size: 1.2em;
   transition: all 0.3s ease;
-  box-shadow: var(--shadow-md);
 }
 
 .theme-toggle:hover {
@@ -948,7 +964,7 @@ h1, h2 {
 }
 .switcher-btn {
   /* Most properties now handled by .btn .btn-secondary .btn-lg utility classes */
-  margin: 0 5px;
+  margin: 5px;
 }
 
 /* --- Rocket Cabin Section --- */
@@ -1454,11 +1470,53 @@ h1, h2 {
   border: 1px solid var(--border-light);
   transition: transform 0.2s, box-shadow 0.2s;
   overflow: hidden;
+  max-width: 320px; /* Prevent single cards from stretching too wide */
+  position: relative;
 }
 
 .recipe-card:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
+}
+
+/* Recipe card header - name and checkbox */
+.recipe-card-header {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  background: var(--bg-alt);
+  border-bottom: 1px solid var(--border-light);
+}
+
+/* Recipe card body - single row layout */
+.recipe-card-body {
+  padding: 12px;
+}
+
+/* Recipe controls row - add vertical spacing between elements */
+.recipe-controls-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+/* Controls grid - Stars, Price, and Ingredients aligned with CSS Grid */
+/* 1. RECIPE CARD LAYOUT FIX - Make input container a grid instead of flex column */
+.recipe-card .d-flex.flex-col.p-sm {
+  display: grid !important; /* Override the utility class */
+  grid-template-columns: 1fr 1fr; /* Two equal columns for inputs */
+  gap: 10px;
+  align-items: end; /* Align labels to bottom if they wrap */
+}
+
+/* 2. Make the ingredients span the full width at the bottom */
+.recipe-ingredients {
+  grid-column: 1 / -1; /* Span all columns */
+  margin-top: 5px;
+  text-align: center;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .recipe-toggle {
@@ -1477,6 +1535,34 @@ h1, h2 {
   font-weight: bold;
   color: var(--text-primary);
   font-size: 0.95em;
+}
+
+/* Recipe rank badge */
+.recipe-rank {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  font-size: 0.75em;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 10px;
+  background: var(--bg-highlight);
+  color: var(--text-muted);
+}
+
+.recipe-rank.rank-1 {
+  background: linear-gradient(135deg, #ffd700, #ffb700);
+  color: #5d4e00;
+}
+
+.recipe-rank.rank-2 {
+  background: linear-gradient(135deg, #e0e0e0, #c0c0c0);
+  color: #555;
+}
+
+.recipe-rank.rank-3 {
+  background: linear-gradient(135deg, #cd7f32, #b5651d);
+  color: #fff;
 }
 
 .vendor-badge {
@@ -1501,42 +1587,79 @@ h1, h2 {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  flex-shrink: 0;
 }
 
 .recipe-field label {
-  font-size: 0.75em;
+  font-size: 0.7em;
+  font-weight: 700;
   color: var(--text-light);
   text-transform: uppercase;
-  font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
 .recipe-field select,
 .recipe-field input {
-  padding: 6px 10px;
+  width: 100%; /* Let the grid cell dictate width */
+  min-width: 60px;
+  padding: 5px 8px;
   border: 1px solid var(--border-dark);
   border-radius: 4px;
-  font-size: 0.9em;
+  font-size: 0.85em;
   background: var(--bg-card);
   color: var(--text-primary);
 }
 
-.recipe-field select {
-  width: 70px;
-}
-
-.recipe-field input[type="number"] {
-  width: 70px;
-  text-align: right;
-}
-
-.recipe-ingredients {
-  margin-left: auto;
-  font-size: 0.85em;
-  color: var(--text-muted);
+/* Inline ingredients display - horizontal row */
+.recipe-ingredients-inline {
+  margin-left: 0; /* Remove auto margin */
+  justify-self: end; /* Push to right */
+  height: 36px; /* Match input height for visual alignment */
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   background: var(--bg-section);
-  padding: 6px 10px;
-  border-radius: 15px;
+  border-radius: 6px;
+  border: 1px solid var(--border-light);
+}
+
+.recipe-ingredient-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 1.1em;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.recipe-ingredient-item .ingredient-icon {
+  font-size: 1.1em;
+}
+
+.recipe-ingredient-item .ingredient-amount {
+  font-weight: bold;
   font-family: monospace;
+  font-size: 0.85em;
+  color: var(--text-secondary);
+}
+
+/* ============================================
+   TABLE RESPONSIVE WRAPPER
+   ============================================ */
+
+.table-responsive-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* smooth scrolling on iOS */
+  margin-bottom: 20px;
+  border-radius: 12px; /* Match card radius */
+}
+
+/* Ensure the table doesn't shrink aggressively */
+.table-responsive-wrapper .cost-table {
+  min-width: 600px; /* Force a minimum width to keep data readable */
+  margin-bottom: 0; /* Let wrapper handle margin */
 }
 
 /* Results Dashboard */
@@ -1826,7 +1949,15 @@ h1, h2 {
 /* ============================================
    RESPONSIVE OVERRIDES (MASTER BLOCK)
    ============================================ */
+
+/* 2. GRID SYSTEM MODERNIZATION - Adjust responsive grid variables instead of rigid overrides */
 @media (max-width: 900px) {
+  .grid-responsive {
+    /* Increase min-width. This forces the grid to switch to 1 column 
+       sooner (on small tablets), preventing the "2 squashed columns" look. */
+    --min-col-width: 300px; 
+  }
+  
   .optimal-ranking-layout,
   .results-grid { flex-direction: column; grid-template-columns: 1fr; }
   
@@ -1839,6 +1970,32 @@ h1, h2 {
   .results-card { flex: 1 1 280px; }
 }
 
+/* 4. OPTIMIZE STICKY SIDEBAR - Move sidebar to bottom on tablet sizes */
+@media (max-width: 1024px) {
+  .optimal-ranking-layout {
+    flex-direction: column;
+  }
+
+  .optimal-ranking-table {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
+  .optimal-ranking-strategy {
+    max-width: 100%; /* Allow full width */
+    width: 100%;
+    position: static; /* Stop being sticky when stacked */
+    margin-top: 20px;
+  }
+  
+  /* Arrange the summary items horizontally on tablet to save vertical space */
+  .optimal-ranking-strategy #strategy-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+  }
+}
+
 @media (max-width: 768px) {
   /* Layout & Spacing */
   body { margin: 10px; font-size: 16px; }
@@ -1847,14 +2004,7 @@ h1, h2 {
   .totals-column { width: 100%; margin: 10px 0; padding: 15px; }
   .totals-column p, .totals-column span { font-size: 16px; }
 
-  /* Grids - Force 2 columns */
-  .grid-6, .grid-4, .stats-grid,
-  .ingredient-input-grid, .remaining-grid,
-  .stew-simulator .ingredient-grid { 
-    grid-template-columns: repeat(2, 1fr) !important; 
-  }
-
-  /* Grids - Force 1 column */
+  /* Grids - Keep some specific overrides for special cases */
   .shop-layout-container, .recipe-grid, .vendor-grid,
   .stew-grid, .stew-simulator .stew-results-container { 
     grid-template-columns: 1fr !important; 
@@ -1869,13 +2019,248 @@ h1, h2 {
   .chart-container { height: 300px; }
 }
 
+/* 5. TOUCH TARGET IMPROVEMENTS */
+@media (max-width: 600px) {
+  input[type="checkbox"] {
+    width: 24px;
+    height: 24px;
+  }
+  
+  /* Increase toggle header hit area */
+  .panel-header {
+    padding: 18px 20px; 
+  }
+  
+  /* Ensure all inputs have proper padding for touch */
+  input[type="text"],
+  input[type="number"],
+  select,
+  .form-control {
+    padding: 10px;
+  }
+  
+  /* Reduce padding in table cells for mobile to fit more data */
+  .cost-table th, 
+  .cost-table td {
+    padding: 10px 5px; 
+    font-size: 0.9em;
+  }
+
+  /* Optional: Hide the "Limiting" column on very small screens if it causes scrolling */
+  /* You can add a class .col-limiting to that TH and TD in HTML */
+  .col-limiting {
+    display: none;
+  }
+  
+  /* Make the rank emoji bigger and remove the column header text for Rank on mobile */
+  .cost-table th:first-child {
+    font-size: 0; /* Hides text */
+  }
+  .cost-table th:first-child::after {
+    content: "#"; /* Replaces with symbol */
+    font-size: 14px;
+  }
+}
+
+/* --- MOBILE BREAKPOINT FOR RECIPE CARDS --- */
+@media (max-width: 450px) {
+  .recipe-controls-grid {
+    /* On mobile, make it 2 columns */
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas: 
+      "stars price"
+      "ingredients ingredients";
+  }
+
+  .recipe-field:nth-child(1) { grid-area: stars; }
+  .recipe-field:nth-child(2) { grid-area: price; }
+  
+  .recipe-ingredients-inline { 
+    grid-area: ingredients; 
+    justify-self: stretch; /* Stretch across full width */
+    justify-content: center;
+    margin-top: 5px;
+  }
+}
+
+/* 3. ADJUST INPUT SIZING FOR MOBILE - Recipe Card specific */
 @media (max-width: 480px) {
-  /* Grids - Force 1 column on small mobile */
-  .grid-6, .grid-4, .grid-3, .grid-2,
-  .ingredient-input-grid, .remaining-grid,
-  .stew-simulator .ingredient-grid { 
-    grid-template-columns: 1fr !important; 
+  .grid-responsive {
+    /* On mobile, force essentially 1 column but allow fluidity */
+    --min-col-width: 100%; 
+  }
+  
+  .recipe-field select,
+  .recipe-field input[type="number"] {
+    width: 100%; /* Fill the grid cell */
+    height: 36px; /* Larger touch target */
+  }
+  
+  .recipe-name {
+    font-size: 1rem; /* Slightly larger for readability */
   }
   
   .recipe-option .recipe-details { flex-direction: column; gap: 8px; }
+}
+
+/* ============================================
+   FOOTER STYLES
+   ============================================ */
+
+.site-footer {
+  margin-top: 40px;
+  padding: 20px 15px 15px;
+  background: var(--bg-card);
+  border-top: 2px solid var(--border-primary);
+  border-radius: 12px 12px 0 0;
+  box-shadow: var(--shadow-md);
+}
+
+.footer-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.footer-disclaimer,
+.footer-contact {
+  padding: 15px;
+  background: var(--bg-section);
+  border-radius: 8px;
+  border: 1px solid var(--border-light);
+}
+
+.footer-disclaimer h4,
+.footer-contact h4 {
+  margin: 0 0 8px 0;
+  color: var(--text-secondary);
+  font-size: 1em;
+}
+
+.footer-disclaimer p,
+.footer-contact p {
+  margin: 0 0 10px 0;
+  color: var(--text-muted);
+  font-size: 0.85em;
+  line-height: 1.5;
+}
+
+.footer-contact {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.footer-contact .btn {
+  margin-top: auto;
+  padding: 8px 16px;
+  font-size: 0.9em;
+}
+
+/* Footer Responsive */
+@media (max-width: 768px) {
+  .footer-content {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .site-footer {
+    margin-top: 30px;
+    padding: 15px 10px 10px;
+  }
+}
+
+/* ============================================
+   CONTACT FORM STYLES
+   ============================================ */
+
+/* Contact modal specific sizing */
+#contactModal .modal-dialog {
+  max-width: 480px;
+  max-height: none;
+}
+
+#contactModal .modal-body {
+  padding: 16px 20px;
+  overflow: visible;
+}
+
+#contactModal .modal-body > p {
+  font-size: 0.9em;
+  margin-bottom: 12px;
+}
+
+.form-group {
+  margin-bottom: 14px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: 0.9em;
+}
+
+.form-group .required {
+  color: var(--color-error);
+}
+
+.form-group .optional {
+  color: var(--text-lighter);
+  font-weight: normal;
+  font-size: 0.8em;
+}
+
+.form-group .form-control {
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+.form-group textarea.form-control {
+  resize: vertical;
+  min-height: 80px;
+  max-height: 120px;
+}
+
+.form-status {
+  padding: 10px 14px;
+  border-radius: 6px;
+  margin-top: 12px;
+  font-weight: 500;
+  text-align: center;
+  font-size: 0.9em;
+}
+
+.form-status.success {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+  border: 1px solid var(--color-success-border);
+}
+
+.form-status.error {
+  background: var(--color-error-bg);
+  color: var(--color-error);
+  border: 1px solid var(--color-error);
+}
+
+.form-status.loading {
+  background: var(--bg-highlight);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-light);
+}
+
+/* Contact modal submit button disabled state */
+#submitContactForm:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+/* Contact form buttons */
+#contactForm .btn {
+  padding: 8px 16px;
+  font-size: 0.9em;
 }
