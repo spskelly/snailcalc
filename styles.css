@@ -605,6 +605,22 @@
 .p-lg { padding: 20px !important; }
 
 /* ============================================
+   UTILITY CLASSES - MARGIN UTILITIES
+   ============================================ */
+
+.mt-sm { margin-top: 10px !important; }
+.mt-md { margin-top: 15px !important; }
+.mt-lg { margin-top: 20px !important; }
+.mt-xl { margin-top: 30px !important; }
+
+.mb-sm { margin-bottom: 10px !important; }
+.mb-md { margin-bottom: 15px !important; }
+.mb-lg { margin-bottom: 20px !important; }
+.mb-xl { margin-bottom: 30px !important; }
+
+.mx-auto { margin-left: auto !important; margin-right: auto !important; }
+
+/* ============================================
    UTILITY CLASSES - PANEL/ACCORDION SYSTEM
    ============================================ */
 
