@@ -849,6 +849,8 @@ h1, h2 {
 .preset-button {
   /* Most properties now handled by .btn .btn-secondary .btn-sm utility classes */
   margin-right: 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* Modal Overlay and Dialog */
@@ -1965,6 +1967,71 @@ h1, h2 {
 /* ============================================
    RESPONSIVE OVERRIDES (MASTER BLOCK)
    ============================================ */
+
+/* ============================================
+   RESPONSIVE GRID OVERRIDES
+   ============================================ */
+
+/* Grid-6: Gear calculator slots */
+@media (max-width: 1024px) {
+  .grid-6 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .grid-6 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Preset groups: Stack on mobile */
+@media (max-width: 768px) {
+  .preset-group {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .preset-set {
+    justify-content: flex-start;
+  }
+}
+
+/* Button row: Ensure wrapping */
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 600px) {
+  .button-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .button-row .preset-group {
+    width: 100%;
+  }
+}
+
+/* Responsive chart heights */
+@media (max-width: 768px) {
+  .chart-container,
+  .stele-chart-container {
+    height: 400px;
+  }
+}
+
+@media (max-width: 480px) {
+  .chart-container,
+  .stele-chart-container {
+    height: 300px;
+  }
+}
 
 /* 2. GRID SYSTEM MODERNIZATION - Adjust responsive grid variables instead of rigid overrides */
 @media (max-width: 900px) {
