@@ -2033,6 +2033,69 @@ h1, h2 {
   }
 }
 
+/* ============================================
+   ROCKET CALCULATOR RESPONSIVE STYLES
+   ============================================ */
+
+/* Rocket device selector grid */
+.rocket-device-grid {
+  display: grid;
+  grid-template-columns: auto 1fr auto 1fr;
+  gap: 15px 20px;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .rocket-device-grid {
+    grid-template-columns: auto 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .rocket-device-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .rocket-device-grid label {
+    text-align: left;
+    font-weight: bold;
+    margin-bottom: -5px;
+  }
+}
+
+/* Excess materials table */
+.excess-grid-table {
+  width: auto;
+  border-collapse: collapse;
+  min-width: 400px; /* Ensure minimum width for readability */
+}
+
+.excess-grid-table th,
+.excess-grid-table td {
+  padding: 4px 8px;
+}
+
+.excess-grid-table .excess-input {
+  width: 55px;
+}
+
+@media (max-width: 600px) {
+  .excess-grid-table .excess-input {
+    width: 45px;
+    font-size: 0.9em;
+  }
+  
+  .slot-container {
+    margin: 4px;
+  }
+  
+  .slot-container .upgrade-select {
+    font-size: 0.9em;
+    padding: 8px 4px;
+  }
+}
+
 /* 2. GRID SYSTEM MODERNIZATION - Adjust responsive grid variables instead of rigid overrides */
 @media (max-width: 900px) {
   .grid-responsive {

@@ -809,9 +809,8 @@ function createAllRocketCabinsUI() {
     cabinWrapper.appendChild(title);
 
     const grid = document.createElement('div');
-    grid.className = 'grid gap-md items-center';
-    grid.style.gridTemplateColumns = 'auto 1fr auto 1fr';
-    grid.style.gap = '15px 20px';
+    grid.className = 'rocket-device-grid';
+    // Remove inline styles - use CSS class instead
 
     Object.keys(cabin.devices).forEach(deviceName => {
         // Create label as standalone grid item
