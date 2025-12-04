@@ -481,18 +481,7 @@
   background: var(--vendor-mirac-border);
 }
 
-/* Responsive ingredient rows */
-@media (max-width: 900px) {
-  .ingredient-row {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 600px) {
-  .ingredient-row {
-    grid-template-columns: 1fr;
-  }
-}
+/* Responsive ingredient rows - moved to consolidated media queries at end of file */
 
 /* ============================================
    UTILITY CLASSES - FLEXBOX TOOLKIT
@@ -1320,13 +1309,7 @@ h1, h2 {
   border-top: 1px solid var(--border-light);
 }
 
-/* Responsive: Stack columns on smaller screens */
-@media (max-width: 768px) {
-  .daily-summary-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-}
+/* Responsive: Stack columns on smaller screens - moved to consolidated media queries at end of file */
 
 /* Vendor Configuration */
 .voucher-config {
@@ -1966,158 +1949,17 @@ h1, h2 {
 
 /* ============================================
    RESPONSIVE OVERRIDES (MASTER BLOCK)
+   All media queries consolidated here for easier maintenance
    ============================================ */
 
-/* ============================================
-   RESPONSIVE GRID OVERRIDES
-   ============================================ */
-
-/* Grid-6: Gear calculator slots */
+/* ===== LARGE TABLET (max-width: 1024px) ===== */
 @media (max-width: 1024px) {
-  .grid-6 {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (max-width: 600px) {
-  .grid-6 {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-/* Preset groups: Stack on mobile */
-@media (max-width: 768px) {
-  .preset-group {
-    grid-template-columns: 1fr;
-    gap: 10px;
+  /* Grid adjustments */
+  .grid-6 { 
+    grid-template-columns: repeat(3, 1fr); 
   }
   
-  .preset-set {
-    justify-content: flex-start;
-  }
-}
-
-/* Button row: Ensure wrapping */
-.button-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 20px;
-}
-
-@media (max-width: 600px) {
-  .button-row {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .button-row .preset-group {
-    width: 100%;
-  }
-}
-
-/* Responsive chart heights */
-@media (max-width: 768px) {
-  .chart-container,
-  .stele-chart-container {
-    height: 400px;
-  }
-}
-
-@media (max-width: 480px) {
-  .chart-container,
-  .stele-chart-container {
-    height: 300px;
-  }
-}
-
-/* ============================================
-   ROCKET CALCULATOR RESPONSIVE STYLES
-   ============================================ */
-
-/* Rocket device selector grid */
-.rocket-device-grid {
-  display: grid;
-  grid-template-columns: auto 1fr auto 1fr;
-  gap: 15px 20px;
-  align-items: center;
-}
-
-@media (max-width: 768px) {
-  .rocket-device-grid {
-    grid-template-columns: auto 1fr;
-  }
-}
-
-@media (max-width: 480px) {
-  .rocket-device-grid {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-  
-  .rocket-device-grid label {
-    text-align: left;
-    font-weight: bold;
-    margin-bottom: -5px;
-  }
-}
-
-/* Excess materials table */
-.excess-grid-table {
-  width: auto;
-  border-collapse: collapse;
-  min-width: 400px; /* Ensure minimum width for readability */
-}
-
-.excess-grid-table th,
-.excess-grid-table td {
-  padding: 4px 8px;
-}
-
-.excess-grid-table .excess-input {
-  width: 55px;
-}
-
-@media (max-width: 600px) {
-  .excess-grid-table .excess-input {
-    width: 45px;
-    font-size: 0.9em;
-  }
-  
-  .slot-container {
-    margin: 4px;
-  }
-  
-  .slot-container .upgrade-select {
-    font-size: 0.9em;
-    padding: 8px 4px;
-  }
-}
-
-/* 2. GRID SYSTEM MODERNIZATION - Adjust responsive grid variables instead of rigid overrides */
-@media (max-width: 900px) {
-  .grid-responsive {
-    /* Increase min-width. This forces the grid to switch to 1 column 
-       sooner (on small tablets), preventing the "2 squashed columns" look. */
-    --min-col-width: 300px; 
-  }
-  
-  .optimal-ranking-layout,
-  .results-grid { flex-direction: column; grid-template-columns: 1fr; }
-  
-  .optimal-ranking-table,
-  .optimal-ranking-strategy { flex: 1 1 100%; max-width: 100%; }
-  
-  .optimal-ranking-strategy { position: relative; top: 0; }
-  
-  .results-sidebar { flex-direction: row; flex-wrap: wrap; }
-  .results-card { flex: 1 1 280px; }
-}
-
-/* 4. OPTIMIZE STICKY SIDEBAR - Move sidebar to bottom on tablet sizes */
-@media (max-width: 1024px) {
+  /* Optimal ranking layout - stack sidebar below table */
   .optimal-ranking-layout {
     flex-direction: column;
   }
@@ -2128,7 +1970,7 @@ h1, h2 {
   }
 
   .optimal-ranking-strategy {
-    max-width: 100%; /* Allow full width */
+    max-width: 100%;
     width: 100%;
     position: static; /* Stop being sticky when stacked */
     margin-top: 20px;
@@ -2142,76 +1984,296 @@ h1, h2 {
   }
 }
 
-@media (max-width: 768px) {
-  /* Layout & Spacing */
-  body { margin: 10px; font-size: 16px; }
-  #totals { flex-direction: column; margin: 15px auto; }
-  .slot-container { margin: 5px; padding: 12px; }
-  .totals-column { width: 100%; margin: 10px 0; padding: 15px; }
-  .totals-column p, .totals-column span { font-size: 16px; }
-
-  /* Grids - Keep some specific overrides for special cases */
-  .shop-layout-container, .recipe-grid, .vendor-grid,
-  .stew-grid, .stew-simulator .stew-results-container { 
-    grid-template-columns: 1fr !important; 
+/* ===== SMALL TABLET (max-width: 900px) ===== */
+@media (max-width: 900px) {
+  /* Grid system - increase min-width to force single column sooner */
+  .grid-responsive { 
+    --min-col-width: 300px; 
   }
-
-  /* Components */
-  .modal-dialog { width: 95%; max-height: 90vh; }
-  .modal-body { padding: 15px; }
-  .theme-toggle { top: 10px; right: 10px; padding: 8px 12px; }
-  .recipe-ingredients { margin-left: 0; margin-top: 10px; }
-  .results-sidebar { flex-direction: column; }
-  .chart-container { height: 300px; }
+  
+  /* Ingredient rows - 2 columns on small tablet */
+  .ingredient-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  /* Results grid - stack columns */
+  .results-grid { 
+    flex-direction: column; 
+    grid-template-columns: 1fr; 
+  }
+  
+  .optimal-ranking-layout { 
+    flex-direction: column; 
+  }
+  
+  .optimal-ranking-table,
+  .optimal-ranking-strategy { 
+    flex: 1 1 100%; 
+    max-width: 100%; 
+  }
+  
+  .optimal-ranking-strategy { 
+    position: relative; 
+    top: 0; 
+  }
+  
+  /* Results sidebar - horizontal layout on tablet */
+  .results-sidebar { 
+    flex-direction: row; 
+    flex-wrap: wrap; 
+  }
+  
+  .results-card { 
+    flex: 1 1 280px; 
+  }
 }
 
-/* 5. TOUCH TARGET IMPROVEMENTS */
+/* ===== MOBILE (max-width: 768px) ===== */
+@media (max-width: 768px) {
+  /* Layout & Spacing */
+  body { 
+    margin: 10px; 
+    font-size: 16px; 
+  }
+  
+  #totals { 
+    flex-direction: column; 
+    margin: 15px auto; 
+  }
+  
+  .slot-container { 
+    margin: 5px; 
+    padding: 12px; 
+  }
+  
+  .totals-column { 
+    width: 100%; 
+    margin: 10px 0; 
+    padding: 15px; 
+  }
+  
+  .totals-column p, 
+  .totals-column span { 
+    font-size: 16px; 
+  }
+  
+  /* Grids - stack to single column */
+  .preset-group {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .preset-set {
+    justify-content: flex-start;
+  }
+  
+  .shop-layout-container, 
+  .recipe-grid, 
+  .vendor-grid,
+  .stew-grid, 
+  .stew-simulator .stew-results-container { 
+    grid-template-columns: 1fr !important; 
+  }
+  
+  .daily-summary-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .rocket-device-grid { 
+    grid-template-columns: auto 1fr; 
+  }
+  
+  /* Components */
+  .modal-dialog { 
+    width: 95%; 
+    max-height: 90vh; 
+  }
+  
+  .modal-body { 
+    padding: 15px; 
+  }
+  
+  .theme-toggle { 
+    bottom: 15px; 
+    right: 15px; 
+  }
+  
+  .recipe-ingredients { 
+    margin-left: 0; 
+    margin-top: 10px; 
+  }
+  
+  .results-sidebar { 
+    flex-direction: column; 
+  }
+  
+  /* Chart heights */
+  .chart-container,
+  .stele-chart-container { 
+    height: 400px; 
+  }
+  
+  /* Footer */
+  .footer-content {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .site-footer {
+    margin-top: 30px;
+    padding: 15px 10px 10px;
+  }
+}
+
+/* ===== SMALL MOBILE (max-width: 600px) ===== */
 @media (max-width: 600px) {
+  /* Grid adjustments */
+  .grid-6 { 
+    grid-template-columns: repeat(2, 1fr); 
+  }
+  
+  .ingredient-row { 
+    grid-template-columns: 1fr; 
+  }
+  
+  /* Button row - stack vertically */
+  .button-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .button-row .preset-group {
+    width: 100%;
+  }
+  
+  /* Shop rows - stack vertically */
+  .shop-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .shop-row-label {
+    min-width: auto;
+    padding: 0;
+    margin-bottom: 4px;
+  }
+  
+  .shop-row-items {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .shop-row-items .shop-item {
+    max-width: 100%;
+  }
+  
+  /* Rocket calculator */
+  .excess-grid-table .excess-input {
+    width: 45px;
+    font-size: 0.9em;
+  }
+  
+  .slot-container {
+    margin: 4px;
+  }
+  
+  .slot-container .upgrade-select {
+    font-size: 0.9em;
+    padding: 8px 4px;
+  }
+  
+  /* Touch target improvements */
   input[type="checkbox"] {
     width: 24px;
     height: 24px;
   }
   
-  /* Increase toggle header hit area */
   .panel-header {
     padding: 18px 20px; 
   }
   
-  /* Ensure all inputs have proper padding for touch */
   input[type="text"],
   input[type="number"],
   select,
   .form-control {
     padding: 10px;
+    min-height: 44px;
   }
   
-  /* Reduce padding in table cells for mobile to fit more data */
+  /* Table adjustments */
   .cost-table th, 
   .cost-table td {
     padding: 10px 5px; 
     font-size: 0.9em;
   }
 
-  /* Optional: Hide the "Limiting" column on very small screens if it causes scrolling */
-  /* You can add a class .col-limiting to that TH and TD in HTML */
   .col-limiting {
     display: none;
   }
   
-  /* Make the rank emoji bigger and remove the column header text for Rank on mobile */
   .cost-table th:first-child {
-    font-size: 0; /* Hides text */
+    font-size: 0;
   }
+  
   .cost-table th:first-child::after {
-    content: "#"; /* Replaces with symbol */
+    content: "#";
     font-size: 14px;
+  }
+  
+  /* Stele probability items */
+  .stele-prob-item {
+    min-width: 70px;
+    padding: 8px 12px;
+    font-size: 0.95em;
   }
 }
 
-/* --- MOBILE BREAKPOINT FOR RECIPE CARDS --- */
+/* ===== EXTRA SMALL (max-width: 480px) ===== */
+@media (max-width: 480px) {
+  /* Grid system - force single column */
+  .grid-responsive { 
+    --min-col-width: 100%; 
+  }
+  
+  /* Rocket device grid - full stack */
+  .rocket-device-grid { 
+    grid-template-columns: 1fr; 
+    gap: 10px; 
+  }
+  
+  .rocket-device-grid label {
+    text-align: left;
+    font-weight: bold;
+    margin-bottom: -5px;
+  }
+  
+  /* Chart heights */
+  .chart-container,
+  .stele-chart-container { 
+    height: 300px; 
+  }
+  
+  /* Recipe cards */
+  .recipe-field select,
+  .recipe-field input[type="number"] {
+    width: 100%;
+    height: 36px;
+  }
+  
+  .recipe-name {
+    font-size: 1rem;
+  }
+  
+  .recipe-option .recipe-details { 
+    flex-direction: column; 
+    gap: 8px; 
+  }
+}
+
+/* ===== RECIPE CARDS MOBILE (max-width: 450px) ===== */
 @media (max-width: 450px) {
   .recipe-controls-grid {
-    /* On mobile, make it 2 columns */
     grid-template-columns: 1fr 1fr;
     grid-template-areas: 
       "stars price"
@@ -2223,30 +2285,10 @@ h1, h2 {
   
   .recipe-ingredients-inline { 
     grid-area: ingredients; 
-    justify-self: stretch; /* Stretch across full width */
+    justify-self: stretch;
     justify-content: center;
     margin-top: 5px;
   }
-}
-
-/* 3. ADJUST INPUT SIZING FOR MOBILE - Recipe Card specific */
-@media (max-width: 480px) {
-  .grid-responsive {
-    /* On mobile, force essentially 1 column but allow fluidity */
-    --min-col-width: 100%; 
-  }
-  
-  .recipe-field select,
-  .recipe-field input[type="number"] {
-    width: 100%; /* Fill the grid cell */
-    height: 36px; /* Larger touch target */
-  }
-  
-  .recipe-name {
-    font-size: 1rem; /* Slightly larger for readability */
-  }
-  
-  .recipe-option .recipe-details { flex-direction: column; gap: 8px; }
 }
 
 /* ============================================
