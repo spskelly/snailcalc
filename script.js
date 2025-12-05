@@ -813,13 +813,17 @@ function createAllRocketCabinsUI() {
     // Remove inline styles - use CSS class instead
 
     Object.keys(cabin.devices).forEach(deviceName => {
-        // Create label as standalone grid item
+        // Create a field container for label+select
+        const field = document.createElement("div");
+        field.className = "rocket-device-field";
+
+        // Create label
         const label = document.createElement("label");
         label.textContent = deviceName;
         label.className = "text-right";
-        grid.appendChild(label);
-        
-        // Create select as standalone grid item
+        field.appendChild(label);
+
+        // Create select
         const select = document.createElement("select");
         // Unique ID: cabinKey-deviceName
         select.id = `rocket-${cabinKey}-${deviceName.replace(/\s+/g, '-')}`;
@@ -841,7 +845,8 @@ function createAllRocketCabinsUI() {
             select.appendChild(option);
         });
 
-        grid.appendChild(select);
+        field.appendChild(select);
+        grid.appendChild(field);
     });
     
     cabinWrapper.appendChild(grid);
