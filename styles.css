@@ -1000,6 +1000,29 @@ h1, h2 {
   padding: 4px 8px;
   font-size: 0.98em;
 }
+
+/* === 2-column layout for Rocket Cabin device dropdowns === */
+.rocket-device-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px 32px;
+  margin-bottom: 18px;
+}
+
+.rocket-device-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rocket-device-field label {
+  font-weight: bold;
+  color: var(--text-secondary);
+  margin-bottom: 2px;
+  text-align: left;
+  font-size: 1em;
+}
+
 #rocket-cabin-totals-summary {
   margin: 20px auto;
   max-width: 800px;
