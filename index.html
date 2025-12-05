@@ -12,16 +12,17 @@
       <span id="themeIcon">🌙</span>
     </button>
 
-    <!-- Main Calculator Switcher -->
-    <div class="calculator-switcher">
-      <button id="showGearCalc" class="btn btn-secondary btn-lg switcher-btn">Gear Calculator</button>
-      <button id="showRocketCalc" class="btn btn-secondary btn-lg switcher-btn">Rocket Cabin Calculator</button>
-      <button id="showSteleCalc" class="btn btn-secondary btn-lg switcher-btn">Stele Calculator</button>      
-      <button id="showCookingCalc" class="btn btn-secondary btn-lg switcher-btn">Cooking Calculator</button>
-    </div>
+    <div class="layout-shell">
+      <!-- Main Calculator Switcher -->
+      <div class="calculator-switcher">
+        <button id="showGearCalc" class="btn btn-secondary btn-lg switcher-btn">Gear Calculator</button>
+        <button id="showRocketCalc" class="btn btn-secondary btn-lg switcher-btn">Rocket Cabin Calculator</button>
+        <button id="showSteleCalc" class="btn btn-secondary btn-lg switcher-btn">Stele Calculator</button>      
+        <button id="showCookingCalc" class="btn btn-secondary btn-lg switcher-btn">Cooking Calculator</button>
+      </div>
 
-    <!-- ===== GEAR CALCULATOR SECTION ===== -->
-<div id="gearCalculator" class="calculator-container" style="display: none;">
+      <!-- ===== GEAR CALCULATOR SECTION ===== -->
+      <div id="gearCalculator" class="calculator-container" style="display: none;">
       <div class="calculator-section">
         <h1>Snail Gear Calculator</h1>
         <div class="info-blurb">
@@ -48,13 +49,13 @@
           </div>
         </div>
         <div class="snail-label equipped-label">Equipped</div>
-        <div class="grid grid-6 gap-md snail-row equipped-row" id="snail-row-1"></div>
-        <div class="grid grid-6 gap-md snail-row equipped-row" id="snail-row-2"></div>
+<div class="grid grid-6 gap-md slot-grid snail-row equipped-row" id="snail-row-1"></div>
+<div class="grid grid-6 gap-md slot-grid snail-row equipped-row" id="snail-row-2"></div>
         <div class="snail-label unequipped-label">
           Unequipped
           <button id="toggleUnequipped" class="btn btn-xs toggle-section-btn" aria-expanded="true" aria-controls="snail-row-3">−</button>
         </div>
-        <div class="grid grid-6 gap-md snail-row unequipped-row" id="snail-row-3"></div>
+<div class="grid grid-6 gap-md slot-grid snail-row unequipped-row" id="snail-row-3"></div>
         <div class="card card-lg totals-column" id="snail-totals">
           <h3>Snail Gear Costs</h3>
           <div id="snailMainTable"></div>
@@ -83,12 +84,12 @@
           </div>
         </div>
         <div class="minion-label equipped-label">Equipped</div>
-        <div class="grid grid-6 gap-md horizontal-slots equipped-row" id="minion-row-1"></div>
+<div class="grid grid-6 gap-md slot-grid horizontal-slots equipped-row" id="minion-row-1"></div>
         <div class="minion-label unequipped-label">
           Unequipped
           <button id="toggleMinionUnequipped" class="btn btn-xs toggle-section-btn" aria-expanded="true" aria-controls="minion-row-2">−</button>
         </div>
-        <div class="grid grid-6 gap-md horizontal-slots unequipped-row" id="minion-row-2"></div>
+<div class="grid grid-6 gap-md slot-grid horizontal-slots unequipped-row" id="minion-row-2"></div>
         <div class="card card-lg totals-column" id="minion-totals">
           <h3>Minion Gear Costs</h3>
           <div id="minionMainTable"></div>
@@ -96,8 +97,8 @@
       </div>
     </div>
 
-    <!-- ===== ROCKET CABIN CALCULATOR SECTION (Initially Hidden) ===== -->
-<div id="rocketCalculator" class="calculator-container" style="display: none;">
+      <!-- ===== ROCKET CABIN CALCULATOR SECTION (Initially Hidden) ===== -->
+      <div id="rocketCalculator" class="calculator-container" style="display: none;">
       <div class="calculator-section">
         <h1>Rocket Cabin Upgrade Calculator</h1>
         <div class="info-blurb">
@@ -109,8 +110,8 @@
       </div>
     </div>
 
-    <!-- ===== STELE LEVEL DISTRIBUTION ANALYSIS SECTION (Initially Hidden) ===== -->
-    <div id="steleCalculator" class="calculator-container" style="display: none;">
+      <!-- ===== STELE LEVEL DISTRIBUTION ANALYSIS SECTION (Initially Hidden) ===== -->
+      <div id="steleCalculator" class="calculator-container" style="display: none;">
       <div class="calculator-section">
         <h1>Stele Level Distribution Analysis</h1>
 <div class="info-blurb">
@@ -148,8 +149,8 @@
       </div>
     </div>
 
-    <!-- ===== COOKING CALCULATOR SECTION (Add to index.html, initially hidden) ===== -->
-    <div id="cookingCalculator" class="calculator-container" style="display: none;">
+      <!-- ===== COOKING CALCULATOR SECTION (Add to index.html, initially hidden) ===== -->
+      <div id="cookingCalculator" class="calculator-container" style="display: none;">
       <div class="calculator-section">
         <h1>🍳 Cooking Profitability Calculator</h1>
         <div class="info-blurb">
@@ -218,6 +219,7 @@
         
       </div>
     </div>
+    </div> <!-- End .layout-shell -->
 
     <!-- Export Modal -->
     <div id="exportModal" class="modal-overlay" style="display: none;">
@@ -258,15 +260,17 @@
 
     <!-- ===== FOOTER SECTION ===== -->
     <footer class="site-footer">
-      <div class="footer-content">
-        <div class="footer-disclaimer">
-          <h4>📋 Disclaimer</h4>
-          <p>These calculators are provided as-is for informational purposes. While we strive for accuracy, we make no guarantees about the correctness of calculations. Game mechanics may change without notice, and results should be verified in-game.</p>
-        </div>
-        <div class="footer-contact">
-          <h4>💬 Get in Touch</h4>
-          <p>Have feedback, feature requests, or found a bug? We'd love to hear from you!</p>
-          <button id="openContactModal" class="btn btn-primary">Contact Us</button>
+      <div class="layout-shell">
+        <div class="footer-content">
+          <div class="footer-disclaimer">
+            <h4>📋 Disclaimer</h4>
+            <p>These calculators are provided as-is for informational purposes. While we strive for accuracy, we make no guarantees about the correctness of calculations. Game mechanics may change without notice, and results should be verified in-game.</p>
+          </div>
+          <div class="footer-contact">
+            <h4>💬 Get in Touch</h4>
+            <p>Have feedback, feature requests, or found a bug? We'd love to hear from you!</p>
+            <button id="openContactModal" class="btn btn-primary">Contact Us</button>
+          </div>
         </div>
       </div>
     </footer>

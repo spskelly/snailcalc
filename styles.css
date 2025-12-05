@@ -3,6 +3,42 @@
    ============================================ */
 
 :root {
+  /* ===========================================
+     LAYOUT, SPACING, TYPOGRAPHY DESIGN TOKENS
+     =========================================== */
+  --layout-max-width: 72rem; /* ~1152px */
+  --layout-gutter: 1rem;
+
+  /* Spacing scale */
+  --space-2xs: 0.25rem;
+  --space-xs:  0.5rem;
+  --space-sm:  0.75rem;
+  --space-md:  1rem;
+  --space-lg:  1.5rem;
+  --space-xl:  2rem;
+
+  /* Typography scale using clamp() */
+  --font-size-sm:   clamp(0.8125rem, 0.78rem + 0.1vw, 0.875rem); /* ~13–14px */
+  --font-size-body: clamp(0.9375rem, 0.9rem + 0.3vw, 1.0625rem); /* ~15–17px */
+  --font-size-lg:   clamp(1.0625rem, 1rem + 0.4vw, 1.25rem);     /* ~17–20px */
+  --font-size-h2:   clamp(1.25rem, 1.1rem + 0.8vw, 1.75rem);     /* ~20–28px */
+  --font-size-h1:   clamp(1.5rem, 1.2rem + 1.2vw, 2.25rem);      /* ~24–36px */
+
+  /* Line heights */
+  --line-height-body: 1.6;
+  --line-height-heading: 1.2;
+
+  /* Buttons & controls */
+  --btn-padding-y:   0.5rem;
+  --btn-padding-x:   0.9rem;
+  --btn-sm-padding-y: 0.35rem;
+  --btn-sm-padding-x: 0.6rem;
+  --btn-radius:      0.35rem;
+  --control-min-height: 2.75rem; /* ~44px */
+
+  /* Enhanced text colors (slightly stronger muted) */
+  --text-muted-strong: #555;
+
   /* Light Theme Colors */
   --bg-primary: #f4f4f9;
   --bg-secondary: #fff;
@@ -254,15 +290,20 @@
    ============================================ */
 
 .btn {
-  padding: 10px 20px;
-  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2xs);
+  padding-block: var(--btn-padding-y);
+  padding-inline: var(--btn-padding-x);
+  border-radius: var(--btn-radius, 6px);
   cursor: pointer;
   font-weight: bold;
   font-family: "Arial", sans-serif;
   transition: all 0.2s;
   border: 2px solid transparent;
-  font-size: 1rem;
-  display: inline-block;
+  font-size: var(--font-size-sm, 1rem);
+  min-height: var(--control-min-height);
   text-align: center;
   text-decoration: none;
 }
@@ -307,8 +348,10 @@
 }
 
 .btn-sm {
-  padding: 6px 12px;
-  font-size: 0.95em;
+  padding-block: var(--btn-sm-padding-y);
+  padding-inline: var(--btn-sm-padding-x);
+  min-height: var(--control-min-height);
+  font-size: var(--font-size-sm);
 }
 
 .btn-lg {
@@ -328,9 +371,18 @@
 
 /* Special variants */
 .btn-icon {
-  padding: 8px 12px;
-  border-radius: 50px;
-  font-size: 1.2em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid var(--border-secondary);
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
+  width: 2.75rem;
+  height: 2.75rem; /* ensures >= 44px */
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  padding: 0; /* use fixed width/height */
 }
 
 .btn-gradient {
@@ -373,6 +425,88 @@
 .grid-3 { grid-template-columns: repeat(3, 1fr); }
 .grid-4 { grid-template-columns: repeat(4, 1fr); }
 .grid-6 { grid-template-columns: repeat(6, 1fr); }
+
+/* -------------------------------------------
+   EQUIPPED / UNEQUIPPED SLOT GRIDS (CRITICAL)
+   ------------------------------------------- */
+
+/*
+  Generic grid for gear slots.
+  Customize with CSS variables per section as needed.
+*/
+.slot-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--slot-cols, 1), minmax(0, 1fr));
+  gap: var(--slot-gap, var(--space-sm));
+}
+
+/* Card / slot item */
+.slot-item {
+  padding: var(--space-sm);
+  background-color: var(--bg-card);
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-light);
+}
+
+/* Equipped / Unequipped panels */
+.equipped-panel {
+  background-color: #e1f5e0; /* keep green but not too intense */
+  padding: var(--space-md);
+  border-radius: 0.75rem;
+  margin-bottom: var(--space-md);
+}
+
+.unequipped-panel {
+  background-color: #fde4e4; /* soft red */
+  padding: var(--space-md);
+  border-radius: 0.75rem;
+  margin-bottom: var(--space-md);
+}
+
+/* Mobile adjustments: reduce columns and gaps to avoid tall layout */
+@media (max-width: 479px) {
+  .equipped-panel,
+  .unequipped-panel {
+    padding: var(--space-sm);
+  }
+
+  .slot-grid {
+    --slot-cols: 1; /* single column for max legibility */
+    --slot-gap: var(--space-xs);
+  }
+
+  .slot-item {
+    padding: var(--space-xs);
+  }
+}
+
+/* Small tablets: 2 columns where space allows */
+@media (min-width: 480px) and (max-width: 899px) {
+  .slot-grid {
+    --slot-cols: 2; /* balance rows vs columns */
+  }
+}
+
+/* Laptops: 3 columns for 6 items => 2 rows */
+@media (min-width: 900px) and (max-width: 1439px) {
+  .slot-grid {
+    --slot-cols: 3;
+  }
+}
+
+/* Desktop: 3–4 columns; avoid stretching across massive width */
+@media (min-width: 1440px) {
+  .slot-grid {
+    --slot-cols: 3;
+  }
+
+  /* Optionally constrain panel inner width so slabs of color are smaller */
+  .equipped-panel > .slot-grid,
+  .unequipped-panel > .slot-grid {
+    max-width: 52rem; /* narrower than layout shell */
+    margin-inline: auto;
+  }
+}
 
 /* Gap size modifiers */
 .gap-xs { gap: 8px; }
@@ -516,12 +650,14 @@
    ============================================ */
 
 .form-control {
-  padding: 8px 12px;
+  min-height: var(--control-min-height);
+  padding-inline: var(--btn-padding-x);
+  padding-block: 0.25rem;
   border: 1px solid var(--border-primary);
   border-radius: 4px;
   background: var(--bg-card);
   color: var(--text-primary);
-  font-size: 1em;
+  font-size: var(--font-size-body);
   transition: border 0.2s, background 0.2s;
   font-family: "Arial", sans-serif;
 }
@@ -965,9 +1101,71 @@ h1, h2 {
 
 
 /* --- Calculator Switcher --- */
+/* -------------------------------------------
+   CALCULATOR SWITCHER / TABS (CRITICAL)
+   ------------------------------------------- */
+
 .calculator-switcher {
-  text-align: center;
-  margin-bottom: 25px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-block: var(--space-sm) var(--space-md);
+}
+
+.calculator-switcher button {
+  border-radius: 999px;
+  border: 1px solid var(--border-secondary);
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
+  padding-block: var(--btn-padding-y);
+  padding-inline: var(--btn-padding-x);
+  font-size: var(--font-size-sm);
+  min-height: var(--control-min-height);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+/* Active / selected tab */
+.calculator-switcher button[aria-selected="true"],
+.calculator-switcher button.is-active {
+  background-color: var(--border-primary);
+  color: #fff;
+  border-color: var(--border-primary);
+}
+
+/* Hover/focus */
+.calculator-switcher button:hover {
+  background-color: var(--bg-input-hover);
+}
+
+.calculator-switcher button:focus-visible {
+  outline: 2px solid var(--text-tertiary);
+  outline-offset: 2px;
+}
+
+/* Mobile: stack but keep compact */
+@media (max-width: 479px) {
+  .calculator-switcher {
+    flex-direction: column;
+  }
+
+  .calculator-switcher button {
+    width: 100%;
+  }
+}
+
+/* Tablet/Desktop: center switcher */
+@media (min-width: 480px) {
+  .calculator-switcher {
+    justify-content: center;
+  }
+}
+
+/* Add separation from content below on wide screens */
+@media (min-width: 1024px) {
+  .calculator-switcher {
+    margin-bottom: var(--space-lg);
+  }
 }
 .switcher-btn {
   /* Most properties now handled by .btn .btn-secondary .btn-lg utility classes */
