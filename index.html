@@ -14,14 +14,14 @@
 
     <!-- Main Calculator Switcher -->
     <div class="calculator-switcher">
-      <button id="showGearCalc" class="btn btn-secondary btn-lg switcher-btn active">Gear Calculator</button>
+      <button id="showGearCalc" class="btn btn-secondary btn-lg switcher-btn">Gear Calculator</button>
       <button id="showRocketCalc" class="btn btn-secondary btn-lg switcher-btn">Rocket Cabin Calculator</button>
       <button id="showSteleCalc" class="btn btn-secondary btn-lg switcher-btn">Stele Calculator</button>      
       <button id="showCookingCalc" class="btn btn-secondary btn-lg switcher-btn">Cooking Calculator</button>
     </div>
 
     <!-- ===== GEAR CALCULATOR SECTION ===== -->
-<div id="gearCalculator" class="calculator-container">
+<div id="gearCalculator" class="calculator-container" style="display: none;">
       <div class="calculator-section">
         <h1>Snail Gear Calculator</h1>
         <div class="info-blurb">
@@ -117,7 +117,7 @@
           This calculator runs 10,000 simulations to estimate the number of tokens needed to reach a selected Stele level, based on the game's token probabilities. Click a Stele level button below to recalculate for that level.
         </div>
 
-        <div class="d-flex justify-center gap-lg flex-wrap" style="margin-bottom: 30px;">
+        <div class="d-flex justify-center gap-lg flex-wrap mb-lg">
           <button class="btn btn-secondary stele-level-btn" data-stele="5">Stele 5<br><span class="stele-energy">(1000)</span></button>
           <button class="btn btn-secondary stele-level-btn" data-stele="8">Stele 8<br><span class="stele-energy">(2000)</span></button>
           <button class="btn btn-secondary stele-level-btn" data-stele="10">Stele 10<br><span class="stele-energy">(2900)</span></button>
@@ -125,11 +125,11 @@
           <button class="btn btn-secondary stele-level-btn" data-stele="15">Stele 15<br><span class="stele-energy">(6000)</span></button>
         </div>
 
-        <div class="chart-container">
+        <div class="chart-container mb-lg">
           <canvas id="distributionChart"></canvas>
         </div>
 
-        <div class="d-flex justify-center gap-lg flex-wrap" style="margin: 24px 0;">
+        <div class="d-flex justify-center gap-lg flex-wrap mb-xl">
           <div class="stele-prob-item"><span class="stele-prob-label">0 Energy</span><span class="stele-prob-value">53.7%</span></div>
           <div class="stele-prob-item"><span class="stele-prob-label">15 Energy</span><span class="stele-prob-value">33.1%</span></div>
           <div class="stele-prob-item"><span class="stele-prob-label">30 Energy</span><span class="stele-prob-value">7.5%</span></div>
@@ -138,11 +138,11 @@
         </div>
 
         <!-- Token Probability Feature -->
-        <div class="stele-token-prob-container" style="margin: 24px 0 12px 0; text-align: center;">
-          <label for="steleTokenInput" style="font-weight: bold; margin-right: 8px;">Check your luck:</label>
-          <input type="number" id="steleTokenInput" min="1" style="width: 90px; font-size: 1.1em; margin-right: 8px;" placeholder="Tokens">
-          <button id="steleTokenCheckBtn" style="font-size: 1em; padding: 3px 16px;">Check</button>
-          <div id="steleTokenProbResult" style="margin-top: 10px; font-size: 1.08em; color: #1a237e;"></div>
+        <div class="stele-token-prob-container text-center mb-md">
+          <label for="steleTokenInput" class="font-bold">Check your luck:</label>
+          <input type="number" id="steleTokenInput" min="1" class="form-control form-control-md" placeholder="Tokens" style="display: inline-block; width: 90px;">
+          <button id="steleTokenCheckBtn" class="btn btn-secondary btn-sm">Check</button>
+          <div id="steleTokenProbResult" class="mt-sm"></div>
         </div>
 
       </div>

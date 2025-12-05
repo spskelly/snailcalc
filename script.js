@@ -809,9 +809,8 @@ function createAllRocketCabinsUI() {
     cabinWrapper.appendChild(title);
 
     const grid = document.createElement('div');
-    grid.className = 'grid gap-md items-center';
-    grid.style.gridTemplateColumns = 'auto 1fr auto 1fr';
-    grid.style.gap = '15px 20px';
+    grid.className = 'rocket-device-grid';
+    // Remove inline styles - use CSS class instead
 
     Object.keys(cabin.devices).forEach(deviceName => {
         // Create label as standalone grid item
@@ -1305,16 +1304,23 @@ function setupSwitcher() {
         cookingBtn.classList.remove('active');
     }
 
+    // Helper to save last selected calculator
+    function saveLastCalculator(calcName) {
+        localStorage.setItem('lastSelectedCalculator', calcName);
+    }
+
     gearBtn.addEventListener('click', () => {
         hideAll();
         gearCalc.style.display = 'block';
         gearBtn.classList.add('active');
+        saveLastCalculator('gear');
     });
 
     rocketBtn.addEventListener('click', () => {
         hideAll();
         rocketCalc.style.display = 'block';
         rocketBtn.classList.add('active');
+        saveLastCalculator('rocket');
 
         // Rebuild rocket cabin UI and summaries
         createAllRocketCabinsUI();
@@ -1341,6 +1347,7 @@ function setupSwitcher() {
         hideAll();
         steleCalc.style.display = 'block';
         steleBtn.classList.add('active');
+        saveLastCalculator('stele');
         // Dynamically import and initialize Stele calculator
         if (window.initSteleCalculator) {
             window.initSteleCalculator();
@@ -1362,6 +1369,7 @@ function setupSwitcher() {
         hideAll();
         cookingCalc.style.display = 'block';
         cookingBtn.classList.add('active');
+        saveLastCalculator('cooking');
         // Dynamically import and initialize Cooking calculator
         if (window.initCookingCalculator) {
             window.initCookingCalculator();
@@ -1378,6 +1386,74 @@ function setupSwitcher() {
             }
         }
     });
+
+    // Load last selected calculator on page load - directly show the right one
+    const lastCalc = localStorage.getItem('lastSelectedCalculator') || 'gear';
+    
+    // Directly show the saved calculator without triggering click events
+    // This avoids the flash of loading one calculator then switching
+    switch (lastCalc) {
+        case 'gear':
+            gearCalc.style.display = 'block';
+            gearBtn.classList.add('active');
+            break;
+        case 'rocket':
+            rocketCalc.style.display = 'block';
+            rocketBtn.classList.add('active');
+            // Initialize rocket calculator
+            createAllRocketCabinsUI();
+            renderAllRocketCabinSummaries();
+            document.querySelectorAll(".rocket-tier-select").forEach(select => {
+                select.addEventListener("change", (e) => {
+                    const cabinKey = select.getAttribute("data-cabin");
+                    calculateAndRenderRocketCabinSummary(cabinKey);
+                });
+            });
+            Object.keys(ROCKET_DATA).forEach(cabinKey => {
+                const preset = localStorage.getItem(`rocketCabinPreset1-${cabinKey}`);
+                if (preset) {
+                    loadRocketCabinPreset(cabinKey, 1);
+                }
+            });
+            break;
+        case 'stele':
+            steleCalc.style.display = 'block';
+            steleBtn.classList.add('active');
+            // Initialize stele calculator
+            if (window.initSteleCalculator) {
+                window.initSteleCalculator();
+            } else {
+                import('./stele.js').then(mod => {
+                    if (mod && typeof mod.initSteleCalculator === 'function') {
+                        window.initSteleCalculator = mod.initSteleCalculator;
+                        mod.initSteleCalculator();
+                    }
+                }).catch(() => {});
+            }
+            break;
+        case 'cooking':
+            cookingCalc.style.display = 'block';
+            cookingBtn.classList.add('active');
+            // Initialize cooking calculator
+            if (window.initCookingCalculator) {
+                window.initCookingCalculator();
+            } else {
+                import('./cooking.js').then(mod => {
+                    if (mod && typeof mod.initCookingCalculator === 'function') {
+                        window.initCookingCalculator = mod.initCookingCalculator;
+                        mod.initCookingCalculator();
+                    }
+                }).catch(() => {});
+            }
+            break;
+        default:
+            // Default to gear calculator
+            gearCalc.style.display = 'block';
+            gearBtn.classList.add('active');
+    }
+    
+    // Ensure page starts at top
+    window.scrollTo(0, 0);
 }
 
 // --- Theme Toggle Logic ---
