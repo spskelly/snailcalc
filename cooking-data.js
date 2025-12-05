@@ -211,6 +211,17 @@ const COOKING_RECIPES = {
     miracVegetable: 2,
     miracSpice: 1
   },
+  "mosasaur_teppanyaki": {
+    name: "Mosasaur Teppanyaki",
+    defaultStars: 1,
+    defaultPrice: 0,
+    clownMeat: 0,
+    clownVegetable: 0,
+    clownSpice: 0,
+    miracMeat: 6,
+    miracVegetable: 3,
+    miracSpice: 0
+  },
 };
 
 // Default vendor configurations
@@ -303,5 +314,6 @@ const RECIPE_ORDER = [
   "braised_dire_shrimp",
   "stir_fried_sea_dragon",
   "sea_salt_cheese",
-  "sour_merman_fin"
+  "sour_merman_fin",
+  "mosasaur_teppanyaki",
 ];
