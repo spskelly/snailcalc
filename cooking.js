@@ -456,8 +456,14 @@ function buildShopConfig(root) {
         <strong>📚 Skill Books</strong>
       </label>
       <div class="d-flex items-center gap-sm">
+        <label>Level: 
+          <select id="shop-skillbooks-level" class="form-control form-control-xs" style="width: 80px;">
+            <option value="1" ${shop.skillBooks.level === 1 ? 'selected' : ''}>1</option>
+            <option value="2" ${shop.skillBooks.level === 2 ? 'selected' : ''}>2</option>
+          </select>
+        </label>
         <label>Qty: <input type="number" id="shop-skillbooks-qty" value="${shop.skillBooks.quantity}" min="0" max="4" step="1" class="form-control form-control-xs"></label>
-        <label>@ <span class="fixed-price">5,000g</span> each</label>
+        <label>@ <span class="fixed-price" id="shop-skillbooks-price">${shop.skillBooks.level === 2 ? '10,000g' : '5,000g'}</span> each</label>
       </div>
       <div class="shop-result" id="shop-skillbooks-result"></div>
     </div>
@@ -846,6 +852,7 @@ function calculateIngredientOptimizer(root) {
       if (!state.enabled || !state.price) continue;
       
       const recipe = COOKING_RECIPES[id];
+      if (!recipe) continue; // Skip if recipe doesn't exist in COOKING_RECIPES
       
       // Check if we have enough ingredients
       const canMake = 
@@ -1317,9 +1324,9 @@ function setupCookingEventListeners(root) {
     });
   });
   
-  // shop config changes
-  root.querySelectorAll('#cooking-shop-config input').forEach(input => {
-    input.addEventListener('change', () => {
+  // shop config changes - includes both input and select elements
+  root.querySelectorAll('#cooking-shop-config input, #cooking-shop-config select').forEach(element => {
+    element.addEventListener('change', () => {
       updateShopState(root);
       recalculateCooking();
     });
@@ -1479,6 +1486,16 @@ function updateShopState(root) {
   // skill books purchase
   cookingState.shop.skillBooks.enabled = root.querySelector('#shop-skillbooks-enabled')?.checked ?? false;
   cookingState.shop.skillBooks.quantity = parseInt(root.querySelector('#shop-skillbooks-qty')?.value) || 0;
+  cookingState.shop.skillBooks.level = parseInt(root.querySelector('#shop-skillbooks-level')?.value) || 1;
+  
+  // Update cost based on level
+  cookingState.shop.skillBooks.cost = cookingState.shop.skillBooks.level === 2 ? 10000 : 5000;
+  
+  // Update the price display in the UI
+  const priceDisplay = root.querySelector('#shop-skillbooks-price');
+  if (priceDisplay) {
+    priceDisplay.textContent = cookingState.shop.skillBooks.cost.toLocaleString() + 'g';
+  }
   
   saveCookingToStorage();
 }
@@ -2658,8 +2675,17 @@ function refreshCookingUI(root) {
   
   const skillBooksEnabled = root.querySelector('#shop-skillbooks-enabled');
   const skillBooksQty = root.querySelector('#shop-skillbooks-qty');
+  const skillBooksLevel = root.querySelector('#shop-skillbooks-level');
   if (skillBooksEnabled) skillBooksEnabled.checked = shop.skillBooks.enabled;
   if (skillBooksQty) skillBooksQty.value = shop.skillBooks.quantity;
+  if (skillBooksLevel) skillBooksLevel.value = shop.skillBooks.level || 1;
+  
+  // Update the price display
+  const priceDisplay = root.querySelector('#shop-skillbooks-price');
+  if (priceDisplay) {
+    const displayCost = (shop.skillBooks.level === 2) ? '10,000g' : '5,000g';
+    priceDisplay.textContent = displayCost;
+  }
   
   // refresh recipe UI
   for (const [id, state] of Object.entries(cookingState.recipes)) {

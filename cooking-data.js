@@ -145,8 +145,8 @@ const COOKING_RECIPES = {
     miracVegetable: 0,
     miracSpice: 0
   },
-  "engine_cheese_biscuit": {
-    name: "Engine Cheese Biscuit",
+  "gouda_grease_galette": {
+    name: "Gouda-Grease Galette",
     defaultStars: 1,
     defaultPrice: 0,
     clownMeat: 20,
@@ -269,7 +269,8 @@ const DEFAULT_SHOP = {
   skillBooks: {
     enabled: false,
     quantity: 0,
-    cost: 5000
+    cost: 5000,
+    level: 1  // 1 = 5000g, 2 = 10000g
   }
 };
 
@@ -296,7 +297,7 @@ const RECIPE_ORDER = [
   "worm_cheese",
   "spider_eyeball_soup",
   "spicy_griffon_claw",
-  "engine_cheese_biscuit",
+  "gouda_grease_galette",
   "nuclear_bbq_oyster",
   "marinated_octopus",
   "manta_ray_sashimi",

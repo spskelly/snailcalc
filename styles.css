@@ -7,7 +7,11 @@
      LAYOUT, SPACING, TYPOGRAPHY DESIGN TOKENS
      =========================================== */
   --layout-max-width: 72rem; /* ~1152px */
+  --layout-max-width-wide: 70rem; /* Slightly narrower for huge desktops */
   --layout-gutter: 1rem;
+
+  /* Responsive base font size: ~15px on small, ~16px mid, up to ~18px on large */
+  font-size: clamp(15px, 1.4vw, 18px);
 
   /* Spacing scale */
   --space-2xs: 0.25rem;
@@ -24,17 +28,18 @@
   --font-size-h2:   clamp(1.25rem, 1.1rem + 0.8vw, 1.75rem);     /* ~20–28px */
   --font-size-h1:   clamp(1.5rem, 1.2rem + 1.2vw, 2.25rem);      /* ~24–36px */
 
-  /* Line heights */
-  --line-height-body: 1.6;
-  --line-height-heading: 1.2;
+  /* Line heights - improved for readability */
+  --line-height-body: 1.7;
+  --line-height-heading: 1.25;
 
-  /* Buttons & controls */
-  --btn-padding-y:   0.5rem;
-  --btn-padding-x:   0.9rem;
-  --btn-sm-padding-y: 0.35rem;
-  --btn-sm-padding-x: 0.6rem;
+  /* Buttons & controls - improved tap targets */
+  --btn-padding-y:   0.55rem;
+  --btn-padding-x:   1rem;
+  --btn-sm-padding-y: 0.4rem;
+  --btn-sm-padding-x: 0.75rem;
   --btn-radius:      0.35rem;
   --control-min-height: 2.75rem; /* ~44px */
+  --control-min-touch-size: 2.75rem; /* Alias for semantic clarity */
 
   /* Enhanced text colors (slightly stronger muted) */
   --text-muted-strong: #555;
@@ -397,6 +402,38 @@
   transform: none !important;
 }
 
+/* Enhanced focus states for accessibility */
+.btn:focus-visible {
+  outline: 3px solid var(--text-secondary);
+  outline-offset: 3px;
+}
+
+.btn-primary:focus-visible {
+  outline-color: var(--btn-primary-bg);
+}
+
+/* ============================================
+   GLOBAL CONTROL MINIMUM SIZES (CRITICAL)
+   Ensure all interactive controls meet min tap/click size
+   ============================================ */
+
+button,
+select,
+input[type="button"],
+input[type="submit"],
+input[type="reset"] {
+  min-height: var(--control-min-touch-size);
+  line-height: 1.2;
+}
+
+/* Ensure focus visibility for all controls */
+button:focus-visible,
+select:focus-visible,
+input:focus-visible {
+  outline: 2px solid #4c7cff;
+  outline-offset: 2px;
+}
+
 /* ============================================
    UTILITY CLASSES - GRID SYSTEM
    ============================================ */
@@ -481,30 +518,23 @@
 }
 
 /* Small tablets: 2 columns where space allows */
-@media (min-width: 480px) and (max-width: 899px) {
+@media (min-width: 480px) and (max-width: 767px) {
   .slot-grid {
     --slot-cols: 2; /* balance rows vs columns */
   }
 }
 
-/* Laptops: 3 columns for 6 items => 2 rows */
-@media (min-width: 900px) and (max-width: 1439px) {
+/* Tablets: 3 columns for compact view */
+@media (min-width: 768px) and (max-width: 1023px) {
   .slot-grid {
     --slot-cols: 3;
   }
 }
 
-/* Desktop: 3–4 columns; avoid stretching across massive width */
-@media (min-width: 1440px) {
+/* Laptops & Desktop: 6 columns to show all gear slots in one row */
+@media (min-width: 1024px) {
   .slot-grid {
-    --slot-cols: 3;
-  }
-
-  /* Optionally constrain panel inner width so slabs of color are smaller */
-  .equipped-panel > .slot-grid,
-  .unequipped-panel > .slot-grid {
-    max-width: 52rem; /* narrower than layout shell */
-    margin-inline: auto;
+    --slot-cols: 6;
   }
 }
 
@@ -572,7 +602,7 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 15px;
-  margin-bottom: 20px;
+  margin-bottom: var(--space-lg);
 }
 
 .ingredient-row-clown {
@@ -593,7 +623,7 @@
   font-weight: bold;
   font-size: 1.1em;
   color: var(--text-secondary);
-  margin-bottom: 12px;
+  margin-bottom: var(--space-sm);
   padding-left: 5px;
   display: flex;
   align-items: center;
@@ -668,6 +698,12 @@
   background: var(--bg-alt);
 }
 
+.form-control:focus-visible {
+  outline: 3px solid var(--text-secondary);
+  outline-offset: 2px;
+  border-color: var(--text-secondary);
+}
+
 .form-control:hover {
   border-color: var(--border-secondary);
 }
@@ -738,10 +774,10 @@
 .mt-lg { margin-top: 20px !important; }
 .mt-xl { margin-top: 30px !important; }
 
-.mb-sm { margin-bottom: 10px !important; }
-.mb-md { margin-bottom: 15px !important; }
-.mb-lg { margin-bottom: 20px !important; }
-.mb-xl { margin-bottom: 30px !important; }
+.mb-sm { margin-bottom: var(--space-sm) !important; }
+.mb-md { margin-bottom: var(--space-md) !important; }
+.mb-lg { margin-bottom: var(--space-lg) !important; }
+.mb-xl { margin-bottom: var(--space-xl) !important; }
 
 .mx-auto { margin-left: auto !important; margin-right: auto !important; }
 
@@ -753,7 +789,7 @@
   background: var(--bg-card);
   border-radius: 12px;
   box-shadow: var(--shadow-lg);
-  margin-bottom: 20px;
+  margin-bottom: var(--space-lg);
   overflow: hidden;
 }
 
@@ -832,24 +868,62 @@ body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   padding: 0 15px;
+  line-height: var(--line-height-body);
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Theme Toggle Button */
+h1, h2, h3, h4, h5, h6 {
+  line-height: var(--line-height-heading);
+}
+
+/* Utility for muted small text (e.g., disclaimers) but still readable */
+.text-muted {
+  font-size: 0.93rem;
+  line-height: var(--line-height-body);
+}
+
+/* Issue #9: Section separation for Minion Costs & disclaimer - add clear visual breaks */
+.calculator-section + .calculator-section,
+#minion-gear-costs,
+.site-footer {
+  margin-top: clamp(var(--space-xl), 4vh, 3rem);
+  padding-top: clamp(var(--space-md), 2vh, var(--space-lg));
+}
+
+/* Issue #16: Disclaimer mobile text - improve readability on small screens */
+.info-blurb,
+.footer-disclaimer p,
+.disclaimer-text {
+  font-size: clamp(0.95rem, 2vw, 1.05rem);
+  line-height: 1.6;
+}
+
+@media (max-width: 480px) {
+  .info-blurb,
+  .footer-disclaimer p,
+  .disclaimer-text {
+    font-size: 1rem;
+    line-height: 1.7;
+    padding-inline: var(--space-xs);
+  }
+}
+
+/* Theme Toggle Button - repositioned for safety across viewports */
 .theme-toggle {
   position: fixed;
-  bottom: 20px; /* Move to bottom right - easier for thumb reach on mobile */
-  right: 20px;
-  top: auto;    /* Reset top */
-  z-index: 9999;
+  bottom: clamp(var(--space-lg), 3vh, 2.5rem);
+  right: clamp(var(--space-lg), 3vw, 3rem);
+  top: auto;
+  z-index: 1000;
   
   /* Add a glassmorphism effect so it looks nice over content */
   background-color: rgba(74, 78, 105, 0.9); 
   backdrop-filter: blur(4px);
   box-shadow: 0 4px 12px rgba(0,0,0,0.3);
   
-  width: 50px;
-  height: 50px;
+  width: var(--control-min-touch-size);
+  height: var(--control-min-touch-size);
+  min-height: var(--control-min-touch-size);
   padding: 0;
   display: flex;
   align-items: center;
@@ -869,11 +943,28 @@ body {
   transform: scale(1.05);
 }
 
+/* Avoid overlapping rightmost content on tablet */
+@media (min-width: 600px) and (max-width: 1024px) {
+  .theme-toggle {
+    right: max(3rem, 6vw);
+    bottom: max(3rem, 6vh);
+  }
+}
+
+/* On very small mobile, keep it above key UI but away from center */
+@media (max-width: 375px) {
+  .theme-toggle {
+    right: var(--space-md);
+    bottom: calc(var(--space-xl) + 1.5rem);
+  }
+}
+
 /* Toggle section button for expand/collapse */
 .toggle-section-btn {
   margin-left: 10px;
   padding: 2px 10px;
   font-size: 1.1em;
+  min-height: var(--control-min-touch-size);
   background: var(--bg-input);
   border: 1px solid var(--border-primary);
   border-radius: 4px;
@@ -882,6 +973,9 @@ body {
   font-weight: bold;
   transition: background 0.2s, border 0.2s;
   vertical-align: middle;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 .toggle-section-btn:hover {
   background: var(--bg-input-hover);
@@ -889,7 +983,7 @@ body {
 }
 
 h1, h2 {
-  margin-bottom: 10px;
+  margin-bottom: var(--space-sm);
   color: var(--text-secondary);
   text-align: center;
   font-size: clamp(1.5rem, 4vw, 2.5rem);
@@ -897,9 +991,15 @@ h1, h2 {
 
 /* Layout containers */
 .calculator-section {
-  margin-bottom: 30px;
   max-width: 1200px;
-  margin: 0 auto 30px;
+  margin-inline: auto;
+  margin-bottom: var(--space-xl);
+  padding-block: var(--space-lg);
+}
+
+/* First calculator section in a container - add top padding */
+.calculator-container > .calculator-section:first-child {
+  padding-top: var(--space-xl);
 }
 
 /* Slot styling */
@@ -914,9 +1014,10 @@ h1, h2 {
 #totals {
   display: flex;
   justify-content: space-around;
-  margin: 20px auto;
+  margin-block: var(--space-xl);
+  margin-inline: auto;
   max-width: 1000px;
-  gap: 20px;
+  gap: var(--space-lg);
   flex-wrap: wrap;
 }
 
@@ -927,12 +1028,12 @@ h1, h2 {
 }
 
 .totals-column p {
-  margin: 12px 0;
+  margin-block: var(--space-xs);
   font-size: clamp(14px, 2vw, 16px);
   color: var(--text-secondary);
   display: flex;
   justify-content: space-between;
-  padding: 8px;
+  padding: var(--space-xs);
   border-bottom: 1px solid var(--border-lighter);
 }
 
@@ -942,40 +1043,71 @@ h1, h2 {
 }
 
 /* Preset group and button styling */
+/* Issue #6, #11, #15: Improved preset layout, vertical spacing, and horizontal spacing */
 .preset-group {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 0 20px;
-  margin: 0 0 10px 0;
+  gap: var(--space-sm) var(--space-md);
+  margin-block: var(--space-sm) var(--space-md); /* Reduced vertical space (Issue #11) */
+  margin-inline: auto;
   width: 100%;
   max-width: 900px;
-  margin-left: auto;
-  margin-right: auto;
-  padding-top: 12px;
 }
 .cabin-section .preset-group {
-  margin-bottom: 32px;
+  margin-bottom: var(--space-lg); /* Reduced from xl (Issue #11) */
 }
 .preset-set {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
+  justify-content: flex-start; /* Changed from center for better grouping (Issue #6) */
+  gap: var(--space-xs);
   width: 100%;
+  padding: var(--space-xs) var(--space-sm); /* Added horizontal padding (Issue #15) */
+  background: var(--bg-section);
+  border-radius: var(--btn-radius);
+  border: 1px solid var(--border-lighter);
 }
 .preset-label {
   font-weight: bold;
   color: var(--text-secondary);
-  margin-right: 4px;
+  margin-right: var(--space-xs); /* Consistent spacing (Issue #15) */
   font-size: clamp(14px, 2vw, 16px);
   font-family: "Arial", sans-serif;
   letter-spacing: 0.2px;
+  flex-shrink: 0; /* Prevent label from shrinking */
 }
 .preset-button {
   /* Most properties now handled by .btn .btn-secondary .btn-sm utility classes */
-  margin-right: 8px;
+  margin-right: 0; /* Removed right margin, using gap instead (Issue #15) */
   white-space: nowrap;
   flex-shrink: 0;
+}
+
+/* Issue #14: Calculator switcher tablet padding for better reach comfort */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .calculator-switcher {
+    padding-inline: clamp(var(--space-md), 4vw, var(--space-lg));
+    margin-inline: auto;
+    max-width: 95%;
+  }
+}
+
+/* Button row container - wraps Reset button + preset groups */
+/* Issue #11: Reduced vertical padding to reduce tall layout */
+.button-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm); /* Reduced from md */
+  align-items: center;
+  margin-block: var(--space-md) var(--space-lg); /* Reduced top margin */
+  padding: var(--space-sm) var(--space-md); /* Reduced vertical padding */
+  background: var(--bg-alt);
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-light);
+}
+
+.button-row > .btn {
+  align-self: center;
 }
 
 /* Modal Overlay and Dialog */
@@ -1043,7 +1175,7 @@ h1, h2 {
   flex: 1;
 }
 
-/* Main cost table styling */
+/* Main cost table styling - improved readability */
 .cost-table {
   width: 100%;
   background: var(--bg-card);
@@ -1052,19 +1184,21 @@ h1, h2 {
   margin: 0 auto 20px auto;
   border-collapse: separate;
   border-spacing: 0;
-  font-size: clamp(14px, 2vw, 16px);
+  font-size: clamp(0.875rem, 1.8vw, 1rem);
+  line-height: 1.55;
   overflow: hidden;
 }
 .cost-table th {
   background: var(--bg-highlight);
   color: var(--text-secondary);
   font-weight: bold;
-  padding: 12px 10px;
+  padding: 0.6rem 0.7rem;
   text-align: left;
   border-bottom: 2px solid var(--border-light);
+  white-space: nowrap;
 }
 .cost-table td {
-  padding: 10px 10px;
+  padding: 0.55rem 0.7rem;
   border-bottom: 1px solid var(--border-lighter);
   color: var(--text-tertiary);
   text-align: left;
@@ -1073,30 +1207,147 @@ h1, h2 {
   border-bottom: none;
 }
 
+/* Improve row separation for scanning */
+.cost-table tbody tr:nth-child(even) {
+  background-color: var(--bg-tertiary);
+}
+
+/* Mobile: Make tables horizontally scrollable with comfortable sizing */
+@media (max-width: 767px) {
+  /* Wrap table in scrollable container */
+  .cost-table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+    min-width: 100%;
+    font-size: 0.875rem;
+  }
+  
+  .cost-table thead,
+  .cost-table tbody,
+  .cost-table tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+  }
+  
+  .cost-table th,
+  .cost-table td {
+    padding: 0.6rem 0.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  /* Resource column - wider for readability */
+  .cost-table th:first-child,
+  .cost-table td:first-child {
+    min-width: 110px;
+    position: sticky;
+    left: 0;
+    background: var(--bg-highlight);
+    z-index: 2;
+  }
+  
+  .cost-table td:first-child {
+    background: var(--bg-card);
+    font-weight: 500;
+  }
+  
+  .cost-table tbody tr:nth-child(even) td:first-child {
+    background: var(--bg-tertiary);
+  }
+  
+  /* Other columns - comfortable width */
+  .cost-table th:not(:first-child),
+  .cost-table td:not(:first-child) {
+    min-width: 70px;
+    text-align: right;
+  }
+}
+
+/* Tablet: Slightly more compact but still readable */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .cost-table {
+    font-size: 0.9rem;
+  }
+  
+  .cost-table th,
+  .cost-table td {
+    padding: 0.55rem 0.6rem;
+  }
+  
+  .cost-table th:not(:first-child),
+  .cost-table td:not(:first-child) {
+    text-align: right;
+  }
+}
+
+/* Laptop & Desktop: bump font and row height slightly */
+@media (min-width: 1024px) {
+  .cost-table {
+    font-size: 0.98rem;
+    line-height: 1.6;
+  }
+
+  .cost-table th,
+  .cost-table td {
+    padding-block: 0.65rem;
+    padding-inline: 0.7rem;
+  }
+}
+
 /* Equipped/Unequipped distinction */
+/* Issue #12: Enhanced background contrast for better clarity */
+/* Issue #13: Reduced vertical spacing on laptop/desktop */
 .equipped-row {
   background-color: var(--color-equipped-bg);
   border-radius: 8px;
-  margin-bottom: 8px;
+  margin-bottom: var(--space-xs);
+  padding: var(--space-sm); /* Added padding for inner spacing */
   box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(34, 139, 34, 0.2); /* Subtle border for definition (Issue #12) */
 }
 .unequipped-row {
   background-color: var(--color-unequipped-bg);
   border-radius: 8px;
-  margin-bottom: 8px;
+  margin-bottom: var(--space-xs);
+  padding: var(--space-sm); /* Added padding for inner spacing */
   box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(178, 34, 34, 0.2); /* Subtle border for definition (Issue #12) */
 }
 .equipped-label, .unequipped-label {
   font-weight: bold;
-  margin: 8px 0 4px 8px;
+  margin: var(--space-sm) 0 var(--space-xs) var(--space-xs); /* Adjusted margins (Issue #13) */
   font-size: 1.1em;
   letter-spacing: 0.5px;
+  padding: var(--space-2xs) var(--space-xs);
+  border-radius: 4px;
+  display: inline-block; /* Better containment */
 }
 .equipped-label {
   color: var(--color-equipped);
+  background-color: rgba(34, 139, 34, 0.1); /* Light background for emphasis (Issue #12) */
 }
 .unequipped-label {
   color: var(--color-unequipped);
+  background-color: rgba(178, 34, 34, 0.1); /* Light background for emphasis (Issue #12) */
+}
+
+/* Issue #13: Tighten vertical spacing on laptop/desktop */
+@media (min-width: 1024px) and (max-width: 1440px) {
+  .equipped-row,
+  .unequipped-row {
+    padding: var(--space-xs); /* Reduced padding */
+    margin-bottom: var(--space-2xs); /* Tighter spacing between rows */
+  }
+  
+  .equipped-label,
+  .unequipped-label {
+    margin-top: var(--space-xs);
+    margin-bottom: var(--space-2xs);
+  }
 }
 
 
@@ -1177,13 +1428,13 @@ h1, h2 {
   display: flex;
   flex-direction: column;
   gap: 30px;
-  margin-bottom: 30px;
+  margin-bottom: var(--space-xl);
 }
 .rocket-tier-toggle {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  margin-bottom: 8px;
+  margin-bottom: var(--space-xs);
   max-width: fit-content;
 }
 
@@ -1204,7 +1455,7 @@ h1, h2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 18px 32px;
-  margin-bottom: 18px;
+  margin-bottom: var(--space-md);
 }
 
 .rocket-device-field {
@@ -1338,7 +1589,7 @@ h1, h2 {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 10px;
-  margin-bottom: 15px;
+  margin-bottom: var(--space-md);
 }
 
 .stele-loading {
@@ -1409,7 +1660,7 @@ h1, h2 {
   background: var(--bg-card);
   border-radius: 12px;
   box-shadow: var(--shadow-lg);
-  margin-bottom: 20px;
+  margin-bottom: var(--space-lg);
   overflow: hidden;
   border: 1px solid var(--border-light);
 }
@@ -1466,7 +1717,7 @@ h1, h2 {
   font-weight: 600;
   color: var(--text-muted);
   text-transform: uppercase;
-  margin-bottom: 12px;
+  margin-bottom: var(--space-sm);
   padding-bottom: 8px;
   border-bottom: 1px solid var(--border-light);
 }
@@ -1578,7 +1829,7 @@ h1, h2 {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 10px;
+  margin-bottom: var(--space-sm);
 }
 
 .shop-item > label input[type="checkbox"] {
@@ -1874,7 +2125,7 @@ h1, h2 {
   width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch; /* smooth scrolling on iOS */
-  margin-bottom: 20px;
+  margin-bottom: var(--space-lg);
   border-radius: 12px; /* Match card radius */
 }
 
@@ -2024,7 +2275,7 @@ h1, h2 {
 /* Strategy Summary */
 .strategy-item {
   padding: 10px;
-  margin-bottom: 8px;
+  margin-bottom: var(--space-xs);
   background: var(--bg-section);
   border-radius: 8px;
 }
@@ -2083,7 +2334,7 @@ h1, h2 {
 
 /* Section Headers */
 .cooking-section {
-  margin-bottom: 25px;
+  margin-bottom: var(--space-lg);
 }
 
 
@@ -2095,7 +2346,7 @@ h1, h2 {
   padding: 15px;
   background: var(--bg-section);
   border-radius: 8px;
-  margin-bottom: 20px;
+  margin-bottom: var(--space-lg);
   border: 1px solid var(--border-light);
 }
 
@@ -2599,11 +2850,11 @@ h1, h2 {
 
 #contactModal .modal-body > p {
   font-size: 0.9em;
-  margin-bottom: 12px;
+  margin-bottom: var(--space-sm);
 }
 
 .form-group {
-  margin-bottom: 14px;
+  margin-bottom: var(--space-md);
 }
 
 .form-group label {
