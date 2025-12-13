@@ -146,7 +146,7 @@ const COOKING_RECIPES = {
     miracSpice: 0
   },
   "gouda_grease_galette": {
-    name: "Gouda-Grease Galette",
+    name: "Lube-Cheese Brick",
     defaultStars: 1,
     defaultPrice: 0,
     clownMeat: 20,
@@ -179,14 +179,14 @@ const COOKING_RECIPES = {
     miracSpice: 0
   },
   "stir_fried_sea_dragon": {
-    name: "Stir-fried Sea Dragon",
+    name: "Stir-fried Sea Snake",
     defaultStars: 1,
     defaultPrice: 0,
     clownMeat: 0,
     clownVegetable: 0,
     clownSpice: 0,
-    miracMeat: 3,
-    miracVegetable: 2,
+    miracMeat: 8,
+    miracVegetable: 4,
     miracSpice: 0
   },
   "sea_salt_cheese": {
