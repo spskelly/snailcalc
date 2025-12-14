@@ -146,7 +146,7 @@ const COOKING_RECIPES = {
     miracSpice: 0
   },
   "gouda_grease_galette": {
-    name: "Lube-Cheese Brick",
+    name: "Gouda-Grease Galette",
     defaultStars: 1,
     defaultPrice: 0,
     clownMeat: 20,
@@ -179,14 +179,14 @@ const COOKING_RECIPES = {
     miracSpice: 0
   },
   "stir_fried_sea_dragon": {
-    name: "Stir-fried Sea Snake",
+    name: "Stir-fried Sea Dragon",
     defaultStars: 1,
     defaultPrice: 0,
     clownMeat: 0,
     clownVegetable: 0,
     clownSpice: 0,
-    miracMeat: 8,
-    miracVegetable: 4,
+    miracMeat: 3,
+    miracVegetable: 2,
     miracSpice: 0
   },
   "sea_salt_cheese": {
@@ -200,6 +200,17 @@ const COOKING_RECIPES = {
     miracVegetable: 2,
     miracSpice: 0
   },
+  "stir_fried_sea_snake": {
+    name: "Stir-fried Sea Snake",
+    defaultStars: 1,
+    defaultPrice: 0,
+    clownMeat: 0,
+    clownVegetable: 0,
+    clownSpice: 0,
+    miracMeat: 8,
+    miracVegetable: 4,
+    miracSpice: 0
+  },
   "sour_merman_fin": {
     name: "Sour Merman Fin",
     defaultStars: 1,
@@ -210,17 +221,6 @@ const COOKING_RECIPES = {
     miracMeat: 5,
     miracVegetable: 2,
     miracSpice: 1
-  },
-  "mosasaur_teppanyaki": {
-    name: "Mosasaur Teppanyaki",
-    defaultStars: 1,
-    defaultPrice: 0,
-    clownMeat: 0,
-    clownVegetable: 0,
-    clownSpice: 0,
-    miracMeat: 6,
-    miracVegetable: 3,
-    miracSpice: 0
   },
 };
 
@@ -315,6 +315,6 @@ const RECIPE_ORDER = [
   "braised_dire_shrimp",
   "stir_fried_sea_dragon",
   "sea_salt_cheese",
-  "sour_merman_fin",
-  "mosasaur_teppanyaki",
+  "stir_fried_sea_snake",
+  "sour_merman_fin"
 ];
