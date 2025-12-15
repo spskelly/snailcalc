@@ -233,6 +233,28 @@ const COOKING_RECIPES = {
     miracVegetable: 2,
     miracSpice: 1
   },
+  "fermented_squid": {
+    name: "Fermented Squid",
+    defaultStars: 1,
+    defaultPrice: 0,
+    clownMeat: 0,
+    clownVegetable: 0,
+    clownSpice: 0,
+    miracMeat: 10,
+    miracVegetable: 6,
+    miracSpice: 0
+  },
+  "grilled_horn_shark": {
+    name: "Grilled Horn Shark",
+    defaultStars: 1,
+    defaultPrice: 0,
+    clownMeat: 0,
+    clownVegetable: 0,
+    clownSpice: 0,
+    miracMeat: 8,
+    miracVegetable: 5,
+    miracSpice: 3
+  },
 };
 
 // Default vendor configurations
@@ -328,5 +350,7 @@ const RECIPE_ORDER = [
   "sea_salt_cheese",
   "mosasaur_teppanyaki",
   "stir_fried_sea_snake",
-  "sour_merman_fin"
+  "sour_merman_fin",
+  "fermented_squid",
+  "grilled_horn_shark"
 ];
