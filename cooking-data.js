@@ -145,8 +145,8 @@ const COOKING_RECIPES = {
     miracVegetable: 0,
     miracSpice: 0
   },
-  "gouda_grease_galette": {
-    name: "Gouda-Grease Galette",
+  "lube_cheese_brick": {
+    name: "Lube-Cheese Brick",
     defaultStars: 1,
     defaultPrice: 0,
     clownMeat: 20,
@@ -341,7 +341,7 @@ const RECIPE_ORDER = [
   "worm_cheese",
   "spider_eyeball_soup",
   "spicy_griffon_claw",
-  "gouda_grease_galette",
+  "lube_cheese_brick",
   "nuclear_bbq_oyster",
   "marinated_octopus",
   "manta_ray_sashimi",
