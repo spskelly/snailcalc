@@ -11,7 +11,10 @@ const COOKING_RECIPES = {
     clownSpice: 0,
     miracMeat: 0,
     miracVegetable: 0,
-    miracSpice: 0
+    miracSpice: 0,
+    beastMeat: 0,
+    beastVegetable: 0,
+    beastSpice: 0
   },
   "goblin_burger": {
     name: "Goblin Burger",
@@ -22,7 +25,10 @@ const COOKING_RECIPES = {
     clownSpice: 0,
     miracMeat: 0,
     miracVegetable: 0,
-    miracSpice: 0
+    miracSpice: 0,
+    beastMeat: 0,
+    beastVegetable: 0,
+    beastSpice: 0
   },
   "toad_egg_salad": {
     name: "Toad Egg Salad",
@@ -33,7 +39,10 @@ const COOKING_RECIPES = {
     clownSpice: 0,
     miracMeat: 0,
     miracVegetable: 0,
-    miracSpice: 0
+    miracSpice: 0,
+    beastMeat: 0,
+    beastVegetable: 0,
+    beastSpice: 0
   },
   "rust_pudding": {
     name: "Rust Pudding",
@@ -44,7 +53,10 @@ const COOKING_RECIPES = {
     clownSpice: 0,
     miracMeat: 0,
     miracVegetable: 0,
-    miracSpice: 0
+    miracSpice: 0,
+    beastMeat: 0,
+    beastVegetable: 0,
+    beastSpice: 0
   },
   "braised_gumball": {
     name: "Braised Gumball",
@@ -55,7 +67,10 @@ const COOKING_RECIPES = {
     clownSpice: 0,
     miracMeat: 0,
     miracVegetable: 0,
-    miracSpice: 0
+    miracSpice: 0,
+    beastMeat: 0,
+    beastVegetable: 0,
+    beastSpice: 0
   },
   "garlic_dried_gecko": {
     name: "Garlic Dried Gecko",
@@ -66,7 +81,10 @@ const COOKING_RECIPES = {
     clownSpice: 0,
     miracMeat: 0,
     miracVegetable: 0,
-    miracSpice: 0
+    miracSpice: 0,
+    beastMeat: 0,
+    beastVegetable: 0,
+    beastSpice: 0
   },
   "fried_demon_beef_rib": {
     name: "Fried Demon Beef Rib",
@@ -77,7 +95,10 @@ const COOKING_RECIPES = {
     clownSpice: 0,
     miracMeat: 0,
     miracVegetable: 0,
-    miracSpice: 0
+    miracSpice: 0,
+    beastMeat: 0,
+    beastVegetable: 0,
+    beastSpice: 0
   },
   "teriyaki_blood_elf": {
     name: "Teriyaki Blood Elf",
@@ -88,7 +109,10 @@ const COOKING_RECIPES = {
     clownSpice: 0,
     miracMeat: 0,
     miracVegetable: 0,
-    miracSpice: 0
+    miracSpice: 0,
+    beastMeat: 0,
+    beastVegetable: 0,
+    beastSpice: 0
   },
   "worm_cheese": {
     name: "Worm Cheese",
@@ -99,7 +123,10 @@ const COOKING_RECIPES = {
     clownSpice: 0,
     miracMeat: 0,
     miracVegetable: 0,
-    miracSpice: 0
+    miracSpice: 0,
+    beastMeat: 0,
+    beastVegetable: 0,
+    beastSpice: 0
   },
   "spider_eyeball_soup": {
     name: "Spider Eyeball Soup",
@@ -110,7 +137,10 @@ const COOKING_RECIPES = {
     clownSpice: 1,
     miracMeat: 0,
     miracVegetable: 0,
-    miracSpice: 0
+    miracSpice: 0,
+    beastMeat: 0,
+    beastVegetable: 0,
+    beastSpice: 0
   },
   "spicy_griffon_claw": {
     name: "Spicy Griffon Claw",
@@ -121,7 +151,10 @@ const COOKING_RECIPES = {
     clownSpice: 3,
     miracMeat: 0,
     miracVegetable: 0,
-    miracSpice: 0
+    miracSpice: 0,
+    beastMeat: 0,
+    beastVegetable: 0,
+    beastSpice: 0
   },
   "nuclear_bbq_oyster": {
     name: "Nuclear BBQ Oyster",
@@ -132,7 +165,10 @@ const COOKING_RECIPES = {
     clownSpice: 0,
     miracMeat: 1,
     miracVegetable: 0,
-    miracSpice: 0
+    miracSpice: 0,
+    beastMeat: 0,
+    beastVegetable: 0,
+    beastSpice: 0
   },
   "marinated_octopus": {
     name: "Marinated Octopus",
@@ -143,7 +179,10 @@ const COOKING_RECIPES = {
     clownSpice: 0,
     miracMeat: 3,
     miracVegetable: 0,
-    miracSpice: 0
+    miracSpice: 0,
+    beastMeat: 0,
+    beastVegetable: 0,
+    beastSpice: 0
   },
   "lube_cheese_brick": {
     name: "Lube-Cheese Brick",
@@ -154,7 +193,10 @@ const COOKING_RECIPES = {
     clownSpice: 5,
     miracMeat: 0,
     miracVegetable: 0,
-    miracSpice: 0
+    miracSpice: 0,
+    beastMeat: 0,
+    beastVegetable: 0,
+    beastSpice: 0
   },
   "manta_ray_sashimi": {
     name: "Manta Ray Sashimi",
@@ -165,7 +207,10 @@ const COOKING_RECIPES = {
     clownSpice: 0,
     miracMeat: 5,
     miracVegetable: 0,
-    miracSpice: 0
+    miracSpice: 0,
+    beastMeat: 0,
+    beastVegetable: 0,
+    beastSpice: 0
   },
   "braised_dire_shrimp": {
     name: "Braised Dire Shrimp",
@@ -176,7 +221,10 @@ const COOKING_RECIPES = {
     clownSpice: 0,
     miracMeat: 2,
     miracVegetable: 1,
-    miracSpice: 0
+    miracSpice: 0,
+    beastMeat: 0,
+    beastVegetable: 0,
+    beastSpice: 0
   },
   "stir_fried_sea_dragon": {
     name: "Stir-fried Sea Dragon",
@@ -187,7 +235,10 @@ const COOKING_RECIPES = {
     clownSpice: 0,
     miracMeat: 3,
     miracVegetable: 2,
-    miracSpice: 0
+    miracSpice: 0,
+    beastMeat: 0,
+    beastVegetable: 0,
+    beastSpice: 0
   },
   "sea_salt_cheese": {
     name: "Sea Salt Cheese",
@@ -198,7 +249,10 @@ const COOKING_RECIPES = {
     clownSpice: 0,
     miracMeat: 4,
     miracVegetable: 2,
-    miracSpice: 0
+    miracSpice: 0,
+    beastMeat: 0,
+    beastVegetable: 0,
+    beastSpice: 0
   },
   "mosasaur_teppanyaki": {
     name: "Mosasuar Teppanyaki",
@@ -209,7 +263,10 @@ const COOKING_RECIPES = {
     clownSpice: 0,
     miracMeat: 6,
     miracVegetable: 3,
-    miracSpice: 0
+    miracSpice: 0,
+    beastMeat: 0,
+    beastVegetable: 0,
+    beastSpice: 0
   },
   "stir_fried_sea_snake": {
     name: "Stir-fried Sea Snake",
@@ -220,7 +277,10 @@ const COOKING_RECIPES = {
     clownSpice: 0,
     miracMeat: 8,
     miracVegetable: 4,
-    miracSpice: 0
+    miracSpice: 0,
+    beastMeat: 0,
+    beastVegetable: 0,
+    beastSpice: 0
   },
   "sour_merman_fin": {
     name: "Sour Merman Fin",
@@ -231,7 +291,10 @@ const COOKING_RECIPES = {
     clownSpice: 0,
     miracMeat: 5,
     miracVegetable: 2,
-    miracSpice: 1
+    miracSpice: 1,
+    beastMeat: 0,
+    beastVegetable: 0,
+    beastSpice: 0
   },
   "fermented_squid": {
     name: "Fermented Squid",
@@ -242,7 +305,10 @@ const COOKING_RECIPES = {
     clownSpice: 0,
     miracMeat: 10,
     miracVegetable: 6,
-    miracSpice: 0
+    miracSpice: 0,
+    beastMeat: 0,
+    beastVegetable: 0,
+    beastSpice: 0
   },
   "grilled_horn_shark": {
     name: "Grilled Horn Shark",
@@ -253,7 +319,25 @@ const COOKING_RECIPES = {
     clownSpice: 0,
     miracMeat: 8,
     miracVegetable: 5,
-    miracSpice: 3
+    miracSpice: 3,
+    beastMeat: 0,
+    beastVegetable: 0,
+    beastSpice: 0
+  },
+  // Orc Hunter's Tribe recipes
+  "bite_back_biscui": {
+    name: "Bite-Back Biscui",
+    defaultStars: 1,
+    defaultPrice: 0,
+    clownMeat: 0,
+    clownVegetable: 0,
+    clownSpice: 0,
+    miracMeat: 0,
+    miracVegetable: 0,
+    miracSpice: 0,
+    beastMeat: 1,
+    beastVegetable: 0,
+    beastSpice: 0
   },
 };
 
@@ -271,6 +355,16 @@ const DEFAULT_VENDORS = {
   },
   miraculand: {
     name: "Miraculand Vendor",
+    enabled: true,
+    meatEnabled: true,
+    meatRate: 1.00,
+    vegetableEnabled: false,
+    vegetableRate: 0.00,
+    spiceEnabled: false,
+    spiceRate: 0.00
+  },
+  beast: {
+    name: "Orc Hunter's Tribe",
     enabled: true,
     meatEnabled: true,
     meatRate: 1.00,
@@ -325,7 +419,10 @@ const MEGA_STEW_VALUES = {
   clownSpice: 156.00,
   miracMeat: 36.00, 
   miracVegetable: 108,
-  miracSpice: 195.00
+  miracSpice: 195.00,
+  beastMeat: 48.00,      // 16-80 range, mid = 48
+  beastVegetable: 0,     // TBD when unlocked
+  beastSpice: 0          // TBD when unlocked
 };
 
 // Recipe order for display (roughly by complexity/unlock order)
@@ -352,5 +449,7 @@ const RECIPE_ORDER = [
   "stir_fried_sea_snake",
   "sour_merman_fin",
   "fermented_squid",
-  "grilled_horn_shark"
+  "grilled_horn_shark",
+  // Orc Hunter's Tribe
+  "bite_back_biscui"
 ];

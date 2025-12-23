@@ -14,7 +14,10 @@ let cookingState = {
     clownSpice: 0,
     miracMeat: 0,
     miracVegetable: 0,
-    miracSpice: 0
+    miracSpice: 0,
+    beastMeat: 0,
+    beastVegetable: 0,
+    beastSpice: 0
   },
   dailySummaryVendor: 'clown'  // user-selected vendor for daily summary
 };
@@ -89,6 +92,10 @@ function buildDailySummary(root) {
               <input type="radio" name="daily-vendor-select" value="miraculand">
               🎪 Miraculand
             </label>
+            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; font-size: 0.9em;">
+              <input type="radio" name="daily-vendor-select" value="beast">
+              🏹 Orc
+            </label>
           </div>
         </div>
         <span class="daily-summary-subtitle">Based on 24 hours of passive supply order generation</span>
@@ -108,6 +115,7 @@ function updateDailySummary(root) {
   const results = cookingState.results;
   const clown = cookingState.vendors.clown;
   const mirac = cookingState.vendors.miraculand;
+  const beast = cookingState.vendors.beast;
   
   // Check if we have any enabled recipes
   if (results.length === 0) {
@@ -125,9 +133,10 @@ function updateDailySummary(root) {
   const totalDailyOrders = baseOrdersPerDay + bonusOrders;
   
   // Use user-selected vendor from toggle
-  const selectedVendor = cookingState.dailySummaryVendor; // 'clown' or 'miraculand'
+  const selectedVendor = cookingState.dailySummaryVendor; // 'clown', 'miraculand', or 'beast'
   const usesClown = selectedVendor === 'clown';
   const usesMirac = selectedVendor === 'miraculand';
+  const usesBeast = selectedVendor === 'beast';
   
   // Shop costs - only include vendor-agnostic items and items matching selected vendor
   let shopCosts = 0;
@@ -162,7 +171,10 @@ function updateDailySummary(root) {
     clownSpice: 0,
     miracMeat: 0,
     miracVegetable: 0,
-    miracSpice: 0
+    miracSpice: 0,
+    beastMeat: 0,
+    beastVegetable: 0,
+    beastSpice: 0
   };
   
   // Generate ingredients from all supply orders based on selected vendor
@@ -190,6 +202,13 @@ function updateDailySummary(root) {
     if (shop.miracSpicePurchase.enabled) {
       dailyIngredients.miracSpice += shop.miracSpicePurchase.quantity;
     }
+  } else if (usesBeast) {
+    dailyIngredients.beastMeat = totalDailyOrders * beast.meatRate;
+    dailyIngredients.beastVegetable = totalDailyOrders * beast.vegetableRate;
+    dailyIngredients.beastSpice = totalDailyOrders * beast.spiceRate;
+    
+    // Add shop-purchased ingredients for Beast vendor (future)
+    // Currently no shop items for beast vendor
   }
   
   // === STEP 2: Use shared phase-based sequencing algorithm ===
@@ -242,6 +261,14 @@ function updateDailySummary(root) {
               <span>🥩: ${formatIngredient(totalDailyOrders * mirac.meatRate)}</span>
               ${mirac.vegetableRate > 0 ? `<span>🥬: ${formatIngredient(totalDailyOrders * mirac.vegetableRate)}</span>` : ''}
               ${mirac.spiceRate > 0 ? `<span>🌶️: ${formatIngredient(totalDailyOrders * mirac.spiceRate)}</span>` : ''}
+            </div>
+          ` : ''}
+          ${usesBeast ? `
+            <div style="margin-bottom: 6px;"><strong>🏹 Orc Hunter's Tribe:</strong></div>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-left: 8px;">
+              <span>🥩: ${formatIngredient(totalDailyOrders * beast.meatRate)}</span>
+              ${beast.vegetableRate > 0 ? `<span>🥬: ${formatIngredient(totalDailyOrders * beast.vegetableRate)}</span>` : ''}
+              ${beast.spiceRate > 0 ? `<span>🌶️: ${formatIngredient(totalDailyOrders * beast.spiceRate)}</span>` : ''}
             </div>
           ` : ''}
           ${(usesClown && (shop.vegetablePurchase.enabled && shop.vegetablePurchase.quantity > 0 || shop.spicePurchase.enabled && shop.spicePurchase.quantity > 0)) || (usesMirac && (shop.miracVegetablePurchase.enabled && shop.miracVegetablePurchase.quantity > 0 || shop.miracSpicePurchase.enabled && shop.miracSpicePurchase.quantity > 0)) ? `
@@ -351,7 +378,7 @@ function buildVendorConfig(root) {
   // clown vendor
   html += `
     <div class="card card-lg vendor-card">
-      <h4 class="card-header">Clown Vendor</h4>
+      <h4 class="card-header">🤡 Clown Vendor</h4>
       <div class="card-body vendor-preset">
         <label style="display: block; margin-bottom: 8px;">
           <input type="radio" name="clown-preset" value="meat-only"> Meat Only (100%)
@@ -369,7 +396,7 @@ function buildVendorConfig(root) {
   // miraculand vendor
   html += `
     <div class="card card-lg vendor-card">
-      <h4 class="card-header">Miraculand Vendor</h4>
+      <h4 class="card-header">🎪 Miraculand Vendor</h4>
       <div class="card-body vendor-preset">
         <label style="display: block; margin-bottom: 8px;">
           <input type="radio" name="mirac-preset" value="none"> None (Not Unlocked)
@@ -382,6 +409,27 @@ function buildVendorConfig(root) {
         </label>
         <label style="display: block; margin-bottom: 8px;">
           <input type="radio" name="mirac-preset" value="all-three"> Meat + Vegetable + Spice (65% / 25% / 10%)
+        </label>
+      </div>
+    </div>
+  `;
+  
+  // orc hunter's tribe vendor
+  html += `
+    <div class="card card-lg vendor-card">
+      <h4 class="card-header">🏹 Orc Hunter's Tribe</h4>
+      <div class="card-body vendor-preset">
+        <label style="display: block; margin-bottom: 8px;">
+          <input type="radio" name="beast-preset" value="none"> None (Not Unlocked)
+        </label>
+        <label style="display: block; margin-bottom: 8px;">
+          <input type="radio" name="beast-preset" value="meat-only" checked> Meat Only (100%)
+        </label>
+        <label style="display: block; margin-bottom: 8px;">
+          <input type="radio" name="beast-preset" value="meat-vegetable"> Meat + Vegetable (72% / 28%)
+        </label>
+        <label style="display: block; margin-bottom: 8px;">
+          <input type="radio" name="beast-preset" value="all-three"> Meat + Vegetable + Spice (65% / 25% / 10%)
         </label>
       </div>
     </div>
@@ -580,12 +628,31 @@ function buildRecipeManager(root) {
     meatVeg: [],
     meatVegSpice: []
   };
+  const beastRecipes = {
+    meatOnly: [],
+    meatVeg: [],
+    meatVegSpice: []
+  };
   
   for (const id of RECIPE_ORDER) {
     const recipe = COOKING_RECIPES[id];
     const usesMirac = recipe.miracMeat > 0 || recipe.miracVegetable > 0 || recipe.miracSpice > 0;
+    const usesBeast = recipe.beastMeat > 0 || recipe.beastVegetable > 0 || recipe.beastSpice > 0;
     
-    if (usesMirac) {
+    if (usesBeast) {
+      // Categorize beast (Orc Hunter's Tribe) recipes
+      const hasMeat = recipe.beastMeat > 0;
+      const hasVeg = recipe.beastVegetable > 0;
+      const hasSpice = recipe.beastSpice > 0;
+      
+      if (hasMeat && !hasVeg && !hasSpice) {
+        beastRecipes.meatOnly.push(id);
+      } else if (hasMeat && hasVeg && !hasSpice) {
+        beastRecipes.meatVeg.push(id);
+      } else if (hasMeat && hasVeg && hasSpice) {
+        beastRecipes.meatVegSpice.push(id);
+      }
+    } else if (usesMirac) {
       // Categorize miraculand recipes
       const hasMeat = recipe.miracMeat > 0;
       const hasVeg = recipe.miracVegetable > 0;
@@ -616,11 +683,13 @@ function buildRecipeManager(root) {
   
   const clownTotal = clownRecipes.meatOnly.length + clownRecipes.meatVeg.length + clownRecipes.meatVegSpice.length;
   const miracTotal = miracRecipes.meatOnly.length + miracRecipes.meatVeg.length + miracRecipes.meatVegSpice.length;
+  const beastTotal = beastRecipes.meatOnly.length + beastRecipes.meatVeg.length + beastRecipes.meatVegSpice.length;
   
   let html = '<div class="recipe-sections">';
   
   const clownCollapsed = getAccordionState('clown-recipes') ? '' : ' collapsed';
   const miracCollapsed = getAccordionState('mirac-recipes') ? '' : ' collapsed';
+  const beastCollapsed = getAccordionState('beast-recipes') ? '' : ' collapsed';
   const rankingCollapsed = getAccordionState('optimal-ranking') ? '' : ' collapsed';
   
   // Clown recipes section with nested groups
@@ -652,6 +721,23 @@ function buildRecipeManager(root) {
       </div>
     </div>
   `;
+  
+  // Orc Hunter's Tribe (Beast) recipes section with nested groups
+  if (beastTotal > 0) {
+    html += `
+      <div class="panel${beastCollapsed}" data-accordion-id="beast-recipes">
+        <div class="panel-header" onclick="toggleAccordion(this)">
+          <span class="panel-toggle">▼</span>
+          <h3 class="panel-title">🏹 Orc Hunter's Tribe Recipes (${beastTotal})</h3>
+        </div>
+        <div class="panel-content">
+          ${buildRecipeGroup('beast-meat-only', '🥩 Meat Only', beastRecipes.meatOnly, false, 'border-beast')}
+          ${buildRecipeGroup('beast-meat-veg', '🥩🥬 Meat + Vegetable', beastRecipes.meatVeg, false, 'border-beast')}
+          ${buildRecipeGroup('beast-meat-veg-spice', '🥩🥬🌶️ Meat + Vegetable + Spice', beastRecipes.meatVegSpice, false, 'border-beast')}
+        </div>
+      </div>
+    `;
+  }
   
   // Add optimal dish ranking section at the end of recipes
   html += `
@@ -723,11 +809,11 @@ function buildRecipeManager(root) {
   container.innerHTML = html;
 }
 
-function buildRecipeGroup(groupId, groupTitle, recipeIds, isMirac) {
+function buildRecipeGroup(groupId, groupTitle, recipeIds, isMirac, customBorderClass) {
   if (recipeIds.length === 0) return '';
   
   const isCollapsed = getAccordionState(groupId) ? '' : ' collapsed';
-  const borderClass = isMirac ? 'border-mirac' : 'border-clown';
+  const borderClass = customBorderClass || (isMirac ? 'border-mirac' : 'border-clown');
   
   return `
     <div class="panel${isCollapsed}" data-accordion-id="${groupId}" style="margin-bottom: 15px;">
@@ -770,6 +856,15 @@ function buildRecipeCards(recipeIds, isMirac, borderClass) {
     }
     if (recipe.miracSpice > 0) {
       ingredientItems.push(`<span class="recipe-ingredient-item"><span class="ingredient-icon">🌶️</span><span class="ingredient-amount">${recipe.miracSpice}</span></span>`);
+    }
+    if (recipe.beastMeat > 0) {
+      ingredientItems.push(`<span class="recipe-ingredient-item"><span class="ingredient-icon">🥩</span><span class="ingredient-amount">${recipe.beastMeat}</span></span>`);
+    }
+    if (recipe.beastVegetable > 0) {
+      ingredientItems.push(`<span class="recipe-ingredient-item"><span class="ingredient-icon">🥬</span><span class="ingredient-amount">${recipe.beastVegetable}</span></span>`);
+    }
+    if (recipe.beastSpice > 0) {
+      ingredientItems.push(`<span class="recipe-ingredient-item"><span class="ingredient-icon">🌶️</span><span class="ingredient-amount">${recipe.beastSpice}</span></span>`);
     }
     const ingredientHtml = ingredientItems.join('');
     
@@ -1456,6 +1551,39 @@ function updateVendorState(root) {
   }
   cookingState.vendors.miraculand.preset = miracPreset;
   
+  // beast vendor (Orc Hunter's Tribe) - check which preset is selected
+  const beastPreset = root.querySelector('input[name="beast-preset"]:checked')?.value || 'meat-only';
+  if (beastPreset === 'none') {
+    cookingState.vendors.beast.meatEnabled = false;
+    cookingState.vendors.beast.meatRate = 0;
+    cookingState.vendors.beast.vegetableEnabled = false;
+    cookingState.vendors.beast.vegetableRate = 0;
+    cookingState.vendors.beast.spiceEnabled = false;
+    cookingState.vendors.beast.spiceRate = 0;
+  } else if (beastPreset === 'meat-only') {
+    cookingState.vendors.beast.meatEnabled = true;
+    cookingState.vendors.beast.meatRate = 1.00;
+    cookingState.vendors.beast.vegetableEnabled = false;
+    cookingState.vendors.beast.vegetableRate = 0;
+    cookingState.vendors.beast.spiceEnabled = false;
+    cookingState.vendors.beast.spiceRate = 0;
+  } else if (beastPreset === 'meat-vegetable') {
+    cookingState.vendors.beast.meatEnabled = true;
+    cookingState.vendors.beast.meatRate = 0.7222;
+    cookingState.vendors.beast.vegetableEnabled = true;
+    cookingState.vendors.beast.vegetableRate = 0.2778;
+    cookingState.vendors.beast.spiceEnabled = false;
+    cookingState.vendors.beast.spiceRate = 0;
+  } else { // all-three
+    cookingState.vendors.beast.meatEnabled = true;
+    cookingState.vendors.beast.meatRate = 0.65;
+    cookingState.vendors.beast.vegetableEnabled = true;
+    cookingState.vendors.beast.vegetableRate = 0.25;
+    cookingState.vendors.beast.spiceEnabled = true;
+    cookingState.vendors.beast.spiceRate = 0.10;
+  }
+  cookingState.vendors.beast.preset = beastPreset;
+  
   // supply orders per hour
   cookingState.shop.supplyOrdersPerHour = parseInt(root.querySelector('#supply-orders-per-hour')?.value) || 30;
   
@@ -1587,9 +1715,9 @@ function calculatePhaseBasedSequence(ingredients, availableDishes) {
   // These use excess meat that wasn't needed for vegetable recipes
   const meatOnlyDishes = availableDishes.filter(d => {
     const r = d.recipe;
-    const hasMeat = (r.clownMeat > 0 || r.miracMeat > 0);
-    const hasVeggie = (r.clownVegetable > 0 || r.miracVegetable > 0);
-    const hasSpice = (r.clownSpice > 0 || r.miracSpice > 0);
+    const hasMeat = (r.clownMeat > 0 || r.miracMeat > 0 || r.beastMeat > 0);
+    const hasVeggie = (r.clownVegetable > 0 || r.miracVegetable > 0 || r.beastVegetable > 0);
+    const hasSpice = (r.clownSpice > 0 || r.miracSpice > 0 || r.beastSpice > 0);
     return hasMeat && !hasVeggie && !hasSpice;
   }).sort((a, b) => b.goldPerOrder - a.goldPerOrder);
   
@@ -1599,11 +1727,13 @@ function calculatePhaseBasedSequence(ingredients, availableDishes) {
     // Check if we have enough ingredients
     if (remaining.clownMeat < recipe.clownMeat) continue;
     if (remaining.miracMeat < recipe.miracMeat) continue;
+    if (remaining.beastMeat < recipe.beastMeat) continue;
     
     // Calculate how many we can make
     const limits = [];
     if (recipe.clownMeat > 0) limits.push(Math.floor(remaining.clownMeat / recipe.clownMeat));
     if (recipe.miracMeat > 0) limits.push(Math.floor(remaining.miracMeat / recipe.miracMeat));
+    if (recipe.beastMeat > 0) limits.push(Math.floor(remaining.beastMeat / recipe.beastMeat));
     
     const maxQuantity = limits.length > 0 ? Math.min(...limits) : 0;
     if (maxQuantity === 0) continue;
@@ -1625,6 +1755,7 @@ function calculatePhaseBasedSequence(ingredients, availableDishes) {
     // Update remaining ingredients
     remaining.clownMeat -= maxQuantity * recipe.clownMeat;
     remaining.miracMeat -= maxQuantity * recipe.miracMeat;
+    remaining.beastMeat -= maxQuantity * recipe.beastMeat;
   }
   
   // Ensure no negative values
@@ -1659,6 +1790,7 @@ function recalculateCooking() {
   const results = [];
   const clown = cookingState.vendors.clown;
   const mirac = cookingState.vendors.miraculand;
+  const beast = cookingState.vendors.beast;
   
   // calculate supply order costs per ingredient
   const supplyOrderCosts = {
@@ -1667,7 +1799,10 @@ function recalculateCooking() {
     clownSpice: clown.spiceEnabled && clown.spiceRate > 0 ? 1 / clown.spiceRate : Infinity,
     miracMeat: mirac.meatEnabled && mirac.meatRate > 0 ? 1 / mirac.meatRate : Infinity,
     miracVegetable: mirac.vegetableEnabled && mirac.vegetableRate > 0 ? 1 / mirac.vegetableRate : Infinity,
-    miracSpice: mirac.spiceEnabled && mirac.spiceRate > 0 ? 1 / mirac.spiceRate : Infinity
+    miracSpice: mirac.spiceEnabled && mirac.spiceRate > 0 ? 1 / mirac.spiceRate : Infinity,
+    beastMeat: beast.meatEnabled && beast.meatRate > 0 ? 1 / beast.meatRate : Infinity,
+    beastVegetable: beast.vegetableEnabled && beast.vegetableRate > 0 ? 1 / beast.vegetableRate : Infinity,
+    beastSpice: beast.spiceEnabled && beast.spiceRate > 0 ? 1 / beast.spiceRate : Infinity
   };
   
   // average gold per supply order for calculating ingredient values
@@ -1682,6 +1817,7 @@ function recalculateCooking() {
     // determine which vendor to use based on recipe ingredients
     const usesClown = recipe.clownMeat > 0 || recipe.clownVegetable > 0 || recipe.clownSpice > 0;
     const usesMirac = recipe.miracMeat > 0 || recipe.miracVegetable > 0 || recipe.miracSpice > 0;
+    const usesBeast = recipe.beastMeat > 0 || recipe.beastVegetable > 0 || recipe.beastSpice > 0;
     
     // calculate supply orders needed for each ingredient
     let ordersNeeded = [];
@@ -1697,6 +1833,12 @@ function recalculateCooking() {
       if (recipe.miracMeat > 0) ordersNeeded.push({ type: 'Mirac Meat', orders: recipe.miracMeat * supplyOrderCosts.miracMeat });
       if (recipe.miracVegetable > 0) ordersNeeded.push({ type: 'Mirac Vegetable', orders: recipe.miracVegetable * supplyOrderCosts.miracVegetable });
       if (recipe.miracSpice > 0) ordersNeeded.push({ type: 'Mirac Spice', orders: recipe.miracSpice * supplyOrderCosts.miracSpice });
+    }
+    
+    if (usesBeast) {
+      if (recipe.beastMeat > 0) ordersNeeded.push({ type: 'Beast Meat', orders: recipe.beastMeat * supplyOrderCosts.beastMeat });
+      if (recipe.beastVegetable > 0) ordersNeeded.push({ type: 'Beast Vegetable', orders: recipe.beastVegetable * supplyOrderCosts.beastVegetable });
+      if (recipe.beastSpice > 0) ordersNeeded.push({ type: 'Beast Spice', orders: recipe.beastSpice * supplyOrderCosts.beastSpice });
     }
     
     // find limiting ingredient (highest supply order cost)
@@ -1747,6 +1889,22 @@ function recalculateCooking() {
         excessMiracSpice * MEGA_STEW_VALUES.miracSpice;
     }
     
+    // 3. Calculate Beast (Orc) Byproducts (only if recipe uses Beast ingredients)
+    if (usesBeast && (beast.meatEnabled || beast.vegetableEnabled || beast.spiceEnabled)) {
+      const expectedBeastMeat = totalOrders * beast.meatRate;
+      const expectedBeastVegetable = totalOrders * beast.vegetableRate;
+      const expectedBeastSpice = totalOrders * beast.spiceRate;
+      
+      const excessBeastMeat = Math.max(0, expectedBeastMeat - recipe.beastMeat);
+      const excessBeastVegetable = Math.max(0, expectedBeastVegetable - recipe.beastVegetable);
+      const excessBeastSpice = Math.max(0, expectedBeastSpice - recipe.beastSpice);
+      
+      byproductValue += 
+        excessBeastMeat * MEGA_STEW_VALUES.beastMeat +
+        excessBeastVegetable * MEGA_STEW_VALUES.beastVegetable +
+        excessBeastSpice * MEGA_STEW_VALUES.beastSpice;
+    }
+    
     // calculate efficiency metrics
     const totalValue = price + byproductValue;
     const goldPerOrder = totalValue / totalOrders;
@@ -1760,13 +1918,13 @@ function recalculateCooking() {
       stars: state.stars,
       price,
       orders: totalOrders,
-      limiting: limitingIngredient.replace('Clown ', '').replace('Mirac ', ''),
+      limiting: limitingIngredient.replace('Clown ', '').replace('Mirac ', '').replace('Beast ', ''),
       byproductValue,
       totalValue,
       goldPerOrder,
       goldPerHour,
       dishesPerHour,
-      vendor: usesMirac ? 'Miraculand' : 'Clown'
+      vendor: usesBeast ? 'Orc' : (usesMirac ? 'Miraculand' : 'Clown')
     });
   }
   
