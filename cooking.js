@@ -2184,10 +2184,11 @@ function updateStrategySummary(root, results) {
     return;
   }
   
-  // Calculate optimal vendor by comparing both vendors' daily income
+  // Calculate optimal vendor by comparing all vendors' daily income
   const shop = cookingState.shop;
   const clown = cookingState.vendors.clown;
   const mirac = cookingState.vendors.miraculand;
+  const beast = cookingState.vendors.beast;
   
   const baseOrdersPerHour = shop.supplyOrdersPerHour;
   const bonusOrders = shop.supplyDeals.enabled ? shop.supplyDeals.quantity * shop.supplyDeals.supplyOrdersEach : 0;
@@ -2209,7 +2210,10 @@ function updateStrategySummary(root, results) {
     clownSpice: dailyOrders * clown.spiceRate + (shop.spicePurchase.enabled ? shop.spicePurchase.quantity : 0),
     miracMeat: 0,
     miracVegetable: 0,
-    miracSpice: 0
+    miracSpice: 0,
+    beastMeat: 0,
+    beastVegetable: 0,
+    beastSpice: 0
   };
   const clownResult = calculatePhaseBasedSequence(clownIngredients, availableDishes);
   
@@ -2237,7 +2241,10 @@ function updateStrategySummary(root, results) {
     clownSpice: 0,
     miracMeat: dailyOrders * mirac.meatRate,
     miracVegetable: dailyOrders * mirac.vegetableRate + (shop.miracVegetablePurchase.enabled ? shop.miracVegetablePurchase.quantity : 0),
-    miracSpice: dailyOrders * mirac.spiceRate + (shop.miracSpicePurchase.enabled ? shop.miracSpicePurchase.quantity : 0)
+    miracSpice: dailyOrders * mirac.spiceRate + (shop.miracSpicePurchase.enabled ? shop.miracSpicePurchase.quantity : 0),
+    beastMeat: 0,
+    beastVegetable: 0,
+    beastSpice: 0
   };
   const miracResult = calculatePhaseBasedSequence(miracIngredients, availableDishes);
   
@@ -2258,12 +2265,47 @@ function updateStrategySummary(root, results) {
   
   const miracDailyGold = miracResult.totalGold + miracResult.stewValue - miracShopCosts;
   
-  // === DETERMINE OPTIMAL VENDOR ===
-  const useClown = clownDailyGold >= miracDailyGold;
-  const optimalResult = useClown ? clownResult : miracResult;
-  const optimalVendor = useClown ? 'Clown' : 'Miraculand';
-  const optimalGold = useClown ? clownDailyGold : miracDailyGold;
-  const alternateGold = useClown ? miracDailyGold : clownDailyGold;
+  // === CALCULATE BEAST (ORC) VENDOR SEQUENCE ===
+  const beastIngredients = {
+    clownMeat: 0,
+    clownVegetable: 0,
+    clownSpice: 0,
+    miracMeat: 0,
+    miracVegetable: 0,
+    miracSpice: 0,
+    beastMeat: dailyOrders * beast.meatRate,
+    beastVegetable: dailyOrders * beast.vegetableRate,
+    beastSpice: dailyOrders * beast.spiceRate
+  };
+  const beastResult = calculatePhaseBasedSequence(beastIngredients, availableDishes);
+  
+  // Calculate shop costs for Beast vendor (currently no beast-specific shop items)
+  let beastShopCosts = 0;
+  if (shop.supplyDeals.enabled && shop.supplyDeals.quantity > 0) {
+    beastShopCosts += shop.supplyDeals.quantity * shop.supplyDeals.cost;
+  }
+  if (shop.skillBooks.enabled && shop.skillBooks.quantity > 0) {
+    beastShopCosts += shop.skillBooks.quantity * shop.skillBooks.cost;
+  }
+  
+  const beastDailyGold = beastResult.totalGold + beastResult.stewValue - beastShopCosts;
+  
+  // === DETERMINE OPTIMAL VENDOR (compare all three) ===
+  const vendorGolds = [
+    { name: 'Clown', gold: clownDailyGold, result: clownResult, emoji: '🤡' },
+    { name: 'Miraculand', gold: miracDailyGold, result: miracResult, emoji: '🎪' },
+    { name: 'Orc', gold: beastDailyGold, result: beastResult, emoji: '🏹' }
+  ];
+  
+  // Sort by gold descending to find optimal
+  vendorGolds.sort((a, b) => b.gold - a.gold);
+  
+  const optimal = vendorGolds[0];
+  const secondBest = vendorGolds[1];
+  const optimalResult = optimal.result;
+  const optimalVendor = optimal.name;
+  const optimalGold = optimal.gold;
+  const alternateGold = secondBest.gold;
   const goldDifference = Math.abs(optimalGold - alternateGold);
   
   // Extract top 3 recipes for display
@@ -2276,13 +2318,16 @@ function updateStrategySummary(root, results) {
   const remaining = optimalResult.remaining;
   
   // Build HTML showing optimal vendor comparison and sequence
-  const vendorEmoji = useClown ? '🤡' : '🎪';
-  const alternateVendor = useClown ? 'Miraculand' : 'Clown';
+  const vendorEmoji = optimal.emoji;
+  const alternateVendor = secondBest.name;
   const comparisonColor = goldDifference > 0 ? '#2e7d32' : '#666';
   
-  // Calculate net profits for display (after shop costs)
-  const clownNetProfit = clownDailyGold;
-  const miracNetProfit = miracDailyGold;
+  // Build vendor comparison rows showing all three
+  const vendorComparisonRows = vendorGolds.map(v => {
+    const isOptimal = v.name === optimalVendor;
+    const style = isOptimal ? 'font-weight: bold; color: #2e7d32;' : 'color: #666;';
+    return `<div style="${style}">${v.emoji} ${v.name}: ${Math.round(v.gold).toLocaleString()}g${isOptimal ? ' ✓' : ''}</div>`;
+  }).join('');
   
   let html = `
     <div style="margin-bottom: 15px;">
@@ -2291,8 +2336,8 @@ function updateStrategySummary(root, results) {
       </div>
       <div style="font-size: 0.9em; color: ${comparisonColor}; padding: 8px; background: #f0f7f0; border-radius: 4px; border-left: 3px solid #2e7d32;">
         <strong>+${goldDifference.toLocaleString()}g daily</strong> over ${alternateVendor}
-        <div style="font-size: 0.85em; color: #666; margin-top: 4px;">
-          Clown: ${Math.round(clownNetProfit).toLocaleString()}g • Miraculand: ${Math.round(miracNetProfit).toLocaleString()}g
+        <div style="font-size: 0.85em; margin-top: 6px;">
+          ${vendorComparisonRows}
         </div>
       </div>
     </div>
