@@ -1936,6 +1936,14 @@ h1, h2 {
 }
 
 /* Recipe Manager */
+/* Recipe card grid - left-aligned, doesn't stretch cards */
+.recipe-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 320px));
+  gap: 15px;
+  justify-content: start;
+}
+
 .recipe-card {
   background: var(--bg-card);
   border-radius: 10px;

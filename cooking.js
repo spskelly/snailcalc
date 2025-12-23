@@ -822,7 +822,7 @@ function buildRecipeGroup(groupId, groupTitle, recipeIds, isMirac, customBorderC
         <h4 class="panel-title" style="margin: 0; font-size: 1em;">${groupTitle} (${recipeIds.length})</h4>
       </div>
       <div class="panel-content" style="padding-top: 15px;">
-        <div class="grid-responsive grid-md gap-md">
+        <div class="recipe-card-grid">
           ${buildRecipeCards(recipeIds, isMirac, borderClass)}
         </div>
       </div>
