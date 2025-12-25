@@ -49,7 +49,7 @@ A comprehensive suite of calculators for optimizing your Snail game strategy. Th
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/snailcalc.git
+   git clone https://github.com/spskelly/snailcalc.git
    cd snailcalc
    ```
 
