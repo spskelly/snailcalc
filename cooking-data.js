@@ -324,6 +324,20 @@ const COOKING_RECIPES = {
     beastVegetable: 0,
     beastSpice: 0
   },
+  "naga_fin_soup": {
+    name: "Naga Fin Soup",
+    defaultStars: 1,
+    defaultPrice: 0,
+    clownMeat: 0,
+    clownVegetable: 0,
+    clownSpice: 0,
+    miracMeat: 20,
+    miracVegetable: 10,
+    miracSpice: 5,
+    beastMeat: 0,
+    beastVegetable: 0,
+    beastSpice: 0
+  },
   // Orc Hunter's Tribe recipes
   "bite_back_biscui": {
     name: "Bite-Back Biscui",
@@ -450,6 +464,7 @@ const RECIPE_ORDER = [
   "sour_merman_fin",
   "fermented_squid",
   "grilled_horn_shark",
+  "naga_fin_soup",
   // Orc Hunter's Tribe
   "bite_back_biscui"
 ];
