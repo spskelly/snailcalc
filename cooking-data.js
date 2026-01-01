@@ -353,6 +353,20 @@ const COOKING_RECIPES = {
     beastVegetable: 0,
     beastSpice: 0
   },
+  "dwarven_flame_wine": {
+    name: "Dwarven Flame Wine",
+    defaultStars: 1,
+    defaultPrice: 0,
+    clownMeat: 0,
+    clownVegetable: 0,
+    clownSpice: 0,
+    miracMeat: 0,
+    miracVegetable: 0,
+    miracSpice: 0,
+    beastMeat: 5,
+    beastVegetable: 0,
+    beastSpice: 0
+  }
 };
 
 // Default vendor configurations
@@ -466,5 +480,6 @@ const RECIPE_ORDER = [
   "grilled_horn_shark",
   "naga_fin_soup",
   // Orc Hunter's Tribe
-  "bite_back_biscui"
+  "bite_back_biscui",
+  "dwarven_flame_wine"
 ];
