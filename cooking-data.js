@@ -339,8 +339,8 @@ const COOKING_RECIPES = {
     beastSpice: 0
   },
   // Orc Hunter's Tribe recipes
-  "bite_back_biscui": {
-    name: "Bite-Back Biscui",
+  "bite_back_biscuits": {
+    name: "Bite-Back Biscuits",
     defaultStars: 1,
     defaultPrice: 0,
     clownMeat: 0,
@@ -365,6 +365,34 @@ const COOKING_RECIPES = {
     miracSpice: 0,
     beastMeat: 5,
     beastVegetable: 0,
+    beastSpice: 0
+  },
+  "salamander_brew": {
+    name: "Salamander Brew",
+    defaultStars: 1,
+    defaultPrice: 0,
+    clownMeat: 0,
+    clownVegetable: 0,
+    clownSpice: 0,
+    miracMeat: 0,
+    miracVegetable: 0,
+    miracSpice: 0,
+    beastMeat: 3,
+    beastVegetable: 0,
+    beastSpice: 0
+  },
+  "bane_spider_pudding": {
+    name: "Bane Spider Pudding",
+    defaultStars: 1,
+    defaultPrice: 0,
+    clownMeat: 0,
+    clownVegetable: 0,
+    clownSpice: 0,
+    miracMeat: 0,
+    miracVegetable: 0,
+    miracSpice: 0,
+    beastMeat: 2,
+    beastVegetable: 1,
     beastSpice: 0
   }
 };
@@ -467,6 +495,7 @@ const RECIPE_ORDER = [
   "spider_eyeball_soup",
   "spicy_griffon_claw",
   "lube_cheese_brick",
+  // Miraculand
   "nuclear_bbq_oyster",
   "marinated_octopus",
   "manta_ray_sashimi",
@@ -480,6 +509,8 @@ const RECIPE_ORDER = [
   "grilled_horn_shark",
   "naga_fin_soup",
   // Orc Hunter's Tribe
-  "bite_back_biscui",
-  "dwarven_flame_wine"
+  "bite_back_biscuits",
+  "salamander_brew",
+  "dwarven_flame_wine",
+  "bane_spider_pudding"
 ];
