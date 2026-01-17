@@ -394,6 +394,20 @@ const COOKING_RECIPES = {
     beastMeat: 2,
     beastVegetable: 1,
     beastSpice: 0
+  },
+  "smoked_spider": {
+    name: "Smoked Spider",
+    defaultStars: 1,
+    defaultPrice: 0,
+    clownMeat: 0,
+    clownVegetable: 0,
+    clownSpice: 0,
+    miracMeat: 0,
+    miracVegetable: 0,
+    miracSpice: 0,
+    beastMeat: 3,
+    beastVegetable: 2,
+    beastSpice: 0
   }
 };
 
@@ -512,5 +526,6 @@ const RECIPE_ORDER = [
   "bite_back_biscuits",
   "salamander_brew",
   "dwarven_flame_wine",
-  "bane_spider_pudding"
+  "bane_spider_pudding",
+  "smoked_spider"
 ];

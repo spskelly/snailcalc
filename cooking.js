@@ -1643,11 +1643,11 @@ function calculatePhaseBasedSequence(ingredients, availableDishes) {
   let totalGold = 0;
   let stepNumber = 1;
   
-  // PHASE 1: Vegetable recipes (sorted by g/order)
+// PHASE 1: Vegetable recipes (sorted by g/order)
   // These recipes use vegetables, so we prioritize them to avoid wasting high-value veggies
   const vegetableDishes = availableDishes.filter(d => {
     const r = d.recipe;
-    return (r.clownVegetable > 0 || r.miracVegetable > 0);
+    return (r.clownVegetable > 0 || r.miracVegetable > 0 || r.beastVegetable > 0);
   }).sort((a, b) => b.goldPerOrder - a.goldPerOrder);
   
   for (const dish of vegetableDishes) {
@@ -1660,6 +1660,9 @@ function calculatePhaseBasedSequence(ingredients, availableDishes) {
     if (remaining.miracMeat < recipe.miracMeat) continue;
     if (remaining.miracVegetable < recipe.miracVegetable) continue;
     if (remaining.miracSpice < recipe.miracSpice) continue;
+    if (remaining.beastMeat < recipe.beastMeat) continue;
+    if (remaining.beastVegetable < recipe.beastVegetable) continue;
+    if (remaining.beastSpice < recipe.beastSpice) continue;
     
     // Calculate how many we can make
     const limits = [];
@@ -1669,6 +1672,9 @@ function calculatePhaseBasedSequence(ingredients, availableDishes) {
     if (recipe.miracMeat > 0) limits.push(Math.floor(remaining.miracMeat / recipe.miracMeat));
     if (recipe.miracVegetable > 0) limits.push(Math.floor(remaining.miracVegetable / recipe.miracVegetable));
     if (recipe.miracSpice > 0) limits.push(Math.floor(remaining.miracSpice / recipe.miracSpice));
+    if (recipe.beastMeat > 0) limits.push(Math.floor(remaining.beastMeat / recipe.beastMeat));
+    if (recipe.beastVegetable > 0) limits.push(Math.floor(remaining.beastVegetable / recipe.beastVegetable));
+    if (recipe.beastSpice > 0) limits.push(Math.floor(remaining.beastSpice / recipe.beastSpice));
     
     const maxQuantity = limits.length > 0 ? Math.min(...limits) : 0;
     if (maxQuantity === 0) continue;
@@ -1684,6 +1690,9 @@ function calculatePhaseBasedSequence(ingredients, availableDishes) {
     if (recipe.miracMeat > 0) limitDetails.push({ name: 'Meat', qty: remaining.miracMeat / recipe.miracMeat });
     if (recipe.miracVegetable > 0) limitDetails.push({ name: 'Vegetable', qty: remaining.miracVegetable / recipe.miracVegetable });
     if (recipe.miracSpice > 0) limitDetails.push({ name: 'Spice', qty: remaining.miracSpice / recipe.miracSpice });
+    if (recipe.beastMeat > 0) limitDetails.push({ name: 'Meat', qty: remaining.beastMeat / recipe.beastMeat });
+    if (recipe.beastVegetable > 0) limitDetails.push({ name: 'Vegetable', qty: remaining.beastVegetable / recipe.beastVegetable });
+    if (recipe.beastSpice > 0) limitDetails.push({ name: 'Spice', qty: remaining.beastSpice / recipe.beastSpice });
     
     if (limitDetails.length > 0) {
       limitDetails.sort((a, b) => a.qty - b.qty);
@@ -1709,6 +1718,9 @@ function calculatePhaseBasedSequence(ingredients, availableDishes) {
     remaining.miracMeat -= maxQuantity * recipe.miracMeat;
     remaining.miracVegetable -= maxQuantity * recipe.miracVegetable;
     remaining.miracSpice -= maxQuantity * recipe.miracSpice;
+    remaining.beastMeat -= maxQuantity * recipe.beastMeat;
+    remaining.beastVegetable -= maxQuantity * recipe.beastVegetable;
+    remaining.beastSpice -= maxQuantity * recipe.beastSpice;
   }
   
   // PHASE 2: Meat-only recipes (sorted by g/order)
@@ -1772,7 +1784,10 @@ function calculatePhaseBasedSequence(ingredients, availableDishes) {
     remaining.clownSpice * MEGA_STEW_VALUES.clownSpice +
     remaining.miracMeat * MEGA_STEW_VALUES.miracMeat +
     remaining.miracVegetable * MEGA_STEW_VALUES.miracVegetable +
-    remaining.miracSpice * MEGA_STEW_VALUES.miracSpice;
+    remaining.miracSpice * MEGA_STEW_VALUES.miracSpice +
+    remaining.beastMeat * MEGA_STEW_VALUES.beastMeat +
+    remaining.beastVegetable * MEGA_STEW_VALUES.beastVegetable +
+    remaining.beastSpice * MEGA_STEW_VALUES.beastSpice;
   
   return {
     sequence: productionSteps,
@@ -1949,10 +1964,13 @@ function updateRankingTable(root, results) {
     const rank = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
     const vendorClass = r.vendor === 'Miraculand' ? 'mirac-row' : '';
     
+    // Get vendor icon
+    const vendorIcon = r.vendor === 'Clown' ? '🤡' : r.vendor === 'Miraculand' ? '🎪' : '🏹';
+    
     html += `
       <tr class="${vendorClass}">
         <td>${rank}</td>
-        <td>${r.name} <span class="stars">${'★'.repeat(r.stars)}</span></td>
+        <td>${vendorIcon} ${r.name} <span class="stars">${'★'.repeat(r.stars)}</span></td>
         <td><strong>${r.goldPerOrder.toFixed(2)}</strong></td>
         <td>${r.goldPerHour.toFixed(0).toLocaleString()}</td>
         <td>${r.limiting}</td>
@@ -2850,15 +2868,25 @@ function loadCookingFromStorage() {
 
 function refreshCookingUI(root) {
   // refresh vendor UI - set radio buttons based on saved preset
-  const clownPreset = cookingState.vendors.clown.preset || 'all-three';
+  const clownPreset = cookingState.vendors.clown?.preset || 'all-three';
   const clownRadio = root.querySelector(`input[name="clown-preset"][value="${clownPreset}"]`);
   if (clownRadio) clownRadio.checked = true;
   
-  const miracPreset = cookingState.vendors.miraculand.preset || 'meat-only';
+  const miracPreset = cookingState.vendors.miraculand?.preset || 'meat-only';
   const miracRadio = root.querySelector(`input[name="mirac-preset"][value="${miracPreset}"]`);
   if (miracRadio) miracRadio.checked = true;
   
-  root.querySelector('#supply-orders-per-hour').value = cookingState.shop.supplyOrdersPerHour;
+  const beastPreset = cookingState.vendors.beast?.preset || 'meat-only';
+  const beastRadio = root.querySelector(`input[name="beast-preset"][value="${beastPreset}"]`);
+  if (beastRadio) beastRadio.checked = true;
+  
+  // refresh daily summary vendor toggle
+  const dailyVendor = cookingState.dailySummaryVendor || 'clown';
+  const dailyVendorRadio = root.querySelector(`input[name="daily-vendor-select"][value="${dailyVendor}"]`);
+  if (dailyVendorRadio) dailyVendorRadio.checked = true;
+  
+  const supplyOrdersInput = root.querySelector('#supply-orders-per-hour');
+  if (supplyOrdersInput) supplyOrdersInput.value = cookingState.shop.supplyOrdersPerHour;
   
   // refresh shop UI
   const shop = cookingState.shop;
@@ -2899,6 +2927,22 @@ function refreshCookingUI(root) {
     if (enabledBox) enabledBox.checked = state.enabled;
     if (starsSelect) starsSelect.value = state.stars;
     if (priceInput) priceInput.value = state.price;
+  }
+  
+  // refresh current ingredients inventory
+  const ing = cookingState.currentIngredients || {};
+  const ingredientInputs = {
+    'current-clown-meat': ing.clownMeat || 0,
+    'current-clown-vegetable': ing.clownVegetable || 0,
+    'current-clown-spice': ing.clownSpice || 0,
+    'current-mirac-meat': ing.miracMeat || 0,
+    'current-mirac-vegetable': ing.miracVegetable || 0,
+    'current-mirac-spice': ing.miracSpice || 0
+  };
+  
+  for (const [inputId, value] of Object.entries(ingredientInputs)) {
+    const input = root.querySelector(`#${inputId}`);
+    if (input) input.value = value;
   }
 }
 
