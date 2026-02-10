@@ -408,6 +408,48 @@ const COOKING_RECIPES = {
     beastMeat: 3,
     beastVegetable: 2,
     beastSpice: 0
+  },
+  "dry_ice_soda": {
+    name: "Dry Ice Soda",
+    defaultStars: 1,
+    defaultPrice: 0,
+    clownMeat: 0,
+    clownVegetable: 0,
+    clownSpice: 0,
+    miracMeat: 0,
+    miracVegetable: 0,
+    miracSpice: 0,
+    beastMeat: 4,
+    beastVegetable: 2,
+    beastSpice: 0
+  },
+  "pickled_deathcaller": {
+    name: "Pickled Deathcaller",
+    defaultStars: 1,
+    defaultPrice: 0,
+    clownMeat: 0,
+    clownVegetable: 0,
+    clownSpice: 0,
+    miracMeat: 0,
+    miracVegetable: 0,
+    miracSpice: 0,
+    beastMeat: 6,
+    beastVegetable: 3,
+    beastSpice: 0
+  },
+  "siliconmon_shortcake": {
+    name: "Siliconmon Shortcake",
+    defaultStars: 1,
+    defaultPrice: 0,
+    clownMeat: 0,
+    clownVegetable: 0,
+    clownSpice: 0,
+    miracMeat: 0,
+    miracVegetable: 0,
+    miracSpice: 0,
+    beastMeat: 5,
+    beastVegetable: 2,
+    beastSpice: 1
   }
 };
 
@@ -474,11 +516,21 @@ const DEFAULT_SHOP = {
     quantity: 0,
     cost: 450
   },
+  beastVegetablePurchase: {
+    enabled: false,
+    quantity: 0,
+    cost: 360
+  },
+  beastSpicePurchase: {
+    enabled: false,
+    quantity: 0,
+    cost: 600
+  },
   skillBooks: {
     enabled: false,
     quantity: 0,
     cost: 5000,
-    level: 1  // 1 = 5000g, 2 = 10000g
+    level: 1  // 1 = 5000g, 2 = 10000g, 3 = 15000g
   }
 };
 
@@ -527,5 +579,8 @@ const RECIPE_ORDER = [
   "salamander_brew",
   "dwarven_flame_wine",
   "bane_spider_pudding",
-  "smoked_spider"
+  "smoked_spider",
+  "dry_ice_soda",
+  "pickled_deathcaller",
+  "siliconmon_shortcake"
 ];

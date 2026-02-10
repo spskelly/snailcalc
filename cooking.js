@@ -508,10 +508,11 @@ function buildShopConfig(root) {
           <select id="shop-skillbooks-level" class="form-control form-control-xs" style="width: 80px;">
             <option value="1" ${shop.skillBooks.level === 1 ? 'selected' : ''}>1</option>
             <option value="2" ${shop.skillBooks.level === 2 ? 'selected' : ''}>2</option>
+            <option value="3" ${shop.skillBooks.level === 3 ? 'selected' : ''}>3</option>
           </select>
         </label>
         <label>Qty: <input type="number" id="shop-skillbooks-qty" value="${shop.skillBooks.quantity}" min="0" max="4" step="1" class="form-control form-control-xs"></label>
-        <label>@ <span class="fixed-price" id="shop-skillbooks-price">${shop.skillBooks.level === 2 ? '10,000g' : '5,000g'}</span> each</label>
+        <label>@ <span class="fixed-price" id="shop-skillbooks-price">${shop.skillBooks.level === 3 ? '15,000g' : shop.skillBooks.level === 2 ? '10,000g' : '5,000g'}</span> each</label>
       </div>
       <div class="shop-result" id="shop-skillbooks-result"></div>
     </div>
@@ -590,6 +591,44 @@ function buildShopConfig(root) {
         <label>@ <span class="fixed-price">450g</span> each</label>
       </div>
       <div class="shop-result" id="shop-mirac-spice-result"></div>
+    </div>
+  `;
+  
+  html += '</div>'; // end shop-row-items
+  html += '</div>'; // end shop-row
+  
+  // Row 4: Orc Hunter's Tribe vendor items
+  html += '<div class="shop-row">';
+  html += '<div class="shop-row-label">🏹 Orc</div>';
+  html += '<div class="shop-row-items">';
+  
+  // orc vegetable purchase
+  html += `
+    <div class="shop-item">
+      <label>
+        <input type="checkbox" id="shop-beast-vegetable-enabled" ${shop.beastVegetablePurchase.enabled ? 'checked' : ''}>
+        <strong>🥬 Vegetables</strong>
+      </label>
+      <div class="d-flex items-center gap-sm">
+        <label>Qty: <input type="number" id="shop-beast-vegetable-qty" value="${shop.beastVegetablePurchase.quantity}" min="0" max="5" step="1" class="form-control form-control-xs"></label>
+        <label>@ <span class="fixed-price">360g</span> each</label>
+      </div>
+      <div class="shop-result" id="shop-beast-vegetable-result"></div>
+    </div>
+  `;
+  
+  // orc spice purchase
+  html += `
+    <div class="shop-item">
+      <label>
+        <input type="checkbox" id="shop-beast-spice-enabled" ${shop.beastSpicePurchase.enabled ? 'checked' : ''}>
+        <strong>🌶️ Spice</strong>
+      </label>
+      <div class="d-flex items-center gap-sm">
+        <label>Qty: <input type="number" id="shop-beast-spice-qty" value="${shop.beastSpicePurchase.quantity}" min="0" max="5" step="1" class="form-control form-control-xs"></label>
+        <label>@ <span class="fixed-price">600g</span> each</label>
+      </div>
+      <div class="shop-result" id="shop-beast-spice-result"></div>
     </div>
   `;
   
@@ -1611,13 +1650,27 @@ function updateShopState(root) {
   cookingState.shop.miracSpicePurchase.enabled = root.querySelector('#shop-mirac-spice-enabled')?.checked ?? false;
   cookingState.shop.miracSpicePurchase.quantity = parseInt(root.querySelector('#shop-mirac-spice-qty')?.value) || 0;
   
+  // orc vegetable purchase
+  cookingState.shop.beastVegetablePurchase.enabled = root.querySelector('#shop-beast-vegetable-enabled')?.checked ?? false;
+  cookingState.shop.beastVegetablePurchase.quantity = parseInt(root.querySelector('#shop-beast-vegetable-qty')?.value) || 0;
+  
+  // orc spice purchase
+  cookingState.shop.beastSpicePurchase.enabled = root.querySelector('#shop-beast-spice-enabled')?.checked ?? false;
+  cookingState.shop.beastSpicePurchase.quantity = parseInt(root.querySelector('#shop-beast-spice-qty')?.value) || 0;
+  
   // skill books purchase
   cookingState.shop.skillBooks.enabled = root.querySelector('#shop-skillbooks-enabled')?.checked ?? false;
   cookingState.shop.skillBooks.quantity = parseInt(root.querySelector('#shop-skillbooks-qty')?.value) || 0;
   cookingState.shop.skillBooks.level = parseInt(root.querySelector('#shop-skillbooks-level')?.value) || 1;
   
   // Update cost based on level
-  cookingState.shop.skillBooks.cost = cookingState.shop.skillBooks.level === 2 ? 10000 : 5000;
+  if (cookingState.shop.skillBooks.level === 3) {
+    cookingState.shop.skillBooks.cost = 15000;
+  } else if (cookingState.shop.skillBooks.level === 2) {
+    cookingState.shop.skillBooks.cost = 10000;
+  } else {
+    cookingState.shop.skillBooks.cost = 5000;
+  }
   
   // Update the price display in the UI
   const priceDisplay = root.querySelector('#shop-skillbooks-price');
