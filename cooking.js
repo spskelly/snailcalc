@@ -94,7 +94,7 @@ function buildDailySummary(root) {
             </label>
             <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; font-size: 0.9em;">
               <input type="radio" name="daily-vendor-select" value="beast">
-              🏹 Orc
+              👹 Orc
             </label>
           </div>
         </div>
@@ -264,7 +264,7 @@ function updateDailySummary(root) {
             </div>
           ` : ''}
           ${usesBeast ? `
-            <div style="margin-bottom: 6px;"><strong>🏹 Orc Hunter's Tribe:</strong></div>
+            <div style="margin-bottom: 6px;"><strong>👹 Orc Hunter's Tribe:</strong></div>
             <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-left: 8px;">
               <span>🥩: ${formatIngredient(totalDailyOrders * beast.meatRate)}</span>
               ${beast.vegetableRate > 0 ? `<span>🥬: ${formatIngredient(totalDailyOrders * beast.vegetableRate)}</span>` : ''}
@@ -417,7 +417,7 @@ function buildVendorConfig(root) {
   // orc hunter's tribe vendor
   html += `
     <div class="card card-lg vendor-card">
-      <h4 class="card-header">🏹 Orc Hunter's Tribe</h4>
+      <h4 class="card-header">👹 Orc Hunter's Tribe</h4>
       <div class="card-body vendor-preset">
         <label style="display: block; margin-bottom: 8px;">
           <input type="radio" name="beast-preset" value="none"> None (Not Unlocked)
@@ -599,7 +599,7 @@ function buildShopConfig(root) {
   
   // Row 4: Orc Hunter's Tribe vendor items
   html += '<div class="shop-row">';
-  html += '<div class="shop-row-label">🏹 Orc</div>';
+  html += '<div class="shop-row-label">👹 Orc</div>';
   html += '<div class="shop-row-items">';
   
   // orc vegetable purchase
@@ -767,7 +767,7 @@ function buildRecipeManager(root) {
       <div class="panel${beastCollapsed}" data-accordion-id="beast-recipes">
         <div class="panel-header" onclick="toggleAccordion(this)">
           <span class="panel-toggle">▼</span>
-          <h3 class="panel-title">🏹 Orc Hunter's Tribe Recipes (${beastTotal})</h3>
+          <h3 class="panel-title">👹 Orc Hunter's Tribe Recipes (${beastTotal})</h3>
         </div>
         <div class="panel-content">
           ${buildRecipeGroup('beast-meat-only', '🥩 Meat Only', beastRecipes.meatOnly, false, 'border-beast')}
@@ -2018,7 +2018,7 @@ function updateRankingTable(root, results) {
     const vendorClass = r.vendor === 'Miraculand' ? 'mirac-row' : '';
     
     // Get vendor icon
-    const vendorIcon = r.vendor === 'Clown' ? '🤡' : r.vendor === 'Miraculand' ? '🌴' : '🏹';
+    const vendorIcon = r.vendor === 'Clown' ? '🤡' : r.vendor === 'Miraculand' ? '🌴' : '👹';
     
     html += `
       <tr class="${vendorClass}">
@@ -2365,7 +2365,7 @@ function updateStrategySummary(root, results) {
   const vendorGolds = [
     { name: 'Clown', gold: clownDailyGold, result: clownResult, emoji: '🤡' },
     { name: 'Miraculand', gold: miracDailyGold, result: miracResult, emoji: '🌴' },
-    { name: 'Orc', gold: beastDailyGold, result: beastResult, emoji: '🏹' }
+    { name: 'Orc', gold: beastDailyGold, result: beastResult, emoji: '👹' }
   ];
   
   // Sort by gold descending to find optimal
