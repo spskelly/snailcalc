@@ -90,7 +90,7 @@ function buildDailySummary(root) {
             </label>
             <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; font-size: 0.9em;">
               <input type="radio" name="daily-vendor-select" value="miraculand">
-              🎪 Miraculand
+              🌴 Miraculand
             </label>
             <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; font-size: 0.9em;">
               <input type="radio" name="daily-vendor-select" value="beast">
@@ -256,7 +256,7 @@ function updateDailySummary(root) {
             </div>
           ` : ''}
           ${usesMirac ? `
-            <div style="margin-bottom: 6px;"><strong>🎪 Miraculand Vendor:</strong></div>
+            <div style="margin-bottom: 6px;"><strong>🌴 Miraculand Vendor:</strong></div>
             <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-left: 8px;">
               <span>🥩: ${formatIngredient(totalDailyOrders * mirac.meatRate)}</span>
               ${mirac.vegetableRate > 0 ? `<span>🥬: ${formatIngredient(totalDailyOrders * mirac.vegetableRate)}</span>` : ''}
@@ -396,7 +396,7 @@ function buildVendorConfig(root) {
   // miraculand vendor
   html += `
     <div class="card card-lg vendor-card">
-      <h4 class="card-header">🎪 Miraculand Vendor</h4>
+      <h4 class="card-header">🌴 Miraculand Vendor</h4>
       <div class="card-body vendor-preset">
         <label style="display: block; margin-bottom: 8px;">
           <input type="radio" name="mirac-preset" value="none"> None (Not Unlocked)
@@ -561,7 +561,7 @@ function buildShopConfig(root) {
   
   // Row 3: Miraculand vendor items
   html += '<div class="shop-row">';
-  html += '<div class="shop-row-label">🎪 Mirac</div>';
+  html += '<div class="shop-row-label">🌴 Mirac</div>';
   html += '<div class="shop-row-items">';
   
   // miraculand vegetable purchase
@@ -751,7 +751,7 @@ function buildRecipeManager(root) {
     <div class="panel${miracCollapsed}" data-accordion-id="mirac-recipes">
       <div class="panel-header" onclick="toggleAccordion(this)">
         <span class="panel-toggle">▼</span>
-        <h3 class="panel-title">🎪 Miraculand Vendor Recipes (${miracTotal})</h3>
+        <h3 class="panel-title">🌴 Miraculand Vendor Recipes (${miracTotal})</h3>
       </div>
       <div class="panel-content">
         ${buildRecipeGroup('mirac-meat-only', '🥩 Meat Only', miracRecipes.meatOnly, true)}
@@ -1362,7 +1362,7 @@ function buildResultsDashboard(root) {
           
           <!-- Miraculand Vendor Row -->
           <div class="ingredient-row-mirac">
-            <div class="ingredient-row-label">🎪 Miraculand Vendor</div>
+            <div class="ingredient-row-label">🌴 Miraculand Vendor</div>
             <div class="ingredient-row">
               <div class="card card-md ingredient-card border-mirac" style="text-align: center;">
                 <label style="display: block; font-weight: bold; margin-bottom: 8px;">🥩 Meat</label>
@@ -2018,7 +2018,7 @@ function updateRankingTable(root, results) {
     const vendorClass = r.vendor === 'Miraculand' ? 'mirac-row' : '';
     
     // Get vendor icon
-    const vendorIcon = r.vendor === 'Clown' ? '🤡' : r.vendor === 'Miraculand' ? '🎪' : '🏹';
+    const vendorIcon = r.vendor === 'Clown' ? '🤡' : r.vendor === 'Miraculand' ? '🌴' : '🏹';
     
     html += `
       <tr class="${vendorClass}">
@@ -2364,7 +2364,7 @@ function updateStrategySummary(root, results) {
   // === DETERMINE OPTIMAL VENDOR (compare all three) ===
   const vendorGolds = [
     { name: 'Clown', gold: clownDailyGold, result: clownResult, emoji: '🤡' },
-    { name: 'Miraculand', gold: miracDailyGold, result: miracResult, emoji: '🎪' },
+    { name: 'Miraculand', gold: miracDailyGold, result: miracResult, emoji: '🌴' },
     { name: 'Orc', gold: beastDailyGold, result: beastResult, emoji: '🏹' }
   ];
   
