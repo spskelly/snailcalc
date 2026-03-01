@@ -437,6 +437,20 @@ const COOKING_RECIPES = {
     beastVegetable: 3,
     beastSpice: 0
   },
+  "braised_wolfclaw": {
+    name: "Braised Wolfclaw",
+    defaultStars: 1,
+    defaultPrice: 0,
+    clownMeat: 0,
+    clownVegetable: 0,
+    clownSpice: 0,
+    miracMeat: 0,
+    miracVegetable: 0,
+    miracSpice: 0,
+    beastMeat: 8,
+    beastVegetable: 4,
+    beastSpice: 0
+  },
   "siliconmon_shortcake": {
     name: "Siliconmon Shortcake",
     defaultStars: 1,
@@ -582,5 +596,6 @@ const RECIPE_ORDER = [
   "smoked_spider",
   "dry_ice_soda",
   "pickled_deathcaller",
+  "braised_wolfclaw",
   "siliconmon_shortcake"
 ];
