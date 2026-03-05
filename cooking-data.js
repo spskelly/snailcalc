@@ -451,6 +451,20 @@ const COOKING_RECIPES = {
     beastVegetable: 4,
     beastSpice: 0
   },
+  "fried_fire_dragon_egg": {
+    name: "Fried Fire Dragon Egg",
+    defaultStars: 1,
+    defaultPrice: 0,
+    clownMeat: 0,
+    clownVegetable: 0,
+    clownSpice: 0,
+    miracMeat: 0,
+    miracVegetable: 0,
+    miracSpice: 0,
+    beastMeat: 10,
+    beastVegetable: 6,
+    beastSpice: 0
+  },
   "siliconmon_shortcake": {
     name: "Siliconmon Shortcake",
     defaultStars: 1,
@@ -597,5 +611,6 @@ const RECIPE_ORDER = [
   "dry_ice_soda",
   "pickled_deathcaller",
   "braised_wolfclaw",
+  "fried_fire_dragon_egg",
   "siliconmon_shortcake"
 ];
