@@ -478,6 +478,20 @@ const COOKING_RECIPES = {
     beastMeat: 5,
     beastVegetable: 2,
     beastSpice: 1
+  },
+  "pufferfish_mousse": {
+    name: "Pufferfish Mousse",
+    defaultStars: 1,
+    defaultPrice: 0,
+    clownMeat: 0,
+    clownVegetable: 0,
+    clownSpice: 0,
+    miracMeat: 0,
+    miracVegetable: 0,
+    miracSpice: 0,
+    beastMeat: 8,
+    beastVegetable: 5,
+    beastSpice: 3
   }
 };
 
@@ -612,5 +626,6 @@ const RECIPE_ORDER = [
   "pickled_deathcaller",
   "braised_wolfclaw",
   "fried_fire_dragon_egg",
-  "siliconmon_shortcake"
+  "siliconmon_shortcake",
+  "pufferfish_mousse"
 ];
