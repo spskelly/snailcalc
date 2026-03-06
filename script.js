@@ -765,12 +765,18 @@ document.addEventListener("DOMContentLoaded", () => {
       const pencil = group.querySelector(".preset-rename-btn");
       if (!label || !pencil) continue;
 
-      const customName = localStorage.getItem(`${presetType}PresetName${i}`);
-      if (customName) label.textContent = customName + ":";
+      let customName = localStorage.getItem(`${presetType}PresetName${i}`);
+      if (customName) {
+        if (customName.length > 20) {
+          customName = customName.substring(0, 20);
+          localStorage.setItem(`${presetType}PresetName${i}`, customName);
+        }
+        label.textContent = customName;
+      }
 
       pencil.addEventListener("click", () => {
         if (group.querySelector(".preset-rename-input")) return;
-        const currentName = label.textContent.replace(":", "");
+        const currentName = label.textContent;
         const input = document.createElement("input");
         input.type = "text";
         input.value = currentName;
@@ -789,7 +795,7 @@ document.addEventListener("DOMContentLoaded", () => {
           renameDone = true;
           let newName = input.value.trim();
           if (!newName) newName = currentName;
-          label.textContent = newName + ":";
+          label.textContent = newName;
           localStorage.setItem(`${presetType}PresetName${i}`, newName);
           label.style.display = "";
           pencil.style.display = "";
