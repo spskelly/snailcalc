@@ -379,12 +379,21 @@ function loadFromLocalStorage() {
 }
 
 // Render main cost tables for snail and minion
+function truncateName(name, max) {
+  return name.length > max ? name.substring(0, max) + "…" : name;
+}
+function getSnailPresetNames() {
+  return [1, 2, 3].map(i => truncateName(localStorage.getItem("snailPresetName" + i) || `Preset ${i}`, 12));
+}
+function getMinionPresetNames() {
+  return [1, 2, 3].map(i => truncateName(localStorage.getItem("minionPresetName" + i) || `Preset ${i}`, 12));
+}
 function renderSnailMainTable() {
   const tableDiv = document.getElementById("snailMainTable");
   if (!tableDiv) return;
-  const headers = ["Resource", "Current", "Preset 1", "Preset 2", "Preset 3"];
+  const headers = ["Resource", "Current", ...getSnailPresetNames()];
   const rows = [
-    ["Snail Eye (EoH)", "eoh"],
+    ["Eye of Horus", "eoh"],
     ["Orange", "orange"],
     ["Abyss Wing", "abyss"],
     ["Heaven Wing", "heaven"],
@@ -449,9 +458,9 @@ function renderSnailMainTable() {
 function renderMinionMainTable() {
   const tableDiv = document.getElementById("minionMainTable");
   if (!tableDiv) return;
-  const headers = ["Resource", "Current", "Preset 1", "Preset 2", "Preset 3"];
+  const headers = ["Resource", "Current", ...getMinionPresetNames()];
   const rows = [
-    ["Minion Eye (EoB)", "eye"],
+    ["Blasphemy Eye", "eye"],
     ["Orange", "orange"],
     ["Abyss Wing", "abyss"],
     ["Heaven Wing", "heaven"],
@@ -613,9 +622,9 @@ function getSnailPresetTotals(slot) {
 function renderSnailCompareTable() {
   const tableDiv = document.getElementById("snailCompareTable");
   if (!tableDiv) return;
-  const headers = ["Resource", "Preset 1", "Preset 2", "Preset 3"];
+  const headers = ["Resource", ...getSnailPresetNames()];
   const rows = [
-    ["Snail Eye (EoH)", "eoh"],
+    ["Eye of Horus", "eoh"],
     ["Orange", "orange"],
     ["Abyss Wing", "abyss"],
     ["Heaven Wing", "heaven"],
@@ -641,9 +650,9 @@ function renderSnailCompareTable() {
 function renderMinionCompareTable() {
   const tableDiv = document.getElementById("minionCompareTable");
   if (!tableDiv) return;
-  const headers = ["Resource", "Preset 1", "Preset 2", "Preset 3"];
+  const headers = ["Resource", ...getMinionPresetNames()];
   const rows = [
-    ["Minion Eye (EoB)", "eye"],
+    ["Blasphemy Eye", "eye"],
     ["Orange", "orange"],
     ["Abyss Wing", "abyss"],
     ["Heaven Wing", "heaven"],
@@ -747,7 +756,79 @@ document.addEventListener("DOMContentLoaded", () => {
   // New Rocket Cabin Setup
   createAllRocketCabinsUI();
   renderAllRocketCabinSummaries();
-  
+
+  // --- Preset Rename Logic for Snail and Minion Gear ---
+  function setupPresetRename(presetType) {
+    for (let i = 1; i <= 3; i++) {
+      const group = document.querySelector(
+        `.preset-group[data-preset-type="${presetType}"] .preset-set:nth-child(${i})`
+      );
+      if (!group) continue;
+      const label = group.querySelector(".preset-label");
+      const pencil = group.querySelector(".preset-rename-btn");
+      if (!label || !pencil) continue;
+
+      const defaultName = `Preset ${i}`;
+      let customName = localStorage.getItem(`${presetType}PresetName${i}`);
+      if (customName) {
+        if (customName.length > 20) {
+          customName = customName.substring(0, 20);
+          localStorage.setItem(`${presetType}PresetName${i}`, customName);
+        }
+        label.textContent = truncateName(customName, 12) + ":";
+      }
+
+      pencil.addEventListener("click", () => {
+        if (group.querySelector(".preset-rename-input")) return;
+        const storedName = localStorage.getItem(`${presetType}PresetName${i}`) || defaultName;
+        const input = document.createElement("input");
+        input.type = "text";
+        input.value = storedName;
+        input.className = "preset-rename-input";
+        input.maxLength = 20;
+        input.style.width = Math.max(60, storedName.length * 10) + "px";
+        label.style.display = "none";
+        pencil.style.display = "none";
+        group.insertBefore(input, group.children[1]);
+        input.focus();
+        input.select();
+
+        let renameDone = false;
+        function finishRename() {
+          if (renameDone) return;
+          renameDone = true;
+          let newName = input.value.trim();
+          if (!newName) newName = localStorage.getItem(`${presetType}PresetName${i}`) || defaultName;
+          localStorage.setItem(`${presetType}PresetName${i}`, newName);
+          label.textContent = truncateName(newName, 12) + ":";
+          label.style.display = "";
+          pencil.style.display = "";
+          if (input.parentNode) input.parentNode.removeChild(input);
+          if (presetType === "snail") {
+            renderSnailMainTable();
+            if (typeof renderSnailCompareTable === "function") renderSnailCompareTable();
+          } else if (presetType === "minion") {
+            renderMinionMainTable();
+            if (typeof renderMinionCompareTable === "function") renderMinionCompareTable();
+          }
+        }
+
+        input.addEventListener("blur", finishRename);
+        input.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            finishRename();
+          } else if (e.key === "Escape") {
+            label.style.display = "";
+            pencil.style.display = "";
+            if (input.parentNode) input.parentNode.removeChild(input);
+          }
+        });
+      });
+    }
+  }
+  setupPresetRename("snail");
+  setupPresetRename("minion");
+
   // Add event listeners for the new rocket dropdowns (per-cabin update)
   document.querySelectorAll(".rocket-tier-select").forEach(select => {
     select.addEventListener("change", (e) => {
