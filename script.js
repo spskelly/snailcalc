@@ -379,11 +379,14 @@ function loadFromLocalStorage() {
 }
 
 // Render main cost tables for snail and minion
+function truncateName(name, max) {
+  return name.length > max ? name.substring(0, max) + "…" : name;
+}
 function getSnailPresetNames() {
-  return [1, 2, 3].map(i => localStorage.getItem("snailPresetName" + i) || `Preset ${i}`);
+  return [1, 2, 3].map(i => truncateName(localStorage.getItem("snailPresetName" + i) || `Preset ${i}`, 12));
 }
 function getMinionPresetNames() {
-  return [1, 2, 3].map(i => localStorage.getItem("minionPresetName" + i) || `Preset ${i}`);
+  return [1, 2, 3].map(i => truncateName(localStorage.getItem("minionPresetName" + i) || `Preset ${i}`, 12));
 }
 function renderSnailMainTable() {
   const tableDiv = document.getElementById("snailMainTable");
@@ -765,24 +768,25 @@ document.addEventListener("DOMContentLoaded", () => {
       const pencil = group.querySelector(".preset-rename-btn");
       if (!label || !pencil) continue;
 
+      const defaultName = `Preset ${i}`;
       let customName = localStorage.getItem(`${presetType}PresetName${i}`);
       if (customName) {
         if (customName.length > 20) {
           customName = customName.substring(0, 20);
           localStorage.setItem(`${presetType}PresetName${i}`, customName);
         }
-        label.textContent = customName;
+        label.textContent = truncateName(customName, 12) + ":";
       }
 
       pencil.addEventListener("click", () => {
         if (group.querySelector(".preset-rename-input")) return;
-        const currentName = label.textContent;
+        const storedName = localStorage.getItem(`${presetType}PresetName${i}`) || defaultName;
         const input = document.createElement("input");
         input.type = "text";
-        input.value = currentName;
+        input.value = storedName;
         input.className = "preset-rename-input";
         input.maxLength = 20;
-        input.style.width = Math.max(60, currentName.length * 10) + "px";
+        input.style.width = Math.max(60, storedName.length * 10) + "px";
         label.style.display = "none";
         pencil.style.display = "none";
         group.insertBefore(input, group.children[1]);
@@ -794,9 +798,9 @@ document.addEventListener("DOMContentLoaded", () => {
           if (renameDone) return;
           renameDone = true;
           let newName = input.value.trim();
-          if (!newName) newName = currentName;
-          label.textContent = newName;
+          if (!newName) newName = localStorage.getItem(`${presetType}PresetName${i}`) || defaultName;
           localStorage.setItem(`${presetType}PresetName${i}`, newName);
+          label.textContent = truncateName(newName, 12) + ":";
           label.style.display = "";
           pencil.style.display = "";
           if (input.parentNode) input.parentNode.removeChild(input);
