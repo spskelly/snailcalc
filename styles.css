@@ -1089,6 +1089,49 @@ h1, h2 {
   flex-shrink: 0;
 }
 
+/* --- Preset Rename Icon and Input --- */
+.preset-rename-btn {
+  background: none;
+  border: none;
+  padding: 0 2px;
+  margin-left: 2px;
+  cursor: pointer;
+  vertical-align: middle;
+  display: inline-flex;
+  align-items: center;
+  color: var(--text-muted);
+  transition: color 0.2s;
+}
+.preset-rename-btn:focus,
+.preset-rename-btn:hover {
+  outline: none;
+  color: var(--text-primary);
+}
+.pencil-icon {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  vertical-align: middle;
+  pointer-events: none;
+}
+.preset-rename-input {
+  font-size: 1em;
+  padding: 2px 6px;
+  border: 1.5px solid var(--border-primary);
+  border-radius: var(--btn-radius);
+  background: var(--bg-highlight);
+  color: var(--text-primary);
+  margin-left: 4px;
+  min-width: 60px;
+  max-width: 120px;
+  outline: none;
+  transition: border 0.2s, background 0.2s;
+}
+.preset-rename-input:focus {
+  border-color: var(--text-secondary);
+  background: var(--bg-card);
+}
+
 /* Issue #14: Calculator switcher tablet padding for better reach comfort */
 @media (min-width: 768px) and (max-width: 1023px) {
   .calculator-switcher {
@@ -1184,6 +1227,7 @@ h1, h2 {
 /* Main cost table styling - improved readability */
 .cost-table {
   width: 100%;
+  table-layout: fixed;
   background: var(--bg-card);
   border-radius: 12px;
   box-shadow: var(--shadow-lg);
@@ -1192,6 +1236,11 @@ h1, h2 {
   border-spacing: 0;
   font-size: clamp(0.875rem, 1.8vw, 1rem);
   line-height: 1.55;
+  overflow: hidden;
+}
+.cost-table th,
+.cost-table td {
+  text-overflow: ellipsis;
   overflow: hidden;
 }
 .cost-table th {
