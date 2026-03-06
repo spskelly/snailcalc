@@ -585,8 +585,8 @@ const MEGA_STEW_VALUES = {
   miracVegetable: 108,
   miracSpice: 195.00,
   beastMeat: 48.00,      // 16-80 range, mid = 48
-  beastVegetable: 0,     // TBD when unlocked
-  beastSpice: 0          // TBD when unlocked
+  beastVegetable: 144,   // 48-240 range, mid = 144
+  beastSpice: 260        // 120-400 range, mid = 260
 };
 
 // Recipe order for display (roughly by complexity/unlock order)

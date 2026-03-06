@@ -105,6 +105,9 @@
   --vendor-mirac-bg: #f3e5f5;
   --vendor-mirac-color: #7b1fa2;
   --vendor-mirac-border: #7b1fa2;
+  --vendor-beast-bg: #ffebee;
+  --vendor-beast-color: #c62828;
+  --vendor-beast-border: #c62828;
   
   /* Chart Colors */
   --chart-blue: #3498db;
@@ -575,6 +578,9 @@ input:focus-visible {
 
 .border-mirac { border-left: 4px solid var(--vendor-mirac-border) !important; }
 .bg-mirac     { background: linear-gradient(to bottom, var(--bg-card), var(--vendor-mirac-bg)); }
+
+.border-beast { border-left: 4px solid var(--vendor-beast-border) !important; }
+.bg-beast     { background: linear-gradient(to bottom, var(--bg-card), var(--vendor-beast-bg)); }
 
 /* Ingredient Card Enhancements */
 .ingredient-card {

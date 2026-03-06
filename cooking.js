@@ -954,7 +954,10 @@ function updateCurrentIngredients(root) {
     clownSpice: parseInt(container.querySelector('#current-clown-spice')?.value) || 0,
     miracMeat: parseInt(container.querySelector('#current-mirac-meat')?.value) || 0,
     miracVegetable: parseInt(container.querySelector('#current-mirac-vegetable')?.value) || 0,
-    miracSpice: parseInt(container.querySelector('#current-mirac-spice')?.value) || 0
+    miracSpice: parseInt(container.querySelector('#current-mirac-spice')?.value) || 0,
+    beastMeat: parseInt(container.querySelector('#current-beast-meat')?.value) || 0,
+    beastVegetable: parseInt(container.querySelector('#current-beast-vegetable')?.value) || 0,
+    beastSpice: parseInt(container.querySelector('#current-beast-spice')?.value) || 0
   };
   
   saveCookingToStorage();
@@ -1378,6 +1381,25 @@ function buildResultsDashboard(root) {
               </div>
             </div>
           </div>
+          
+          <!-- Beast (Orc Hunter's Tribe) Vendor Row -->
+          <div class="ingredient-row-beast">
+            <div class="ingredient-row-label">👹 Orc Hunter's Tribe</div>
+            <div class="ingredient-row">
+              <div class="card card-md ingredient-card border-beast" style="text-align: center;">
+                <label style="display: block; font-weight: bold; margin-bottom: 8px;">🥩 Meat</label>
+                <input type="number" id="current-beast-meat" value="${ing.beastMeat}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
+              </div>
+              <div class="card card-md ingredient-card border-beast" style="text-align: center;">
+                <label style="display: block; font-weight: bold; margin-bottom: 8px;">🥬 Vegetable</label>
+                <input type="number" id="current-beast-vegetable" value="${ing.beastVegetable}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
+              </div>
+              <div class="card card-md ingredient-card border-beast" style="text-align: center;">
+                <label style="display: block; font-weight: bold; margin-bottom: 8px;">🌶️ Spice</label>
+                <input type="number" id="current-beast-spice" value="${ing.beastSpice}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       
@@ -1408,7 +1430,7 @@ function buildResultsDashboard(root) {
   container.innerHTML = html;
   
   // Set up event listeners for shared ingredient inputs
-  ['clown-meat', 'clown-vegetable', 'clown-spice', 'mirac-meat', 'mirac-vegetable', 'mirac-spice'].forEach(id => {
+  ['clown-meat', 'clown-vegetable', 'clown-spice', 'mirac-meat', 'mirac-vegetable', 'mirac-spice', 'beast-meat', 'beast-vegetable', 'beast-spice'].forEach(id => {
     const input = container.querySelector(`#current-${id}`);
     if (input) {
       input.addEventListener('input', () => {
@@ -2451,7 +2473,10 @@ const INGREDIENT_RANGES = {
   clownSpice: { min: 72, max: 240, mid: 156.00 },
   miracMeat: { min: 12, max: 60, mid: 36.00 },
   miracVegetable: { min: 36, max: 180, mid: 108 },
-  miracSpice: { min: 90, max: 300, mid: 195.00 }
+  miracSpice: { min: 90, max: 300, mid: 195.00 },
+  beastMeat: { min: 16, max: 80, mid: 48.00 },
+  beastVegetable: { min: 48, max: 240, mid: 144 },
+  beastSpice: { min: 120, max: 400, mid: 260 }
 };
 
 function updateStewCalculator(root) {
@@ -2499,7 +2524,7 @@ function updateStewCalculator(root) {
         </div>
         
         <!-- Miraculand Vendor Row -->
-        <div class="ingredient-row-mirac">
+        <div class="ingredient-row-mirac" style="margin-bottom: 15px;">
           <div class="ingredient-row-label">🎪 Miraculand Vendor</div>
           <div class="ingredient-row">
             <div class="card card-md ingredient-card border-mirac" style="text-align: center;">
@@ -2523,6 +2548,36 @@ function updateStewCalculator(root) {
               <div style="font-size: 0.85em; color: #666;">
                 <div style="font-family: monospace; font-size: 0.9em; margin-bottom: 2px;">90 - 300 gold</div>
                 <div>Expected: 195.00</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Beast (Orc Hunter's Tribe) Vendor Row -->
+        <div class="ingredient-row-beast">
+          <div class="ingredient-row-label">👹 Orc Hunter's Tribe</div>
+          <div class="ingredient-row">
+            <div class="card card-md ingredient-card border-beast" style="text-align: center;">
+              <div style="font-weight: bold; margin-bottom: 4px;">🥩 Meat</div>
+              <div style="font-size: 0.85em; color: #666;">
+                <div style="font-family: monospace; font-size: 0.9em; margin-bottom: 2px;">16 - 80 gold</div>
+                <div>Expected: 48.00</div>
+              </div>
+            </div>
+            
+            <div class="card card-md ingredient-card border-beast" style="text-align: center;">
+              <div style="font-weight: bold; margin-bottom: 4px;">🥬 Vegetable</div>
+              <div style="font-size: 0.85em; color: #666;">
+                <div style="font-family: monospace; font-size: 0.9em; margin-bottom: 2px;">48 - 240 gold</div>
+                <div>Expected: 144.00</div>
+              </div>
+            </div>
+            
+            <div class="card card-md ingredient-card border-beast" style="text-align: center;">
+              <div style="font-weight: bold; margin-bottom: 4px;">🌶️ Spice</div>
+              <div style="font-size: 0.85em; color: #666;">
+                <div style="font-family: monospace; font-size: 0.9em; margin-bottom: 2px;">120 - 400 gold</div>
+                <div>Expected: 260.00</div>
               </div>
             </div>
           </div>
@@ -2620,7 +2675,11 @@ function calculateStewRanges(root) {
     clownVegetable: parseInt(ingredientContainer.querySelector('#current-clown-vegetable')?.value) || 0,
     clownSpice: parseInt(ingredientContainer.querySelector('#current-clown-spice')?.value) || 0,
     miracMeat: parseInt(ingredientContainer.querySelector('#current-mirac-meat')?.value) || 0,
-    miracVegetable: parseInt(ingredientContainer.querySelector('#current-mirac-vegetable')?.value) || 0
+    miracVegetable: parseInt(ingredientContainer.querySelector('#current-mirac-vegetable')?.value) || 0,
+    miracSpice: parseInt(ingredientContainer.querySelector('#current-mirac-spice')?.value) || 0,
+    beastMeat: parseInt(ingredientContainer.querySelector('#current-beast-meat')?.value) || 0,
+    beastVegetable: parseInt(ingredientContainer.querySelector('#current-beast-vegetable')?.value) || 0,
+    beastSpice: parseInt(ingredientContainer.querySelector('#current-beast-spice')?.value) || 0
   };
   
   const container = root.querySelector('#stew-calculator');
