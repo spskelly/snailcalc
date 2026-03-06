@@ -1081,6 +1081,12 @@ h1, h2 {
   font-family: "Arial", sans-serif;
   letter-spacing: 0.2px;
   flex-shrink: 0; /* Prevent label from shrinking */
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  vertical-align: middle;
 }
 .preset-button {
   /* Most properties now handled by .btn .btn-secondary .btn-sm utility classes */

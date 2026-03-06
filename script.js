@@ -775,6 +775,7 @@ document.addEventListener("DOMContentLoaded", () => {
         input.type = "text";
         input.value = currentName;
         input.className = "preset-rename-input";
+        input.maxLength = 20;
         input.style.width = Math.max(60, currentName.length * 10) + "px";
         label.style.display = "none";
         pencil.style.display = "none";
