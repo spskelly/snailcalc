@@ -305,7 +305,15 @@ function updateDailySummary(root) {
               ${beast.spiceRate > 0 ? `<span>🌶️: ${formatIngredient(totalDailyOrders * beast.spiceRate)}</span>` : ''}
             </div>
           ` : ''}
-          ${(usesClown && (shop.vegetablePurchase.enabled && shop.vegetablePurchase.quantity > 0 || shop.spicePurchase.enabled && shop.spicePurchase.quantity > 0)) || (usesMirac && (shop.miracVegetablePurchase.enabled && shop.miracVegetablePurchase.quantity > 0 || shop.miracSpicePurchase.enabled && shop.miracSpicePurchase.quantity > 0)) ? `
+          ${usesWitch ? `
+            <div style="margin-bottom: 6px;"><strong>🧙 Witch Alchemy Store:</strong></div>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-left: 8px;">
+              <span>🥩: ${formatIngredient(totalDailyOrders * witch.meatRate)}</span>
+              ${witch.vegetableRate > 0 ? `<span>🥬: ${formatIngredient(totalDailyOrders * witch.vegetableRate)}</span>` : ''}
+              ${witch.spiceRate > 0 ? `<span>🌶️: ${formatIngredient(totalDailyOrders * witch.spiceRate)}</span>` : ''}
+            </div>
+          ` : ''}
+          ${(usesClown && (shop.vegetablePurchase.enabled && shop.vegetablePurchase.quantity > 0 || shop.spicePurchase.enabled && shop.spicePurchase.quantity > 0)) || (usesMirac && (shop.miracVegetablePurchase.enabled && shop.miracVegetablePurchase.quantity > 0 || shop.miracSpicePurchase.enabled && shop.miracSpicePurchase.quantity > 0)) || (usesBeast && (shop.beastVegetablePurchase.enabled && shop.beastVegetablePurchase.quantity > 0 || shop.beastSpicePurchase.enabled && shop.beastSpicePurchase.quantity > 0)) || (usesWitch && (shop.witchVegetablePurchase.enabled && shop.witchVegetablePurchase.quantity > 0 || shop.witchSpicePurchase.enabled && shop.witchSpicePurchase.quantity > 0)) ? `
             <div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed #ccc;">
               <div style="margin-bottom: 6px;"><strong>🛒 Shop Purchases:</strong></div>
               <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-left: 8px;">
@@ -313,6 +321,10 @@ function updateDailySummary(root) {
                 ${usesClown && shop.spicePurchase.enabled && shop.spicePurchase.quantity > 0 ? `<span>🌶️: ${formatIngredient(shop.spicePurchase.quantity)}</span>` : ''}
                 ${usesMirac && shop.miracVegetablePurchase.enabled && shop.miracVegetablePurchase.quantity > 0 ? `<span>🥬: ${formatIngredient(shop.miracVegetablePurchase.quantity)}</span>` : ''}
                 ${usesMirac && shop.miracSpicePurchase.enabled && shop.miracSpicePurchase.quantity > 0 ? `<span>🌶️: ${formatIngredient(shop.miracSpicePurchase.quantity)}</span>` : ''}
+                ${usesBeast && shop.beastVegetablePurchase.enabled && shop.beastVegetablePurchase.quantity > 0 ? `<span>🥬: ${formatIngredient(shop.beastVegetablePurchase.quantity)}</span>` : ''}
+                ${usesBeast && shop.beastSpicePurchase.enabled && shop.beastSpicePurchase.quantity > 0 ? `<span>🌶️: ${formatIngredient(shop.beastSpicePurchase.quantity)}</span>` : ''}
+                ${usesWitch && shop.witchVegetablePurchase.enabled && shop.witchVegetablePurchase.quantity > 0 ? `<span>🥬: ${formatIngredient(shop.witchVegetablePurchase.quantity)}</span>` : ''}
+                ${usesWitch && shop.witchSpicePurchase.enabled && shop.witchSpicePurchase.quantity > 0 ? `<span>🌶️: ${formatIngredient(shop.witchSpicePurchase.quantity)}</span>` : ''}
               </div>
             </div>
           ` : ''}
@@ -353,6 +365,12 @@ function updateDailySummary(root) {
               ${Math.round(remaining.miracMeat) > 0 ? `<span>🥩: ${formatIngredient(remaining.miracMeat)} (m)</span>` : ''}
               ${Math.round(remaining.miracVegetable) > 0 ? `<span>🥬: ${formatIngredient(remaining.miracVegetable)} (m)</span>` : ''}
               ${Math.round(remaining.miracSpice) > 0 ? `<span>🌶️: ${formatIngredient(remaining.miracSpice)} (m)</span>` : ''}
+              ${Math.round(remaining.beastMeat) > 0 ? `<span>🥩: ${formatIngredient(remaining.beastMeat)} (o)</span>` : ''}
+              ${Math.round(remaining.beastVegetable) > 0 ? `<span>🥬: ${formatIngredient(remaining.beastVegetable)} (o)</span>` : ''}
+              ${Math.round(remaining.beastSpice) > 0 ? `<span>🌶️: ${formatIngredient(remaining.beastSpice)} (o)</span>` : ''}
+              ${Math.round(remaining.witchMeat) > 0 ? `<span>🥩: ${formatIngredient(remaining.witchMeat)} (w)</span>` : ''}
+              ${Math.round(remaining.witchVegetable) > 0 ? `<span>🥬: ${formatIngredient(remaining.witchVegetable)} (w)</span>` : ''}
+              ${Math.round(remaining.witchSpice) > 0 ? `<span>🌶️: ${formatIngredient(remaining.witchSpice)} (w)</span>` : ''}
             </div>
             <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ccc; text-align: center;">
               🍲 Mega Stew Value: <strong style="color: #2e7d32;">${Math.round(stewValue).toLocaleString()}g</strong>
