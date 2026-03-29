@@ -14,7 +14,10 @@ const COOKING_RECIPES = {
     miracSpice: 0,
     beastMeat: 0,
     beastVegetable: 0,
-    beastSpice: 0
+    beastSpice: 0,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
   },
   "goblin_burger": {
     name: "Goblin Burger",
@@ -28,7 +31,10 @@ const COOKING_RECIPES = {
     miracSpice: 0,
     beastMeat: 0,
     beastVegetable: 0,
-    beastSpice: 0
+    beastSpice: 0,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
   },
   "toad_egg_salad": {
     name: "Toad Egg Salad",
@@ -42,7 +48,10 @@ const COOKING_RECIPES = {
     miracSpice: 0,
     beastMeat: 0,
     beastVegetable: 0,
-    beastSpice: 0
+    beastSpice: 0,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
   },
   "rust_pudding": {
     name: "Rust Pudding",
@@ -56,7 +65,10 @@ const COOKING_RECIPES = {
     miracSpice: 0,
     beastMeat: 0,
     beastVegetable: 0,
-    beastSpice: 0
+    beastSpice: 0,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
   },
   "braised_gumball": {
     name: "Braised Gumball",
@@ -70,7 +82,10 @@ const COOKING_RECIPES = {
     miracSpice: 0,
     beastMeat: 0,
     beastVegetable: 0,
-    beastSpice: 0
+    beastSpice: 0,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
   },
   "garlic_dried_gecko": {
     name: "Garlic Dried Gecko",
@@ -84,7 +99,10 @@ const COOKING_RECIPES = {
     miracSpice: 0,
     beastMeat: 0,
     beastVegetable: 0,
-    beastSpice: 0
+    beastSpice: 0,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
   },
   "fried_demon_beef_rib": {
     name: "Fried Demon Beef Rib",
@@ -98,7 +116,10 @@ const COOKING_RECIPES = {
     miracSpice: 0,
     beastMeat: 0,
     beastVegetable: 0,
-    beastSpice: 0
+    beastSpice: 0,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
   },
   "teriyaki_blood_elf": {
     name: "Teriyaki Blood Elf",
@@ -112,7 +133,10 @@ const COOKING_RECIPES = {
     miracSpice: 0,
     beastMeat: 0,
     beastVegetable: 0,
-    beastSpice: 0
+    beastSpice: 0,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
   },
   "worm_cheese": {
     name: "Worm Cheese",
@@ -126,7 +150,10 @@ const COOKING_RECIPES = {
     miracSpice: 0,
     beastMeat: 0,
     beastVegetable: 0,
-    beastSpice: 0
+    beastSpice: 0,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
   },
   "spider_eyeball_soup": {
     name: "Spider Eyeball Soup",
@@ -140,7 +167,10 @@ const COOKING_RECIPES = {
     miracSpice: 0,
     beastMeat: 0,
     beastVegetable: 0,
-    beastSpice: 0
+    beastSpice: 0,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
   },
   "spicy_griffon_claw": {
     name: "Spicy Griffon Claw",
@@ -154,7 +184,10 @@ const COOKING_RECIPES = {
     miracSpice: 0,
     beastMeat: 0,
     beastVegetable: 0,
-    beastSpice: 0
+    beastSpice: 0,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
   },
   "nuclear_bbq_oyster": {
     name: "Nuclear BBQ Oyster",
@@ -168,7 +201,10 @@ const COOKING_RECIPES = {
     miracSpice: 0,
     beastMeat: 0,
     beastVegetable: 0,
-    beastSpice: 0
+    beastSpice: 0,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
   },
   "marinated_octopus": {
     name: "Marinated Octopus",
@@ -182,7 +218,10 @@ const COOKING_RECIPES = {
     miracSpice: 0,
     beastMeat: 0,
     beastVegetable: 0,
-    beastSpice: 0
+    beastSpice: 0,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
   },
   "lube_cheese_brick": {
     name: "Lube-Cheese Brick",
@@ -196,7 +235,10 @@ const COOKING_RECIPES = {
     miracSpice: 0,
     beastMeat: 0,
     beastVegetable: 0,
-    beastSpice: 0
+    beastSpice: 0,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
   },
   "manta_ray_sashimi": {
     name: "Manta Ray Sashimi",
@@ -210,7 +252,10 @@ const COOKING_RECIPES = {
     miracSpice: 0,
     beastMeat: 0,
     beastVegetable: 0,
-    beastSpice: 0
+    beastSpice: 0,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
   },
   "braised_dire_shrimp": {
     name: "Braised Dire Shrimp",
@@ -224,7 +269,10 @@ const COOKING_RECIPES = {
     miracSpice: 0,
     beastMeat: 0,
     beastVegetable: 0,
-    beastSpice: 0
+    beastSpice: 0,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
   },
   "stir_fried_sea_dragon": {
     name: "Stir-fried Sea Dragon",
@@ -238,7 +286,10 @@ const COOKING_RECIPES = {
     miracSpice: 0,
     beastMeat: 0,
     beastVegetable: 0,
-    beastSpice: 0
+    beastSpice: 0,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
   },
   "sea_salt_cheese": {
     name: "Sea Salt Cheese",
@@ -252,7 +303,10 @@ const COOKING_RECIPES = {
     miracSpice: 0,
     beastMeat: 0,
     beastVegetable: 0,
-    beastSpice: 0
+    beastSpice: 0,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
   },
   "mosasaur_teppanyaki": {
     name: "Mosasuar Teppanyaki",
@@ -266,7 +320,10 @@ const COOKING_RECIPES = {
     miracSpice: 0,
     beastMeat: 0,
     beastVegetable: 0,
-    beastSpice: 0
+    beastSpice: 0,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
   },
   "stir_fried_sea_snake": {
     name: "Stir-fried Sea Snake",
@@ -280,7 +337,10 @@ const COOKING_RECIPES = {
     miracSpice: 0,
     beastMeat: 0,
     beastVegetable: 0,
-    beastSpice: 0
+    beastSpice: 0,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
   },
   "sour_merman_fin": {
     name: "Sour Merman Fin",
@@ -294,7 +354,10 @@ const COOKING_RECIPES = {
     miracSpice: 1,
     beastMeat: 0,
     beastVegetable: 0,
-    beastSpice: 0
+    beastSpice: 0,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
   },
   "fermented_squid": {
     name: "Fermented Squid",
@@ -308,7 +371,10 @@ const COOKING_RECIPES = {
     miracSpice: 0,
     beastMeat: 0,
     beastVegetable: 0,
-    beastSpice: 0
+    beastSpice: 0,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
   },
   "grilled_horn_shark": {
     name: "Grilled Horn Shark",
@@ -322,7 +388,10 @@ const COOKING_RECIPES = {
     miracSpice: 3,
     beastMeat: 0,
     beastVegetable: 0,
-    beastSpice: 0
+    beastSpice: 0,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
   },
   "naga_fin_soup": {
     name: "Naga Fin Soup",
@@ -336,7 +405,10 @@ const COOKING_RECIPES = {
     miracSpice: 5,
     beastMeat: 0,
     beastVegetable: 0,
-    beastSpice: 0
+    beastSpice: 0,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
   },
   // Orc Hunter's Tribe recipes
   "bite_back_biscuits": {
@@ -351,7 +423,10 @@ const COOKING_RECIPES = {
     miracSpice: 0,
     beastMeat: 1,
     beastVegetable: 0,
-    beastSpice: 0
+    beastSpice: 0,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
   },
   "dwarven_flame_wine": {
     name: "Dwarven Flame Wine",
@@ -365,7 +440,10 @@ const COOKING_RECIPES = {
     miracSpice: 0,
     beastMeat: 5,
     beastVegetable: 0,
-    beastSpice: 0
+    beastSpice: 0,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
   },
   "salamander_brew": {
     name: "Salamander Brew",
@@ -379,7 +457,10 @@ const COOKING_RECIPES = {
     miracSpice: 0,
     beastMeat: 3,
     beastVegetable: 0,
-    beastSpice: 0
+    beastSpice: 0,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
   },
   "bane_spider_pudding": {
     name: "Bane Spider Pudding",
@@ -393,7 +474,10 @@ const COOKING_RECIPES = {
     miracSpice: 0,
     beastMeat: 2,
     beastVegetable: 1,
-    beastSpice: 0
+    beastSpice: 0,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
   },
   "smoked_spider": {
     name: "Smoked Spider",
@@ -407,7 +491,10 @@ const COOKING_RECIPES = {
     miracSpice: 0,
     beastMeat: 3,
     beastVegetable: 2,
-    beastSpice: 0
+    beastSpice: 0,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
   },
   "dry_ice_soda": {
     name: "Dry Ice Soda",
@@ -421,7 +508,10 @@ const COOKING_RECIPES = {
     miracSpice: 0,
     beastMeat: 4,
     beastVegetable: 2,
-    beastSpice: 0
+    beastSpice: 0,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
   },
   "pickled_deathcaller": {
     name: "Pickled Deathcaller",
@@ -435,7 +525,10 @@ const COOKING_RECIPES = {
     miracSpice: 0,
     beastMeat: 6,
     beastVegetable: 3,
-    beastSpice: 0
+    beastSpice: 0,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
   },
   "braised_wolfclaw": {
     name: "Braised Wolfclaw",
@@ -449,7 +542,10 @@ const COOKING_RECIPES = {
     miracSpice: 0,
     beastMeat: 8,
     beastVegetable: 4,
-    beastSpice: 0
+    beastSpice: 0,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
   },
   "fried_fire_dragon_egg": {
     name: "Fried Fire Dragon Egg",
@@ -463,7 +559,10 @@ const COOKING_RECIPES = {
     miracSpice: 0,
     beastMeat: 10,
     beastVegetable: 6,
-    beastSpice: 0
+    beastSpice: 0,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
   },
   "siliconmon_shortcake": {
     name: "Siliconmon Shortcake",
@@ -477,7 +576,10 @@ const COOKING_RECIPES = {
     miracSpice: 0,
     beastMeat: 5,
     beastVegetable: 2,
-    beastSpice: 1
+    beastSpice: 1,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
   },
   "pufferfish_mousse": {
     name: "Pufferfish Mousse",
@@ -491,7 +593,28 @@ const COOKING_RECIPES = {
     miracSpice: 0,
     beastMeat: 8,
     beastVegetable: 5,
-    beastSpice: 3
+    beastSpice: 3,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
+  },
+  // Witch Alchemy Store recipes
+  "smoked_cerberus": {
+    name: "Smoked Cerberus",
+    defaultStars: 1,
+    defaultPrice: 0,
+    clownMeat: 0,
+    clownVegetable: 0,
+    clownSpice: 0,
+    miracMeat: 0,
+    miracVegetable: 0,
+    miracSpice: 0,
+    beastMeat: 0,
+    beastVegetable: 0,
+    beastSpice: 0,
+    witchMeat: 1,
+    witchVegetable: 0,
+    witchSpice: 0
   }
 };
 
@@ -519,6 +642,16 @@ const DEFAULT_VENDORS = {
   },
   beast: {
     name: "Orc Hunter's Tribe",
+    enabled: true,
+    meatEnabled: true,
+    meatRate: 1.00,
+    vegetableEnabled: false,
+    vegetableRate: 0.00,
+    spiceEnabled: false,
+    spiceRate: 0.00
+  },
+  witch: {
+    name: "Witch Alchemy Store",
     enabled: true,
     meatEnabled: true,
     meatRate: 1.00,
@@ -568,6 +701,16 @@ const DEFAULT_SHOP = {
     quantity: 0,
     cost: 600
   },
+  witchVegetablePurchase: {
+    enabled: false,
+    quantity: 0,
+    cost: 450  // estimated (~1.25x beast vegetable cost of 360)
+  },
+  witchSpicePurchase: {
+    enabled: false,
+    quantity: 0,
+    cost: 750  // estimated (~1.25x beast spice cost of 600)
+  },
   skillBooks: {
     enabled: false,
     quantity: 0,
@@ -581,12 +724,15 @@ const MEGA_STEW_VALUES = {
   clownMeat: 29.00,
   clownVegetable: 86.50,
   clownSpice: 156.00,
-  miracMeat: 36.00, 
+  miracMeat: 36.00,
   miracVegetable: 108,
   miracSpice: 195.00,
   beastMeat: 48.00,      // 16-80 range, mid = 48
   beastVegetable: 144,   // 48-240 range, mid = 144
-  beastSpice: 260        // 120-400 range, mid = 260
+  beastSpice: 260,       // 120-400 range, mid = 260
+  witchMeat: 60.00,      // 20-100 range, mid = 60
+  witchVegetable: 180,   // ~60-300 range, mid = 180 (estimated, ~3x witch meat)
+  witchSpice: 325        // ~150-500 range, mid = 325 (estimated, ~5.4x witch meat)
 };
 
 // Recipe order for display (roughly by complexity/unlock order)
@@ -627,5 +773,7 @@ const RECIPE_ORDER = [
   "braised_wolfclaw",
   "fried_fire_dragon_egg",
   "siliconmon_shortcake",
-  "pufferfish_mousse"
+  "pufferfish_mousse",
+  // Witch Alchemy Store
+  "smoked_cerberus"
 ];

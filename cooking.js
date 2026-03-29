@@ -17,7 +17,10 @@ let cookingState = {
     miracSpice: 0,
     beastMeat: 0,
     beastVegetable: 0,
-    beastSpice: 0
+    beastSpice: 0,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
   },
   dailySummaryVendor: 'clown'  // user-selected vendor for daily summary
 };
@@ -96,6 +99,10 @@ function buildDailySummary(root) {
               <input type="radio" name="daily-vendor-select" value="beast">
               👹 Orc
             </label>
+            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; font-size: 0.9em;">
+              <input type="radio" name="daily-vendor-select" value="witch">
+              🧙 Witch
+            </label>
           </div>
         </div>
         <span class="daily-summary-subtitle">Based on 24 hours of passive supply order generation</span>
@@ -116,7 +123,8 @@ function updateDailySummary(root) {
   const clown = cookingState.vendors.clown;
   const mirac = cookingState.vendors.miraculand;
   const beast = cookingState.vendors.beast;
-  
+  const witch = cookingState.vendors.witch;
+
   // Check if we have any enabled recipes
   if (results.length === 0) {
     container.innerHTML = `
@@ -133,10 +141,11 @@ function updateDailySummary(root) {
   const totalDailyOrders = baseOrdersPerDay + bonusOrders;
   
   // Use user-selected vendor from toggle
-  const selectedVendor = cookingState.dailySummaryVendor; // 'clown', 'miraculand', or 'beast'
+  const selectedVendor = cookingState.dailySummaryVendor; // 'clown', 'miraculand', 'beast', or 'witch'
   const usesClown = selectedVendor === 'clown';
   const usesMirac = selectedVendor === 'miraculand';
   const usesBeast = selectedVendor === 'beast';
+  const usesWitch = selectedVendor === 'witch';
   
   // Shop costs - only include vendor-agnostic items and items matching selected vendor
   let shopCosts = 0;
@@ -162,6 +171,13 @@ function updateDailySummary(root) {
     if (shop.miracSpicePurchase.enabled && shop.miracSpicePurchase.quantity > 0) {
       shopCosts += shop.miracSpicePurchase.quantity * shop.miracSpicePurchase.cost;
     }
+  } else if (usesWitch) {
+    if (shop.witchVegetablePurchase.enabled && shop.witchVegetablePurchase.quantity > 0) {
+      shopCosts += shop.witchVegetablePurchase.quantity * shop.witchVegetablePurchase.cost;
+    }
+    if (shop.witchSpicePurchase.enabled && shop.witchSpicePurchase.quantity > 0) {
+      shopCosts += shop.witchSpicePurchase.quantity * shop.witchSpicePurchase.cost;
+    }
   }
   
   // === STEP 1: Calculate total daily ingredients from vendor ===
@@ -174,7 +190,10 @@ function updateDailySummary(root) {
     miracSpice: 0,
     beastMeat: 0,
     beastVegetable: 0,
-    beastSpice: 0
+    beastSpice: 0,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
   };
   
   // Generate ingredients from all supply orders based on selected vendor
@@ -206,9 +225,24 @@ function updateDailySummary(root) {
     dailyIngredients.beastMeat = totalDailyOrders * beast.meatRate;
     dailyIngredients.beastVegetable = totalDailyOrders * beast.vegetableRate;
     dailyIngredients.beastSpice = totalDailyOrders * beast.spiceRate;
-    
-    // Add shop-purchased ingredients for Beast vendor (future)
-    // Currently no shop items for beast vendor
+
+    if (shop.beastVegetablePurchase.enabled) {
+      dailyIngredients.beastVegetable += shop.beastVegetablePurchase.quantity;
+    }
+    if (shop.beastSpicePurchase.enabled) {
+      dailyIngredients.beastSpice += shop.beastSpicePurchase.quantity;
+    }
+  } else if (usesWitch) {
+    dailyIngredients.witchMeat = totalDailyOrders * witch.meatRate;
+    dailyIngredients.witchVegetable = totalDailyOrders * witch.vegetableRate;
+    dailyIngredients.witchSpice = totalDailyOrders * witch.spiceRate;
+
+    if (shop.witchVegetablePurchase.enabled) {
+      dailyIngredients.witchVegetable += shop.witchVegetablePurchase.quantity;
+    }
+    if (shop.witchSpicePurchase.enabled) {
+      dailyIngredients.witchSpice += shop.witchSpicePurchase.quantity;
+    }
   }
   
   // === STEP 2: Use shared phase-based sequencing algorithm ===
@@ -434,7 +468,28 @@ function buildVendorConfig(root) {
       </div>
     </div>
   `;
-  
+
+  // witch alchemy store vendor
+  html += `
+    <div class="card card-lg vendor-card">
+      <h4 class="card-header">🧙 Witch Alchemy Store</h4>
+      <div class="card-body vendor-preset">
+        <label style="display: block; margin-bottom: 8px;">
+          <input type="radio" name="witch-preset" value="none"> None (Not Unlocked)
+        </label>
+        <label style="display: block; margin-bottom: 8px;">
+          <input type="radio" name="witch-preset" value="meat-only" checked> Meat Only (100%)
+        </label>
+        <label style="display: block; margin-bottom: 8px;">
+          <input type="radio" name="witch-preset" value="meat-vegetable"> Meat + Vegetable (72% / 28%)
+        </label>
+        <label style="display: block; margin-bottom: 8px;">
+          <input type="radio" name="witch-preset" value="all-three"> Meat + Vegetable + Spice (65% / 25% / 10%)
+        </label>
+      </div>
+    </div>
+  `;
+
   html += '</div>'; // end grid
   
   // supply orders per hour
@@ -634,7 +689,45 @@ function buildShopConfig(root) {
   
   html += '</div>'; // end shop-row-items
   html += '</div>'; // end shop-row
-  
+
+  // Row 5: Witch Alchemy Store vendor items
+  html += '<div class="shop-row">';
+  html += '<div class="shop-row-label">🧙 Witch</div>';
+  html += '<div class="shop-row-items">';
+
+  // witch vegetable purchase
+  html += `
+    <div class="shop-item">
+      <label>
+        <input type="checkbox" id="shop-witch-vegetable-enabled" ${shop.witchVegetablePurchase.enabled ? 'checked' : ''}>
+        <strong>🥬 Vegetables</strong>
+      </label>
+      <div class="d-flex items-center gap-sm">
+        <label>Qty: <input type="number" id="shop-witch-vegetable-qty" value="${shop.witchVegetablePurchase.quantity}" min="0" max="5" step="1" class="form-control form-control-xs"></label>
+        <label>@ <span class="fixed-price">450g</span> each <span style="font-size: 0.8em; color: #888;">(est.)</span></label>
+      </div>
+      <div class="shop-result" id="shop-witch-vegetable-result"></div>
+    </div>
+  `;
+
+  // witch spice purchase
+  html += `
+    <div class="shop-item">
+      <label>
+        <input type="checkbox" id="shop-witch-spice-enabled" ${shop.witchSpicePurchase.enabled ? 'checked' : ''}>
+        <strong>🌶️ Spice</strong>
+      </label>
+      <div class="d-flex items-center gap-sm">
+        <label>Qty: <input type="number" id="shop-witch-spice-qty" value="${shop.witchSpicePurchase.quantity}" min="0" max="5" step="1" class="form-control form-control-xs"></label>
+        <label>@ <span class="fixed-price">750g</span> each <span style="font-size: 0.8em; color: #888;">(est.)</span></label>
+      </div>
+      <div class="shop-result" id="shop-witch-spice-result"></div>
+    </div>
+  `;
+
+  html += '</div>'; // end shop-row-items
+  html += '</div>'; // end shop-row
+
   html += '</div>'; // end shop-items-list
   html += '</div>'; // end shop-items-card
   
@@ -672,13 +765,32 @@ function buildRecipeManager(root) {
     meatVeg: [],
     meatVegSpice: []
   };
-  
+  const witchRecipes = {
+    meatOnly: [],
+    meatVeg: [],
+    meatVegSpice: []
+  };
+
   for (const id of RECIPE_ORDER) {
     const recipe = COOKING_RECIPES[id];
     const usesMirac = recipe.miracMeat > 0 || recipe.miracVegetable > 0 || recipe.miracSpice > 0;
     const usesBeast = recipe.beastMeat > 0 || recipe.beastVegetable > 0 || recipe.beastSpice > 0;
-    
-    if (usesBeast) {
+    const usesWitch = recipe.witchMeat > 0 || recipe.witchVegetable > 0 || recipe.witchSpice > 0;
+
+    if (usesWitch) {
+      // Categorize witch (Witch Alchemy Store) recipes
+      const hasMeat = recipe.witchMeat > 0;
+      const hasVeg = recipe.witchVegetable > 0;
+      const hasSpice = recipe.witchSpice > 0;
+
+      if (hasMeat && !hasVeg && !hasSpice) {
+        witchRecipes.meatOnly.push(id);
+      } else if (hasMeat && hasVeg && !hasSpice) {
+        witchRecipes.meatVeg.push(id);
+      } else if (hasMeat && hasVeg && hasSpice) {
+        witchRecipes.meatVegSpice.push(id);
+      }
+    } else if (usesBeast) {
       // Categorize beast (Orc Hunter's Tribe) recipes
       const hasMeat = recipe.beastMeat > 0;
       const hasVeg = recipe.beastVegetable > 0;
@@ -723,12 +835,14 @@ function buildRecipeManager(root) {
   const clownTotal = clownRecipes.meatOnly.length + clownRecipes.meatVeg.length + clownRecipes.meatVegSpice.length;
   const miracTotal = miracRecipes.meatOnly.length + miracRecipes.meatVeg.length + miracRecipes.meatVegSpice.length;
   const beastTotal = beastRecipes.meatOnly.length + beastRecipes.meatVeg.length + beastRecipes.meatVegSpice.length;
-  
+  const witchTotal = witchRecipes.meatOnly.length + witchRecipes.meatVeg.length + witchRecipes.meatVegSpice.length;
+
   let html = '<div class="recipe-sections">';
-  
+
   const clownCollapsed = getAccordionState('clown-recipes') ? '' : ' collapsed';
   const miracCollapsed = getAccordionState('mirac-recipes') ? '' : ' collapsed';
   const beastCollapsed = getAccordionState('beast-recipes') ? '' : ' collapsed';
+  const witchCollapsed = getAccordionState('witch-recipes') ? '' : ' collapsed';
   const rankingCollapsed = getAccordionState('optimal-ranking') ? '' : ' collapsed';
   
   // Clown recipes section with nested groups
@@ -778,6 +892,23 @@ function buildRecipeManager(root) {
     `;
   }
   
+  // Witch Alchemy Store recipes section
+  if (witchTotal > 0) {
+    html += `
+      <div class="panel${witchCollapsed}" data-accordion-id="witch-recipes">
+        <div class="panel-header" onclick="toggleAccordion(this)">
+          <span class="panel-toggle">▼</span>
+          <h3 class="panel-title">🧙 Witch Alchemy Store Recipes (${witchTotal})</h3>
+        </div>
+        <div class="panel-content">
+          ${buildRecipeGroup('witch-meat-only', '🥩 Meat Only', witchRecipes.meatOnly, false, 'border-witch')}
+          ${buildRecipeGroup('witch-meat-veg', '🥩🥬 Meat + Vegetable', witchRecipes.meatVeg, false, 'border-witch')}
+          ${buildRecipeGroup('witch-meat-veg-spice', '🥩🥬🌶️ Meat + Vegetable + Spice', witchRecipes.meatVegSpice, false, 'border-witch')}
+        </div>
+      </div>
+    `;
+  }
+
   // Add optimal dish ranking section at the end of recipes
   html += `
     <div class="panel${rankingCollapsed}" data-accordion-id="optimal-ranking">
@@ -905,6 +1036,15 @@ function buildRecipeCards(recipeIds, isMirac, borderClass) {
     if (recipe.beastSpice > 0) {
       ingredientItems.push(`<span class="recipe-ingredient-item"><span class="ingredient-icon">🌶️</span><span class="ingredient-amount">${recipe.beastSpice}</span></span>`);
     }
+    if (recipe.witchMeat > 0) {
+      ingredientItems.push(`<span class="recipe-ingredient-item"><span class="ingredient-icon">🥩</span><span class="ingredient-amount">${recipe.witchMeat}</span></span>`);
+    }
+    if (recipe.witchVegetable > 0) {
+      ingredientItems.push(`<span class="recipe-ingredient-item"><span class="ingredient-icon">🥬</span><span class="ingredient-amount">${recipe.witchVegetable}</span></span>`);
+    }
+    if (recipe.witchSpice > 0) {
+      ingredientItems.push(`<span class="recipe-ingredient-item"><span class="ingredient-icon">🌶️</span><span class="ingredient-amount">${recipe.witchSpice}</span></span>`);
+    }
     const ingredientHtml = ingredientItems.join('');
     
     html += `
@@ -957,7 +1097,10 @@ function updateCurrentIngredients(root) {
     miracSpice: parseInt(container.querySelector('#current-mirac-spice')?.value) || 0,
     beastMeat: parseInt(container.querySelector('#current-beast-meat')?.value) || 0,
     beastVegetable: parseInt(container.querySelector('#current-beast-vegetable')?.value) || 0,
-    beastSpice: parseInt(container.querySelector('#current-beast-spice')?.value) || 0
+    beastSpice: parseInt(container.querySelector('#current-beast-spice')?.value) || 0,
+    witchMeat: parseInt(container.querySelector('#current-witch-meat')?.value) || 0,
+    witchVegetable: parseInt(container.querySelector('#current-witch-vegetable')?.value) || 0,
+    witchSpice: parseInt(container.querySelector('#current-witch-spice')?.value) || 0
   };
   
   saveCookingToStorage();
@@ -1400,6 +1543,25 @@ function buildResultsDashboard(root) {
               </div>
             </div>
           </div>
+
+          <!-- Witch Alchemy Store Vendor Row -->
+          <div class="ingredient-row-witch">
+            <div class="ingredient-row-label">🧙 Witch Alchemy Store</div>
+            <div class="ingredient-row">
+              <div class="card card-md ingredient-card border-witch" style="text-align: center;">
+                <label style="display: block; font-weight: bold; margin-bottom: 8px;">🥩 Meat</label>
+                <input type="number" id="current-witch-meat" value="${ing.witchMeat}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
+              </div>
+              <div class="card card-md ingredient-card border-witch" style="text-align: center;">
+                <label style="display: block; font-weight: bold; margin-bottom: 8px;">🥬 Vegetable</label>
+                <input type="number" id="current-witch-vegetable" value="${ing.witchVegetable}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
+              </div>
+              <div class="card card-md ingredient-card border-witch" style="text-align: center;">
+                <label style="display: block; font-weight: bold; margin-bottom: 8px;">🌶️ Spice</label>
+                <input type="number" id="current-witch-spice" value="${ing.witchSpice}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       
@@ -1644,7 +1806,40 @@ function updateVendorState(root) {
     cookingState.vendors.beast.spiceRate = 0.10;
   }
   cookingState.vendors.beast.preset = beastPreset;
-  
+
+  // witch vendor (Witch Alchemy Store) - check which preset is selected
+  const witchPreset = root.querySelector('input[name="witch-preset"]:checked')?.value || 'meat-only';
+  if (witchPreset === 'none') {
+    cookingState.vendors.witch.meatEnabled = false;
+    cookingState.vendors.witch.meatRate = 0;
+    cookingState.vendors.witch.vegetableEnabled = false;
+    cookingState.vendors.witch.vegetableRate = 0;
+    cookingState.vendors.witch.spiceEnabled = false;
+    cookingState.vendors.witch.spiceRate = 0;
+  } else if (witchPreset === 'meat-only') {
+    cookingState.vendors.witch.meatEnabled = true;
+    cookingState.vendors.witch.meatRate = 1.00;
+    cookingState.vendors.witch.vegetableEnabled = false;
+    cookingState.vendors.witch.vegetableRate = 0;
+    cookingState.vendors.witch.spiceEnabled = false;
+    cookingState.vendors.witch.spiceRate = 0;
+  } else if (witchPreset === 'meat-vegetable') {
+    cookingState.vendors.witch.meatEnabled = true;
+    cookingState.vendors.witch.meatRate = 0.7222;
+    cookingState.vendors.witch.vegetableEnabled = true;
+    cookingState.vendors.witch.vegetableRate = 0.2778;
+    cookingState.vendors.witch.spiceEnabled = false;
+    cookingState.vendors.witch.spiceRate = 0;
+  } else { // all-three
+    cookingState.vendors.witch.meatEnabled = true;
+    cookingState.vendors.witch.meatRate = 0.65;
+    cookingState.vendors.witch.vegetableEnabled = true;
+    cookingState.vendors.witch.vegetableRate = 0.25;
+    cookingState.vendors.witch.spiceEnabled = true;
+    cookingState.vendors.witch.spiceRate = 0.10;
+  }
+  cookingState.vendors.witch.preset = witchPreset;
+
   // supply orders per hour
   cookingState.shop.supplyOrdersPerHour = parseInt(root.querySelector('#supply-orders-per-hour')?.value) || 30;
   
@@ -1679,7 +1874,15 @@ function updateShopState(root) {
   // orc spice purchase
   cookingState.shop.beastSpicePurchase.enabled = root.querySelector('#shop-beast-spice-enabled')?.checked ?? false;
   cookingState.shop.beastSpicePurchase.quantity = parseInt(root.querySelector('#shop-beast-spice-qty')?.value) || 0;
-  
+
+  // witch vegetable purchase
+  cookingState.shop.witchVegetablePurchase.enabled = root.querySelector('#shop-witch-vegetable-enabled')?.checked ?? false;
+  cookingState.shop.witchVegetablePurchase.quantity = parseInt(root.querySelector('#shop-witch-vegetable-qty')?.value) || 0;
+
+  // witch spice purchase
+  cookingState.shop.witchSpicePurchase.enabled = root.querySelector('#shop-witch-spice-enabled')?.checked ?? false;
+  cookingState.shop.witchSpicePurchase.quantity = parseInt(root.querySelector('#shop-witch-spice-qty')?.value) || 0;
+
   // skill books purchase
   cookingState.shop.skillBooks.enabled = root.querySelector('#shop-skillbooks-enabled')?.checked ?? false;
   cookingState.shop.skillBooks.quantity = parseInt(root.querySelector('#shop-skillbooks-qty')?.value) || 0;
@@ -1738,7 +1941,10 @@ function calculatePhaseBasedSequence(ingredients, availableDishes) {
     if (remaining.beastMeat < recipe.beastMeat) continue;
     if (remaining.beastVegetable < recipe.beastVegetable) continue;
     if (remaining.beastSpice < recipe.beastSpice) continue;
-    
+    if (remaining.witchMeat < recipe.witchMeat) continue;
+    if (remaining.witchVegetable < recipe.witchVegetable) continue;
+    if (remaining.witchSpice < recipe.witchSpice) continue;
+
     // Calculate how many we can make
     const limits = [];
     if (recipe.clownMeat > 0) limits.push(Math.floor(remaining.clownMeat / recipe.clownMeat));
@@ -1750,6 +1956,9 @@ function calculatePhaseBasedSequence(ingredients, availableDishes) {
     if (recipe.beastMeat > 0) limits.push(Math.floor(remaining.beastMeat / recipe.beastMeat));
     if (recipe.beastVegetable > 0) limits.push(Math.floor(remaining.beastVegetable / recipe.beastVegetable));
     if (recipe.beastSpice > 0) limits.push(Math.floor(remaining.beastSpice / recipe.beastSpice));
+    if (recipe.witchMeat > 0) limits.push(Math.floor(remaining.witchMeat / recipe.witchMeat));
+    if (recipe.witchVegetable > 0) limits.push(Math.floor(remaining.witchVegetable / recipe.witchVegetable));
+    if (recipe.witchSpice > 0) limits.push(Math.floor(remaining.witchSpice / recipe.witchSpice));
     
     const maxQuantity = limits.length > 0 ? Math.min(...limits) : 0;
     if (maxQuantity === 0) continue;
@@ -1768,6 +1977,9 @@ function calculatePhaseBasedSequence(ingredients, availableDishes) {
     if (recipe.beastMeat > 0) limitDetails.push({ name: 'Meat', qty: remaining.beastMeat / recipe.beastMeat });
     if (recipe.beastVegetable > 0) limitDetails.push({ name: 'Vegetable', qty: remaining.beastVegetable / recipe.beastVegetable });
     if (recipe.beastSpice > 0) limitDetails.push({ name: 'Spice', qty: remaining.beastSpice / recipe.beastSpice });
+    if (recipe.witchMeat > 0) limitDetails.push({ name: 'Meat', qty: remaining.witchMeat / recipe.witchMeat });
+    if (recipe.witchVegetable > 0) limitDetails.push({ name: 'Vegetable', qty: remaining.witchVegetable / recipe.witchVegetable });
+    if (recipe.witchSpice > 0) limitDetails.push({ name: 'Spice', qty: remaining.witchSpice / recipe.witchSpice });
     
     if (limitDetails.length > 0) {
       limitDetails.sort((a, b) => a.qty - b.qty);
@@ -1796,15 +2008,18 @@ function calculatePhaseBasedSequence(ingredients, availableDishes) {
     remaining.beastMeat -= maxQuantity * recipe.beastMeat;
     remaining.beastVegetable -= maxQuantity * recipe.beastVegetable;
     remaining.beastSpice -= maxQuantity * recipe.beastSpice;
+    remaining.witchMeat -= maxQuantity * recipe.witchMeat;
+    remaining.witchVegetable -= maxQuantity * recipe.witchVegetable;
+    remaining.witchSpice -= maxQuantity * recipe.witchSpice;
   }
-  
+
   // PHASE 2: Meat-only recipes (sorted by g/order)
   // These use excess meat that wasn't needed for vegetable recipes
   const meatOnlyDishes = availableDishes.filter(d => {
     const r = d.recipe;
-    const hasMeat = (r.clownMeat > 0 || r.miracMeat > 0 || r.beastMeat > 0);
-    const hasVeggie = (r.clownVegetable > 0 || r.miracVegetable > 0 || r.beastVegetable > 0);
-    const hasSpice = (r.clownSpice > 0 || r.miracSpice > 0 || r.beastSpice > 0);
+    const hasMeat = (r.clownMeat > 0 || r.miracMeat > 0 || r.beastMeat > 0 || r.witchMeat > 0);
+    const hasVeggie = (r.clownVegetable > 0 || r.miracVegetable > 0 || r.beastVegetable > 0 || r.witchVegetable > 0);
+    const hasSpice = (r.clownSpice > 0 || r.miracSpice > 0 || r.beastSpice > 0 || r.witchSpice > 0);
     return hasMeat && !hasVeggie && !hasSpice;
   }).sort((a, b) => b.goldPerOrder - a.goldPerOrder);
   
@@ -1815,12 +2030,14 @@ function calculatePhaseBasedSequence(ingredients, availableDishes) {
     if (remaining.clownMeat < recipe.clownMeat) continue;
     if (remaining.miracMeat < recipe.miracMeat) continue;
     if (remaining.beastMeat < recipe.beastMeat) continue;
-    
+    if (remaining.witchMeat < recipe.witchMeat) continue;
+
     // Calculate how many we can make
     const limits = [];
     if (recipe.clownMeat > 0) limits.push(Math.floor(remaining.clownMeat / recipe.clownMeat));
     if (recipe.miracMeat > 0) limits.push(Math.floor(remaining.miracMeat / recipe.miracMeat));
     if (recipe.beastMeat > 0) limits.push(Math.floor(remaining.beastMeat / recipe.beastMeat));
+    if (recipe.witchMeat > 0) limits.push(Math.floor(remaining.witchMeat / recipe.witchMeat));
     
     const maxQuantity = limits.length > 0 ? Math.min(...limits) : 0;
     if (maxQuantity === 0) continue;
@@ -1843,8 +2060,9 @@ function calculatePhaseBasedSequence(ingredients, availableDishes) {
     remaining.clownMeat -= maxQuantity * recipe.clownMeat;
     remaining.miracMeat -= maxQuantity * recipe.miracMeat;
     remaining.beastMeat -= maxQuantity * recipe.beastMeat;
+    remaining.witchMeat -= maxQuantity * recipe.witchMeat;
   }
-  
+
   // Ensure no negative values
   for (const key of Object.keys(remaining)) {
     remaining[key] = Math.max(0, remaining[key]);
@@ -1862,7 +2080,10 @@ function calculatePhaseBasedSequence(ingredients, availableDishes) {
     remaining.miracSpice * MEGA_STEW_VALUES.miracSpice +
     remaining.beastMeat * MEGA_STEW_VALUES.beastMeat +
     remaining.beastVegetable * MEGA_STEW_VALUES.beastVegetable +
-    remaining.beastSpice * MEGA_STEW_VALUES.beastSpice;
+    remaining.beastSpice * MEGA_STEW_VALUES.beastSpice +
+    remaining.witchMeat * MEGA_STEW_VALUES.witchMeat +
+    remaining.witchVegetable * MEGA_STEW_VALUES.witchVegetable +
+    remaining.witchSpice * MEGA_STEW_VALUES.witchSpice;
   
   return {
     sequence: productionSteps,
@@ -1881,7 +2102,8 @@ function recalculateCooking() {
   const clown = cookingState.vendors.clown;
   const mirac = cookingState.vendors.miraculand;
   const beast = cookingState.vendors.beast;
-  
+  const witch = cookingState.vendors.witch;
+
   // calculate supply order costs per ingredient
   const supplyOrderCosts = {
     clownMeat: clown.meatEnabled && clown.meatRate > 0 ? 1 / clown.meatRate : Infinity,
@@ -1892,7 +2114,10 @@ function recalculateCooking() {
     miracSpice: mirac.spiceEnabled && mirac.spiceRate > 0 ? 1 / mirac.spiceRate : Infinity,
     beastMeat: beast.meatEnabled && beast.meatRate > 0 ? 1 / beast.meatRate : Infinity,
     beastVegetable: beast.vegetableEnabled && beast.vegetableRate > 0 ? 1 / beast.vegetableRate : Infinity,
-    beastSpice: beast.spiceEnabled && beast.spiceRate > 0 ? 1 / beast.spiceRate : Infinity
+    beastSpice: beast.spiceEnabled && beast.spiceRate > 0 ? 1 / beast.spiceRate : Infinity,
+    witchMeat: witch.meatEnabled && witch.meatRate > 0 ? 1 / witch.meatRate : Infinity,
+    witchVegetable: witch.vegetableEnabled && witch.vegetableRate > 0 ? 1 / witch.vegetableRate : Infinity,
+    witchSpice: witch.spiceEnabled && witch.spiceRate > 0 ? 1 / witch.spiceRate : Infinity
   };
   
   // average gold per supply order for calculating ingredient values
@@ -1908,6 +2133,7 @@ function recalculateCooking() {
     const usesClown = recipe.clownMeat > 0 || recipe.clownVegetable > 0 || recipe.clownSpice > 0;
     const usesMirac = recipe.miracMeat > 0 || recipe.miracVegetable > 0 || recipe.miracSpice > 0;
     const usesBeast = recipe.beastMeat > 0 || recipe.beastVegetable > 0 || recipe.beastSpice > 0;
+    const usesWitch = recipe.witchMeat > 0 || recipe.witchVegetable > 0 || recipe.witchSpice > 0;
     
     // calculate supply orders needed for each ingredient
     let ordersNeeded = [];
@@ -1930,7 +2156,13 @@ function recalculateCooking() {
       if (recipe.beastVegetable > 0) ordersNeeded.push({ type: 'Beast Vegetable', orders: recipe.beastVegetable * supplyOrderCosts.beastVegetable });
       if (recipe.beastSpice > 0) ordersNeeded.push({ type: 'Beast Spice', orders: recipe.beastSpice * supplyOrderCosts.beastSpice });
     }
-    
+
+    if (usesWitch) {
+      if (recipe.witchMeat > 0) ordersNeeded.push({ type: 'Witch Meat', orders: recipe.witchMeat * supplyOrderCosts.witchMeat });
+      if (recipe.witchVegetable > 0) ordersNeeded.push({ type: 'Witch Vegetable', orders: recipe.witchVegetable * supplyOrderCosts.witchVegetable });
+      if (recipe.witchSpice > 0) ordersNeeded.push({ type: 'Witch Spice', orders: recipe.witchSpice * supplyOrderCosts.witchSpice });
+    }
+
     // find limiting ingredient (highest supply order cost)
     let totalOrders = 0;
     for (const o of ordersNeeded) {
@@ -1984,17 +2216,33 @@ function recalculateCooking() {
       const expectedBeastMeat = totalOrders * beast.meatRate;
       const expectedBeastVegetable = totalOrders * beast.vegetableRate;
       const expectedBeastSpice = totalOrders * beast.spiceRate;
-      
+
       const excessBeastMeat = Math.max(0, expectedBeastMeat - recipe.beastMeat);
       const excessBeastVegetable = Math.max(0, expectedBeastVegetable - recipe.beastVegetable);
       const excessBeastSpice = Math.max(0, expectedBeastSpice - recipe.beastSpice);
-      
-      byproductValue += 
+
+      byproductValue +=
         excessBeastMeat * MEGA_STEW_VALUES.beastMeat +
         excessBeastVegetable * MEGA_STEW_VALUES.beastVegetable +
         excessBeastSpice * MEGA_STEW_VALUES.beastSpice;
     }
-    
+
+    // 4. Calculate Witch Alchemy Byproducts (only if recipe uses Witch ingredients)
+    if (usesWitch && (witch.meatEnabled || witch.vegetableEnabled || witch.spiceEnabled)) {
+      const expectedWitchMeat = totalOrders * witch.meatRate;
+      const expectedWitchVegetable = totalOrders * witch.vegetableRate;
+      const expectedWitchSpice = totalOrders * witch.spiceRate;
+
+      const excessWitchMeat = Math.max(0, expectedWitchMeat - recipe.witchMeat);
+      const excessWitchVegetable = Math.max(0, expectedWitchVegetable - recipe.witchVegetable);
+      const excessWitchSpice = Math.max(0, expectedWitchSpice - recipe.witchSpice);
+
+      byproductValue +=
+        excessWitchMeat * MEGA_STEW_VALUES.witchMeat +
+        excessWitchVegetable * MEGA_STEW_VALUES.witchVegetable +
+        excessWitchSpice * MEGA_STEW_VALUES.witchSpice;
+    }
+
     // calculate efficiency metrics
     const totalValue = price + byproductValue;
     const goldPerOrder = totalValue / totalOrders;
@@ -2008,13 +2256,13 @@ function recalculateCooking() {
       stars: state.stars,
       price,
       orders: totalOrders,
-      limiting: limitingIngredient.replace('Clown ', '').replace('Mirac ', '').replace('Beast ', ''),
+      limiting: limitingIngredient.replace('Clown ', '').replace('Mirac ', '').replace('Beast ', '').replace('Witch ', ''),
       byproductValue,
       totalValue,
       goldPerOrder,
       goldPerHour,
       dishesPerHour,
-      vendor: usesBeast ? 'Orc' : (usesMirac ? 'Miraculand' : 'Clown')
+      vendor: usesWitch ? 'Witch' : (usesBeast ? 'Orc' : (usesMirac ? 'Miraculand' : 'Clown'))
     });
   }
   
@@ -2040,7 +2288,7 @@ function updateRankingTable(root, results) {
     const vendorClass = r.vendor === 'Miraculand' ? 'mirac-row' : '';
     
     // Get vendor icon
-    const vendorIcon = r.vendor === 'Clown' ? '🤡' : r.vendor === 'Miraculand' ? '🌴' : '👹';
+    const vendorIcon = r.vendor === 'Clown' ? '🤡' : r.vendor === 'Miraculand' ? '🌴' : r.vendor === 'Witch' ? '🧙' : '👹';
     
     html += `
       <tr class="${vendorClass}">
@@ -2282,11 +2530,12 @@ function updateStrategySummary(root, results) {
   const clown = cookingState.vendors.clown;
   const mirac = cookingState.vendors.miraculand;
   const beast = cookingState.vendors.beast;
-  
+  const witch = cookingState.vendors.witch;
+
   const baseOrdersPerHour = shop.supplyOrdersPerHour;
   const bonusOrders = shop.supplyDeals.enabled ? shop.supplyDeals.quantity * shop.supplyDeals.supplyOrdersEach : 0;
   const dailyOrders = (baseOrdersPerHour * 24) + bonusOrders;
-  
+
   // Build list of available dishes
   const availableDishes = results.map(r => ({
     id: r.id,
@@ -2306,7 +2555,10 @@ function updateStrategySummary(root, results) {
     miracSpice: 0,
     beastMeat: 0,
     beastVegetable: 0,
-    beastSpice: 0
+    beastSpice: 0,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
   };
   const clownResult = calculatePhaseBasedSequence(clownIngredients, availableDishes);
   
@@ -2337,7 +2589,10 @@ function updateStrategySummary(root, results) {
     miracSpice: dailyOrders * mirac.spiceRate + (shop.miracSpicePurchase.enabled ? shop.miracSpicePurchase.quantity : 0),
     beastMeat: 0,
     beastVegetable: 0,
-    beastSpice: 0
+    beastSpice: 0,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
   };
   const miracResult = calculatePhaseBasedSequence(miracIngredients, availableDishes);
   
@@ -2367,12 +2622,15 @@ function updateStrategySummary(root, results) {
     miracVegetable: 0,
     miracSpice: 0,
     beastMeat: dailyOrders * beast.meatRate,
-    beastVegetable: dailyOrders * beast.vegetableRate,
-    beastSpice: dailyOrders * beast.spiceRate
+    beastVegetable: dailyOrders * beast.vegetableRate + (shop.beastVegetablePurchase.enabled ? shop.beastVegetablePurchase.quantity : 0),
+    beastSpice: dailyOrders * beast.spiceRate + (shop.beastSpicePurchase.enabled ? shop.beastSpicePurchase.quantity : 0),
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
   };
   const beastResult = calculatePhaseBasedSequence(beastIngredients, availableDishes);
-  
-  // Calculate shop costs for Beast vendor (currently no beast-specific shop items)
+
+  // Calculate shop costs for Beast vendor
   let beastShopCosts = 0;
   if (shop.supplyDeals.enabled && shop.supplyDeals.quantity > 0) {
     beastShopCosts += shop.supplyDeals.quantity * shop.supplyDeals.cost;
@@ -2380,14 +2638,55 @@ function updateStrategySummary(root, results) {
   if (shop.skillBooks.enabled && shop.skillBooks.quantity > 0) {
     beastShopCosts += shop.skillBooks.quantity * shop.skillBooks.cost;
   }
-  
+  if (shop.beastVegetablePurchase.enabled && shop.beastVegetablePurchase.quantity > 0) {
+    beastShopCosts += shop.beastVegetablePurchase.quantity * shop.beastVegetablePurchase.cost;
+  }
+  if (shop.beastSpicePurchase.enabled && shop.beastSpicePurchase.quantity > 0) {
+    beastShopCosts += shop.beastSpicePurchase.quantity * shop.beastSpicePurchase.cost;
+  }
+
   const beastDailyGold = beastResult.totalGold + beastResult.stewValue - beastShopCosts;
-  
-  // === DETERMINE OPTIMAL VENDOR (compare all three) ===
+
+  // === CALCULATE WITCH VENDOR SEQUENCE ===
+  const witchIngredients = {
+    clownMeat: 0,
+    clownVegetable: 0,
+    clownSpice: 0,
+    miracMeat: 0,
+    miracVegetable: 0,
+    miracSpice: 0,
+    beastMeat: 0,
+    beastVegetable: 0,
+    beastSpice: 0,
+    witchMeat: dailyOrders * witch.meatRate,
+    witchVegetable: dailyOrders * witch.vegetableRate + (shop.witchVegetablePurchase.enabled ? shop.witchVegetablePurchase.quantity : 0),
+    witchSpice: dailyOrders * witch.spiceRate + (shop.witchSpicePurchase.enabled ? shop.witchSpicePurchase.quantity : 0)
+  };
+  const witchResult = calculatePhaseBasedSequence(witchIngredients, availableDishes);
+
+  // Calculate shop costs for Witch vendor
+  let witchShopCosts = 0;
+  if (shop.supplyDeals.enabled && shop.supplyDeals.quantity > 0) {
+    witchShopCosts += shop.supplyDeals.quantity * shop.supplyDeals.cost;
+  }
+  if (shop.skillBooks.enabled && shop.skillBooks.quantity > 0) {
+    witchShopCosts += shop.skillBooks.quantity * shop.skillBooks.cost;
+  }
+  if (shop.witchVegetablePurchase.enabled && shop.witchVegetablePurchase.quantity > 0) {
+    witchShopCosts += shop.witchVegetablePurchase.quantity * shop.witchVegetablePurchase.cost;
+  }
+  if (shop.witchSpicePurchase.enabled && shop.witchSpicePurchase.quantity > 0) {
+    witchShopCosts += shop.witchSpicePurchase.quantity * shop.witchSpicePurchase.cost;
+  }
+
+  const witchDailyGold = witchResult.totalGold + witchResult.stewValue - witchShopCosts;
+
+  // === DETERMINE OPTIMAL VENDOR (compare all four) ===
   const vendorGolds = [
     { name: 'Clown', gold: clownDailyGold, result: clownResult, emoji: '🤡' },
     { name: 'Miraculand', gold: miracDailyGold, result: miracResult, emoji: '🌴' },
-    { name: 'Orc', gold: beastDailyGold, result: beastResult, emoji: '👹' }
+    { name: 'Orc', gold: beastDailyGold, result: beastResult, emoji: '👹' },
+    { name: 'Witch', gold: witchDailyGold, result: witchResult, emoji: '🧙' }
   ];
   
   // Sort by gold descending to find optimal
@@ -2476,7 +2775,10 @@ const INGREDIENT_RANGES = {
   miracSpice: { min: 90, max: 300, mid: 195.00 },
   beastMeat: { min: 16, max: 80, mid: 48.00 },
   beastVegetable: { min: 48, max: 240, mid: 144 },
-  beastSpice: { min: 120, max: 400, mid: 260 }
+  beastSpice: { min: 120, max: 400, mid: 260 },
+  witchMeat: { min: 20, max: 100, mid: 60.00 },
+  witchVegetable: { min: 60, max: 300, mid: 180 },   // estimated
+  witchSpice: { min: 150, max: 500, mid: 325 }        // estimated
 };
 
 function updateStewCalculator(root) {
@@ -2554,7 +2856,7 @@ function updateStewCalculator(root) {
         </div>
         
         <!-- Beast (Orc Hunter's Tribe) Vendor Row -->
-        <div class="ingredient-row-beast">
+        <div class="ingredient-row-beast" style="margin-bottom: 15px;">
           <div class="ingredient-row-label">👹 Orc Hunter's Tribe</div>
           <div class="ingredient-row">
             <div class="card card-md ingredient-card border-beast" style="text-align: center;">
@@ -2564,7 +2866,7 @@ function updateStewCalculator(root) {
                 <div>Expected: 48.00</div>
               </div>
             </div>
-            
+
             <div class="card card-md ingredient-card border-beast" style="text-align: center;">
               <div style="font-weight: bold; margin-bottom: 4px;">🥬 Vegetable</div>
               <div style="font-size: 0.85em; color: #666;">
@@ -2572,12 +2874,42 @@ function updateStewCalculator(root) {
                 <div>Expected: 144.00</div>
               </div>
             </div>
-            
+
             <div class="card card-md ingredient-card border-beast" style="text-align: center;">
               <div style="font-weight: bold; margin-bottom: 4px;">🌶️ Spice</div>
               <div style="font-size: 0.85em; color: #666;">
                 <div style="font-family: monospace; font-size: 0.9em; margin-bottom: 2px;">120 - 400 gold</div>
                 <div>Expected: 260.00</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Witch Alchemy Store Vendor Row -->
+        <div class="ingredient-row-witch">
+          <div class="ingredient-row-label">🧙 Witch Alchemy Store <span style="font-size: 0.8em; color: #888; font-style: italic;">(veg/spice values estimated)</span></div>
+          <div class="ingredient-row">
+            <div class="card card-md ingredient-card border-witch" style="text-align: center;">
+              <div style="font-weight: bold; margin-bottom: 4px;">🥩 Meat</div>
+              <div style="font-size: 0.85em; color: #666;">
+                <div style="font-family: monospace; font-size: 0.9em; margin-bottom: 2px;">20 - 100 gold</div>
+                <div>Expected: 60.00</div>
+              </div>
+            </div>
+
+            <div class="card card-md ingredient-card border-witch" style="text-align: center;">
+              <div style="font-weight: bold; margin-bottom: 4px;">🥬 Vegetable</div>
+              <div style="font-size: 0.85em; color: #666;">
+                <div style="font-family: monospace; font-size: 0.9em; margin-bottom: 2px;">~60 - 300 gold</div>
+                <div>Est. Expected: 180.00</div>
+              </div>
+            </div>
+
+            <div class="card card-md ingredient-card border-witch" style="text-align: center;">
+              <div style="font-weight: bold; margin-bottom: 4px;">🌶️ Spice</div>
+              <div style="font-size: 0.85em; color: #666;">
+                <div style="font-family: monospace; font-size: 0.9em; margin-bottom: 2px;">~150 - 500 gold</div>
+                <div>Est. Expected: 325.00</div>
               </div>
             </div>
           </div>
@@ -2679,9 +3011,12 @@ function calculateStewRanges(root) {
     miracSpice: parseInt(ingredientContainer.querySelector('#current-mirac-spice')?.value) || 0,
     beastMeat: parseInt(ingredientContainer.querySelector('#current-beast-meat')?.value) || 0,
     beastVegetable: parseInt(ingredientContainer.querySelector('#current-beast-vegetable')?.value) || 0,
-    beastSpice: parseInt(ingredientContainer.querySelector('#current-beast-spice')?.value) || 0
+    beastSpice: parseInt(ingredientContainer.querySelector('#current-beast-spice')?.value) || 0,
+    witchMeat: parseInt(ingredientContainer.querySelector('#current-witch-meat')?.value) || 0,
+    witchVegetable: parseInt(ingredientContainer.querySelector('#current-witch-vegetable')?.value) || 0,
+    witchSpice: parseInt(ingredientContainer.querySelector('#current-witch-spice')?.value) || 0
   };
-  
+
   const container = root.querySelector('#stew-calculator');
   if (!container) return;
   
@@ -2991,7 +3326,11 @@ function refreshCookingUI(root) {
   const beastPreset = cookingState.vendors.beast?.preset || 'meat-only';
   const beastRadio = root.querySelector(`input[name="beast-preset"][value="${beastPreset}"]`);
   if (beastRadio) beastRadio.checked = true;
-  
+
+  const witchPreset = cookingState.vendors.witch?.preset || 'meat-only';
+  const witchRadio = root.querySelector(`input[name="witch-preset"][value="${witchPreset}"]`);
+  if (witchRadio) witchRadio.checked = true;
+
   // refresh daily summary vendor toggle
   const dailyVendor = cookingState.dailySummaryVendor || 'clown';
   const dailyVendorRadio = root.querySelector(`input[name="daily-vendor-select"][value="${dailyVendor}"]`);
@@ -3015,7 +3354,17 @@ function refreshCookingUI(root) {
   const miracVegetableQty = root.querySelector('#shop-mirac-vegetable-qty');
   if (miracVegetableEnabled) miracVegetableEnabled.checked = shop.miracVegetablePurchase.enabled;
   if (miracVegetableQty) miracVegetableQty.value = shop.miracVegetablePurchase.quantity;
-  
+
+  const witchVegetableEnabled = root.querySelector('#shop-witch-vegetable-enabled');
+  const witchVegetableQty = root.querySelector('#shop-witch-vegetable-qty');
+  if (witchVegetableEnabled) witchVegetableEnabled.checked = shop.witchVegetablePurchase.enabled;
+  if (witchVegetableQty) witchVegetableQty.value = shop.witchVegetablePurchase.quantity;
+
+  const witchSpiceEnabled = root.querySelector('#shop-witch-spice-enabled');
+  const witchSpiceQty = root.querySelector('#shop-witch-spice-qty');
+  if (witchSpiceEnabled) witchSpiceEnabled.checked = shop.witchSpicePurchase.enabled;
+  if (witchSpiceQty) witchSpiceQty.value = shop.witchSpicePurchase.quantity;
+
   const skillBooksEnabled = root.querySelector('#shop-skillbooks-enabled');
   const skillBooksQty = root.querySelector('#shop-skillbooks-qty');
   const skillBooksLevel = root.querySelector('#shop-skillbooks-level');
@@ -3049,7 +3398,13 @@ function refreshCookingUI(root) {
     'current-clown-spice': ing.clownSpice || 0,
     'current-mirac-meat': ing.miracMeat || 0,
     'current-mirac-vegetable': ing.miracVegetable || 0,
-    'current-mirac-spice': ing.miracSpice || 0
+    'current-mirac-spice': ing.miracSpice || 0,
+    'current-beast-meat': ing.beastMeat || 0,
+    'current-beast-vegetable': ing.beastVegetable || 0,
+    'current-beast-spice': ing.beastSpice || 0,
+    'current-witch-meat': ing.witchMeat || 0,
+    'current-witch-vegetable': ing.witchVegetable || 0,
+    'current-witch-spice': ing.witchSpice || 0
   };
   
   for (const [inputId, value] of Object.entries(ingredientInputs)) {

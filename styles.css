@@ -108,6 +108,9 @@
   --vendor-beast-bg: #ffebee;
   --vendor-beast-color: #c62828;
   --vendor-beast-border: #c62828;
+  --vendor-witch-bg: #e8f5e9;
+  --vendor-witch-color: #2e7d32;
+  --vendor-witch-border: #2e7d32;
   
   /* Chart Colors */
   --chart-blue: #3498db;
@@ -188,7 +191,13 @@
   --vendor-mirac-bg: #2a1a3a;
   --vendor-mirac-color: #ba68c8;
   --vendor-mirac-border: #ab47bc;
-  
+  --vendor-beast-bg: #3a1a1a;
+  --vendor-beast-color: #ef5350;
+  --vendor-beast-border: #e53935;
+  --vendor-witch-bg: #1a3a1e;
+  --vendor-witch-color: #66bb6a;
+  --vendor-witch-border: #43a047;
+
   /* Chart Colors (slightly adjusted for dark bg) */
   --chart-blue: #64b5f6;
   --chart-green: #66bb6a;
@@ -582,6 +591,9 @@ input:focus-visible {
 .border-beast { border-left: 4px solid var(--vendor-beast-border) !important; }
 .bg-beast     { background: linear-gradient(to bottom, var(--bg-card), var(--vendor-beast-bg)); }
 
+.border-witch { border-left: 4px solid var(--vendor-witch-border) !important; }
+.bg-witch     { background: linear-gradient(to bottom, var(--bg-card), var(--vendor-witch-bg)); }
+
 /* Ingredient Card Enhancements */
 .ingredient-card {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -601,6 +613,16 @@ input:focus-visible {
 .ingredient-card.border-mirac {
   border-left-width: 5px;
   background: linear-gradient(135deg, var(--bg-card) 0%, var(--vendor-mirac-bg) 100%);
+}
+
+.ingredient-card.border-beast {
+  border-left-width: 5px;
+  background: linear-gradient(135deg, var(--bg-card) 0%, var(--vendor-beast-bg) 100%);
+}
+
+.ingredient-card.border-witch {
+  border-left-width: 5px;
+  background: linear-gradient(135deg, var(--bg-card) 0%, var(--vendor-witch-bg) 100%);
 }
 
 /* Ingredient Row Containers */
@@ -623,6 +645,20 @@ input:focus-visible {
   background: var(--vendor-mirac-bg);
   border-radius: 12px;
   border: 2px solid var(--vendor-mirac-border);
+}
+
+.ingredient-row-beast {
+  padding: 15px;
+  background: var(--vendor-beast-bg);
+  border-radius: 12px;
+  border: 2px solid var(--vendor-beast-border);
+}
+
+.ingredient-row-witch {
+  padding: 15px;
+  background: var(--vendor-witch-bg);
+  border-radius: 12px;
+  border: 2px solid var(--vendor-witch-border);
 }
 
 .ingredient-row-label {
@@ -649,6 +685,14 @@ input:focus-visible {
 
 .ingredient-row-mirac .ingredient-row-label::before {
   background: var(--vendor-mirac-border);
+}
+
+.ingredient-row-beast .ingredient-row-label::before {
+  background: var(--vendor-beast-border);
+}
+
+.ingredient-row-witch .ingredient-row-label::before {
+  background: var(--vendor-witch-border);
 }
 
 /* Responsive ingredient rows - moved to consolidated media queries at end of file */
