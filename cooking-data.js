@@ -598,6 +598,23 @@ const COOKING_RECIPES = {
     witchVegetable: 0,
     witchSpice: 0
   },
+  "elf_noodle": {
+    name: "Elf Noodle",
+    defaultStars: 1,
+    defaultPrice: 0,
+    clownMeat: 0,
+    clownVegetable: 0,
+    clownSpice: 0,
+    miracMeat: 0,
+    miracVegetable: 0,
+    miracSpice: 0,
+    beastMeat: 20,
+    beastVegetable: 10,
+    beastSpice: 5,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0
+  },
   // Witch Alchemy Store recipes
   "smoked_cerberus": {
     name: "Smoked Cerberus",
@@ -615,7 +632,24 @@ const COOKING_RECIPES = {
     witchMeat: 1,
     witchVegetable: 0,
     witchSpice: 0
-  }
+  },
+  "slug_jelly": {
+    name: "Slug Jelly",
+    defaultStars: 1,
+    defaultPrice: 0,
+    clownMeat: 0,
+    clownVegetable: 0,
+    clownSpice: 0,
+    miracMeat: 0,
+    miracVegetable: 0,
+    miracSpice: 0,
+    beastMeat: 0,
+    beastVegetable: 0,
+    beastSpice: 0,
+    witchMeat: 3,
+    witchVegetable: 0,
+    witchSpice: 0
+  },
 };
 
 // Default vendor configurations
@@ -774,6 +808,8 @@ const RECIPE_ORDER = [
   "fried_fire_dragon_egg",
   "siliconmon_shortcake",
   "pufferfish_mousse",
+  "elf_noodle",
   // Witch Alchemy Store
-  "smoked_cerberus"
+  "smoked_cerberus",
+  "slug_jelly"
 ];
