@@ -184,13 +184,21 @@
       <div class="calculator-section">
         <h1>🍳 Cooking Profitability Calculator</h1>
         <div class="info-blurb">
-          This calculator helps you optimize your cooking strategy based on your available recipes, vendor access, and shop purchases. 
+          This calculator helps you optimize your cooking strategy based on your available recipes, vendor access, and shop purchases.
           Configure your recipes and shop options below, and the calculator will show you the most profitable dishes and daily ROI.
         </div>
-        
+
+        <!-- Vendor Configuration Section (at top — determines what's available below) -->
+        <div class="cooking-section">
+          <div class="d-flex items-center gap-sm" style="margin-bottom: 10px;">
+            <h3 style="margin: 0;">🪙 Vendor Configuration</h3>
+          </div>
+          <div id="cooking-vendor-config"></div>
+        </div>
+
         <!-- Daily Income Summary -->
         <div id="cooking-daily-summary"></div>
-        
+
         <!-- Preset Buttons -->
         <div class="button-row">
           <button id="resetCooking" class="btn btn-secondary reset-button">Reset All</button>
@@ -217,14 +225,6 @@
         <div class="d-flex justify-center gap-md" style="margin: 15px 0;">
           <button id="exportCookingConfig" class="btn btn-primary">📤 Export Configuration</button>
           <button id="importCookingConfig" class="btn btn-primary">📥 Import Configuration</button>
-        </div>
-        
-        <!-- Vendor Configuration Section -->
-        <div class="cooking-section">
-          <div class="d-flex items-center gap-sm" style="margin-bottom: 15px;">
-            <h3 style="margin: 0;">🪙 Vendor Configuration</h3>
-          </div>
-          <div id="cooking-vendor-config"></div>
         </div>
         
         <!-- Shop Purchases Section -->

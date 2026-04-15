@@ -25,6 +25,108 @@ let cookingState = {
   dailySummaryVendor: 'clown'  // user-selected vendor for daily summary
 };
 
+// ============== VENDOR UNLOCK HELPERS ==============
+
+function isVendorUnlocked(prefix) {
+  // prefix: 'clown' | 'mirac' | 'beast' | 'witch'
+  if (prefix === 'clown') return true;
+  const key = prefix === 'mirac' ? 'miraculand' : prefix;
+  const preset = cookingState.vendors?.[key]?.preset;
+  return preset && preset !== 'none';
+}
+
+function rebuildVendorGatedPanels(root) {
+  // Rebuild panels whose content depends on which vendors are unlocked.
+  // Leaves the vendor-config panel itself alone (the click event lives there).
+  buildShopConfig(root);
+  buildRecipeManager(root);
+  buildResultsDashboard(root);
+  buildBatchPlanner(root);
+
+  // Re-attach listeners for the rebuilt panels.
+  attachShopConfigListeners(root);
+  attachRecipeManagerListeners(root);
+  setupBatchPlannerListeners(root);
+  refreshBatchPlannerUI(root);
+}
+
+function attachVendorConfigListeners(root) {
+  root.querySelectorAll('#cooking-vendor-config input, #cooking-vendor-config select').forEach(el => {
+    el.addEventListener('change', (e) => {
+      const prevUnlocks = {
+        clown: isVendorUnlocked('clown'),
+        mirac: isVendorUnlocked('mirac'),
+        beast: isVendorUnlocked('beast'),
+        witch: isVendorUnlocked('witch')
+      };
+      updateVendorState(root);
+      const nextUnlocks = {
+        clown: isVendorUnlocked('clown'),
+        mirac: isVendorUnlocked('mirac'),
+        beast: isVendorUnlocked('beast'),
+        witch: isVendorUnlocked('witch')
+      };
+      const unlockChanged = Object.keys(prevUnlocks).some(k => prevUnlocks[k] !== nextUnlocks[k]);
+      // If a vendor preset changed (not just supply orders), rebuild the vendor config
+      // so the rate subtitle reflects the new preset.
+      const isPresetSelect = e.target.matches('select[name$="-preset"]');
+      if (isPresetSelect) {
+        buildVendorConfig(root);
+        attachVendorConfigListeners(root);
+      }
+      if (unlockChanged) rebuildVendorGatedPanels(root);
+      recalculateCooking();
+    });
+  });
+}
+
+function attachShopConfigListeners(root) {
+  root.querySelectorAll('#cooking-shop-config input, #cooking-shop-config select').forEach(element => {
+    element.addEventListener('change', () => {
+      updateShopState(root);
+      recalculateCooking();
+    });
+  });
+}
+
+function attachRecipeManagerListeners(root) {
+  root.querySelectorAll('.recipe-enabled').forEach(checkbox => {
+    checkbox.addEventListener('change', (e) => {
+      const id = e.target.dataset.recipe;
+      cookingState.recipes[id].enabled = e.target.checked;
+      recalculateCooking();
+      saveCookingToStorage();
+    });
+  });
+  root.querySelectorAll('.recipe-stars').forEach(select => {
+    select.addEventListener('change', (e) => {
+      const id = e.target.dataset.recipe;
+      cookingState.recipes[id].stars = parseInt(e.target.value);
+      cookingState.recipes[id].enabled = true;
+      const checkbox = root.querySelector(`.recipe-enabled[data-recipe="${id}"]`);
+      if (checkbox) checkbox.checked = true;
+      recalculateCooking();
+      saveCookingToStorage();
+    });
+  });
+  root.querySelectorAll('.recipe-price').forEach(input => {
+    input.addEventListener('change', (e) => {
+      const id = e.target.dataset.recipe;
+      const newPrice = parseInt(e.target.value) || 0;
+      if (newPrice > 0) {
+        cookingState.recipes[id].price = newPrice;
+        cookingState.recipes[id].enabled = true;
+        const checkbox = root.querySelector(`.recipe-enabled[data-recipe="${id}"]`);
+        if (checkbox) checkbox.checked = true;
+      } else {
+        cookingState.recipes[id].price = 0;
+      }
+      recalculateCooking();
+      saveCookingToStorage();
+    });
+  });
+}
+
 // ============== INITIALIZATION ==============
 
 function initCookingCalculator() {
@@ -427,100 +529,54 @@ function buildVendorConfig(root) {
   html += '<h4 class="panel-title">Vendor Configuration Details</h4>';
   html += '</div>';
   html += '<div class="panel-content">';
-  html += '<div class="grid-responsive grid-md gap-lg">';
-  
-  // clown vendor
-  html += `
-    <div class="card card-lg vendor-card">
-      <h4 class="card-header">🤡 Clown Vendor</h4>
-      <div class="card-body vendor-preset">
-        <label style="display: block; margin-bottom: 8px;">
-          <input type="radio" name="clown-preset" value="meat-only"> Meat Only (100%)
-        </label>
-        <label style="display: block; margin-bottom: 8px;">
-          <input type="radio" name="clown-preset" value="meat-vegetable"> Meat + Vegetable (72% / 28%)
-        </label>
-        <label style="display: block; margin-bottom: 8px;">
-          <input type="radio" name="clown-preset" value="all-three" checked> Meat + Vegetable + Spice (65% / 25% / 10%)
-        </label>
+
+  const clownPreset = cookingState.vendors?.clown?.preset || 'all-three';
+  const miracPreset = cookingState.vendors?.miraculand?.preset || 'none';
+  const beastPreset = cookingState.vendors?.beast?.preset || 'none';
+  const witchPreset = cookingState.vendors?.witch?.preset || 'none';
+  const supplyOrdersValue = cookingState.shop?.supplyOrdersPerHour ?? 30;
+
+  const presetSubtitle = (preset) => {
+    switch (preset) {
+      case 'meat-only': return '<span style="color: var(--text-muted, #888); font-size: 0.85em;">🥩 100%</span>';
+      case 'meat-vegetable': return '<span style="color: var(--text-muted, #888); font-size: 0.85em;">🥩 72% · 🥬 28%</span>';
+      case 'all-three': return '<span style="color: var(--text-muted, #888); font-size: 0.85em;">🥩 65% · 🥬 25% · 🌶️ 10%</span>';
+      default: return '<span style="color: var(--text-muted, #888); font-size: 0.85em;">—</span>';
+    }
+  };
+
+  const sel = (preset, value) => preset === value ? ' selected' : '';
+
+  const vendorCard = (prefix, preset, name, icon, allowNone) => `
+    <div class="card vendor-card" style="padding: 10px 12px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px;">
+        <strong style="font-size: 0.95em;">${icon} ${name}</strong>
+        ${presetSubtitle(preset)}
       </div>
-    </div>
-  `;
-  
-  // miraculand vendor
-  html += `
-    <div class="card card-lg vendor-card">
-      <h4 class="card-header">🌴 Miraculand Vendor</h4>
-      <div class="card-body vendor-preset">
-        <label style="display: block; margin-bottom: 8px;">
-          <input type="radio" name="mirac-preset" value="none"> None (Not Unlocked)
-        </label>
-        <label style="display: block; margin-bottom: 8px;">
-          <input type="radio" name="mirac-preset" value="meat-only" checked> Meat Only (100%)
-        </label>
-        <label style="display: block; margin-bottom: 8px;">
-          <input type="radio" name="mirac-preset" value="meat-vegetable"> Meat + Vegetable (72% / 28%)
-        </label>
-        <label style="display: block; margin-bottom: 8px;">
-          <input type="radio" name="mirac-preset" value="all-three"> Meat + Vegetable + Spice (65% / 25% / 10%)
-        </label>
-      </div>
-    </div>
-  `;
-  
-  // orc hunter's tribe vendor
-  html += `
-    <div class="card card-lg vendor-card">
-      <h4 class="card-header">👹 Orc Hunter's Tribe</h4>
-      <div class="card-body vendor-preset">
-        <label style="display: block; margin-bottom: 8px;">
-          <input type="radio" name="beast-preset" value="none"> None (Not Unlocked)
-        </label>
-        <label style="display: block; margin-bottom: 8px;">
-          <input type="radio" name="beast-preset" value="meat-only" checked> Meat Only (100%)
-        </label>
-        <label style="display: block; margin-bottom: 8px;">
-          <input type="radio" name="beast-preset" value="meat-vegetable"> Meat + Vegetable (72% / 28%)
-        </label>
-        <label style="display: block; margin-bottom: 8px;">
-          <input type="radio" name="beast-preset" value="all-three"> Meat + Vegetable + Spice (65% / 25% / 10%)
-        </label>
-      </div>
+      <select name="${prefix}-preset" class="form-control form-control-sm vendor-preset-select" style="width: 100%;">
+        ${allowNone ? `<option value="none"${sel(preset, 'none')}>None (Not Unlocked)</option>` : ''}
+        <option value="meat-only"${sel(preset, 'meat-only')}>🥩 Meat Only</option>
+        <option value="meat-vegetable"${sel(preset, 'meat-vegetable')}>🥩🥬 Meat + Veg</option>
+        <option value="all-three"${sel(preset, 'all-three')}>🥩🥬🌶️ Meat + Veg + Spice</option>
+      </select>
     </div>
   `;
 
-  // witch alchemy store vendor
+  // Top compact row: supply orders input
   html += `
-    <div class="card card-lg vendor-card">
-      <h4 class="card-header">🧙 Witch Alchemy Store</h4>
-      <div class="card-body vendor-preset">
-        <label style="display: block; margin-bottom: 8px;">
-          <input type="radio" name="witch-preset" value="none"> None (Not Unlocked)
-        </label>
-        <label style="display: block; margin-bottom: 8px;">
-          <input type="radio" name="witch-preset" value="meat-only" checked> Meat Only (100%)
-        </label>
-        <label style="display: block; margin-bottom: 8px;">
-          <input type="radio" name="witch-preset" value="meat-vegetable"> Meat + Vegetable (72% / 28%)
-        </label>
-        <label style="display: block; margin-bottom: 8px;">
-          <input type="radio" name="witch-preset" value="all-three"> Meat + Vegetable + Spice (65% / 25% / 10%)
-        </label>
-      </div>
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; padding: 8px 12px; background: var(--bg-alt); border-radius: 6px;">
+      <label for="supply-orders-per-hour" style="font-size: 0.9em; font-weight: 600; margin: 0;">⚡ Supply Orders per Hour</label>
+      <input type="number" id="supply-orders-per-hour" value="${supplyOrdersValue}" min="1" max="999" class="form-control form-control-sm" style="width: 80px; text-align: center;">
     </div>
   `;
 
+  html += '<div class="vendor-config-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--space-sm);">';
+  html += vendorCard('clown', clownPreset, 'Clown Vendor', '🤡', false);
+  html += vendorCard('mirac', miracPreset, 'Miraculand', '🌴', true);
+  html += vendorCard('beast', beastPreset, "Orc Hunter's Tribe", '👹', true);
+  html += vendorCard('witch', witchPreset, 'Witch Alchemy Store', '🧙', true);
   html += '</div>'; // end grid
-  
-  // supply orders per hour
-  html += `
-    <div class="voucher-config">
-      <label>Supply Orders per Hour: 
-        <input type="number" id="supply-orders-per-hour" value="30" min="1" max="999" class="form-control form-control-md">
-      </label>
-    </div>
-  `;
-  
+
   html += '</div>'; // end panel-content
   html += '</div>'; // end panel
   
@@ -595,8 +651,9 @@ function buildShopConfig(root) {
   
   html += '</div>'; // end shop-row-items
   html += '</div>'; // end shop-row
-  
+
   // Row 2: Clown vendor items
+  if (isVendorUnlocked('clown')) {
   html += '<div class="shop-row">';
   html += '<div class="shop-row-label">🤡 Clown</div>';
   html += '<div class="shop-row-items">';
@@ -633,8 +690,10 @@ function buildShopConfig(root) {
   
   html += '</div>'; // end shop-row-items
   html += '</div>'; // end shop-row
-  
+  } // end clown unlock
+
   // Row 3: Miraculand vendor items
+  if (isVendorUnlocked('mirac')) {
   html += '<div class="shop-row">';
   html += '<div class="shop-row-label">🌴 Mirac</div>';
   html += '<div class="shop-row-items">';
@@ -671,8 +730,10 @@ function buildShopConfig(root) {
   
   html += '</div>'; // end shop-row-items
   html += '</div>'; // end shop-row
-  
+  } // end mirac unlock
+
   // Row 4: Orc Hunter's Tribe vendor items
+  if (isVendorUnlocked('beast')) {
   html += '<div class="shop-row">';
   html += '<div class="shop-row-label">👹 Orc</div>';
   html += '<div class="shop-row-items">';
@@ -709,8 +770,10 @@ function buildShopConfig(root) {
   
   html += '</div>'; // end shop-row-items
   html += '</div>'; // end shop-row
+  } // end beast unlock
 
   // Row 5: Witch Alchemy Store vendor items
+  if (isVendorUnlocked('witch')) {
   html += '<div class="shop-row">';
   html += '<div class="shop-row-label">🧙 Witch</div>';
   html += '<div class="shop-row-items">';
@@ -747,6 +810,7 @@ function buildShopConfig(root) {
 
   html += '</div>'; // end shop-row-items
   html += '</div>'; // end shop-row
+  } // end witch unlock
 
   html += '</div>'; // end shop-items-list
   html += '</div>'; // end shop-items-card
@@ -865,38 +929,42 @@ function buildRecipeManager(root) {
   const witchCollapsed = getAccordionState('witch-recipes') ? '' : ' collapsed';
   const rankingCollapsed = getAccordionState('optimal-ranking') ? '' : ' collapsed';
   
-  // Clown recipes section with nested groups
-  html += `
-    <div class="panel${clownCollapsed}" data-accordion-id="clown-recipes">
-      <div class="panel-header" onclick="toggleAccordion(this)">
-        <span class="panel-toggle">▼</span>
-        <h3 class="panel-title">🤡 Clown Vendor Recipes (${clownTotal})</h3>
+  // Clown recipes section (always unlocked)
+  if (isVendorUnlocked('clown')) {
+    html += `
+      <div class="panel${clownCollapsed}" data-accordion-id="clown-recipes">
+        <div class="panel-header" onclick="toggleAccordion(this)">
+          <span class="panel-toggle">▼</span>
+          <h3 class="panel-title">🤡 Clown Vendor Recipes (${clownTotal})</h3>
+        </div>
+        <div class="panel-content">
+          ${buildRecipeGroup('clown-meat-only', '🥩 Meat Only', clownRecipes.meatOnly, false)}
+          ${buildRecipeGroup('clown-meat-veg', '🥩🥬 Meat + Vegetable', clownRecipes.meatVeg, false)}
+          ${buildRecipeGroup('clown-meat-veg-spice', '🥩🥬🌶️ Meat + Vegetable + Spice', clownRecipes.meatVegSpice, false)}
+        </div>
       </div>
-      <div class="panel-content">
-        ${buildRecipeGroup('clown-meat-only', '🥩 Meat Only', clownRecipes.meatOnly, false)}
-        ${buildRecipeGroup('clown-meat-veg', '🥩🥬 Meat + Vegetable', clownRecipes.meatVeg, false)}
-        ${buildRecipeGroup('clown-meat-veg-spice', '🥩🥬🌶️ Meat + Vegetable + Spice', clownRecipes.meatVegSpice, false)}
+    `;
+  }
+
+  // Miraculand recipes section
+  if (isVendorUnlocked('mirac')) {
+    html += `
+      <div class="panel${miracCollapsed}" data-accordion-id="mirac-recipes">
+        <div class="panel-header" onclick="toggleAccordion(this)">
+          <span class="panel-toggle">▼</span>
+          <h3 class="panel-title">🌴 Miraculand Vendor Recipes (${miracTotal})</h3>
+        </div>
+        <div class="panel-content">
+          ${buildRecipeGroup('mirac-meat-only', '🥩 Meat Only', miracRecipes.meatOnly, true)}
+          ${buildRecipeGroup('mirac-meat-veg', '🥩🥬 Meat + Vegetable', miracRecipes.meatVeg, true)}
+          ${buildRecipeGroup('mirac-meat-veg-spice', '🥩🥬🌶️ Meat + Vegetable + Spice', miracRecipes.meatVegSpice, true)}
+        </div>
       </div>
-    </div>
-  `;
-  
-  // Miraculand recipes section with nested groups
-  html += `
-    <div class="panel${miracCollapsed}" data-accordion-id="mirac-recipes">
-      <div class="panel-header" onclick="toggleAccordion(this)">
-        <span class="panel-toggle">▼</span>
-        <h3 class="panel-title">🌴 Miraculand Vendor Recipes (${miracTotal})</h3>
-      </div>
-      <div class="panel-content">
-        ${buildRecipeGroup('mirac-meat-only', '🥩 Meat Only', miracRecipes.meatOnly, true)}
-        ${buildRecipeGroup('mirac-meat-veg', '🥩🥬 Meat + Vegetable', miracRecipes.meatVeg, true)}
-        ${buildRecipeGroup('mirac-meat-veg-spice', '🥩🥬🌶️ Meat + Vegetable + Spice', miracRecipes.meatVegSpice, true)}
-      </div>
-    </div>
-  `;
-  
+    `;
+  }
+
   // Orc Hunter's Tribe (Beast) recipes section with nested groups
-  if (beastTotal > 0) {
+  if (isVendorUnlocked('beast') && beastTotal > 0) {
     html += `
       <div class="panel${beastCollapsed}" data-accordion-id="beast-recipes">
         <div class="panel-header" onclick="toggleAccordion(this)">
@@ -913,7 +981,7 @@ function buildRecipeManager(root) {
   }
   
   // Witch Alchemy Store recipes section
-  if (witchTotal > 0) {
+  if (isVendorUnlocked('witch') && witchTotal > 0) {
     html += `
       <div class="panel${witchCollapsed}" data-accordion-id="witch-recipes">
         <div class="panel-header" onclick="toggleAccordion(this)">
@@ -1107,22 +1175,28 @@ function buildRecipeCards(recipeIds, isMirac, borderClass) {
 function updateCurrentIngredients(root) {
   const container = root.querySelector('#cooking-ingredient-optimizer');
   if (!container) return;
-  
-  cookingState.currentIngredients = {
-    clownMeat: parseInt(container.querySelector('#current-clown-meat')?.value) || 0,
-    clownVegetable: parseInt(container.querySelector('#current-clown-vegetable')?.value) || 0,
-    clownSpice: parseInt(container.querySelector('#current-clown-spice')?.value) || 0,
-    miracMeat: parseInt(container.querySelector('#current-mirac-meat')?.value) || 0,
-    miracVegetable: parseInt(container.querySelector('#current-mirac-vegetable')?.value) || 0,
-    miracSpice: parseInt(container.querySelector('#current-mirac-spice')?.value) || 0,
-    beastMeat: parseInt(container.querySelector('#current-beast-meat')?.value) || 0,
-    beastVegetable: parseInt(container.querySelector('#current-beast-vegetable')?.value) || 0,
-    beastSpice: parseInt(container.querySelector('#current-beast-spice')?.value) || 0,
-    witchMeat: parseInt(container.querySelector('#current-witch-meat')?.value) || 0,
-    witchVegetable: parseInt(container.querySelector('#current-witch-vegetable')?.value) || 0,
-    witchSpice: parseInt(container.querySelector('#current-witch-spice')?.value) || 0
+
+  const readOrKeep = (inputId, stateKey) => {
+    const el = container.querySelector(`#${inputId}`);
+    if (el) return parseInt(el.value) || 0;
+    return cookingState.currentIngredients?.[stateKey] || 0;
   };
-  
+
+  cookingState.currentIngredients = {
+    clownMeat: readOrKeep('current-clown-meat', 'clownMeat'),
+    clownVegetable: readOrKeep('current-clown-vegetable', 'clownVegetable'),
+    clownSpice: readOrKeep('current-clown-spice', 'clownSpice'),
+    miracMeat: readOrKeep('current-mirac-meat', 'miracMeat'),
+    miracVegetable: readOrKeep('current-mirac-vegetable', 'miracVegetable'),
+    miracSpice: readOrKeep('current-mirac-spice', 'miracSpice'),
+    beastMeat: readOrKeep('current-beast-meat', 'beastMeat'),
+    beastVegetable: readOrKeep('current-beast-vegetable', 'beastVegetable'),
+    beastSpice: readOrKeep('current-beast-spice', 'beastSpice'),
+    witchMeat: readOrKeep('current-witch-meat', 'witchMeat'),
+    witchVegetable: readOrKeep('current-witch-vegetable', 'witchVegetable'),
+    witchSpice: readOrKeep('current-witch-spice', 'witchSpice')
+  };
+
   saveCookingToStorage();
 }
 
@@ -1494,6 +1568,39 @@ function buildResultsDashboard(root) {
   const currentInventoryCollapsed = getAccordionState('current-inventory') ? '' : ' collapsed';
   const optimizerCollapsed = getAccordionState('current-optimizer') ? '' : ' collapsed';
   const stewCollapsed = getAccordionState('mega-stew') ? '' : ' collapsed';
+
+  const inventoryVendors = [
+    { prefix: 'clown', label: '🤡 Clown', color: 'var(--vendor-clown-border, #1565c0)' },
+    { prefix: 'mirac', label: '🌴 Miraculand', color: 'var(--vendor-mirac-border, #7b1fa2)' },
+    { prefix: 'beast', label: "👹 Orc Hunter's Tribe", color: 'var(--vendor-beast-border, #c62828)' },
+    { prefix: 'witch', label: '🧙 Witch Alchemy', color: 'var(--vendor-witch-border, #2e7d32)' }
+  ].filter(v => isVendorUnlocked(v.prefix));
+
+  const inventoryFieldMap = {
+    clown: { meat: 'clownMeat', veg: 'clownVegetable', spice: 'clownSpice' },
+    mirac: { meat: 'miracMeat', veg: 'miracVegetable', spice: 'miracSpice' },
+    beast: { meat: 'beastMeat', veg: 'beastVegetable', spice: 'beastSpice' },
+    witch: { meat: 'witchMeat', veg: 'witchVegetable', spice: 'witchSpice' }
+  };
+  const inventoryInputIdMap = {
+    clown: { meat: 'current-clown-meat', veg: 'current-clown-vegetable', spice: 'current-clown-spice' },
+    mirac: { meat: 'current-mirac-meat', veg: 'current-mirac-vegetable', spice: 'current-mirac-spice' },
+    beast: { meat: 'current-beast-meat', veg: 'current-beast-vegetable', spice: 'current-beast-spice' },
+    witch: { meat: 'current-witch-meat', veg: 'current-witch-vegetable', spice: 'current-witch-spice' }
+  };
+
+  const inventoryRows = inventoryVendors.map(v => {
+    const fields = inventoryFieldMap[v.prefix];
+    const ids = inventoryInputIdMap[v.prefix];
+    return `
+      <tr>
+        <th style="text-align: left; padding: 6px 10px; font-weight: 600; white-space: nowrap; border-left: 3px solid ${v.color};">${v.label}</th>
+        <td style="padding: 4px 6px;"><input type="number" id="${ids.meat}" value="${ing[fields.meat]}" min="0" max="9999" class="form-control form-control-xs text-center" style="width: 80px;"></td>
+        <td style="padding: 4px 6px;"><input type="number" id="${ids.veg}" value="${ing[fields.veg]}" min="0" max="9999" class="form-control form-control-xs text-center" style="width: 80px;"></td>
+        <td style="padding: 4px 6px;"><input type="number" id="${ids.spice}" value="${ing[fields.spice]}" min="0" max="9999" class="form-control form-control-xs text-center" style="width: 80px;"></td>
+      </tr>
+    `;
+  }).join('');
   
   let html = `
     <div class="results-full-width">
@@ -1507,81 +1614,23 @@ function buildResultsDashboard(root) {
           <h3 class="panel-title">📦 Current Inventory</h3>
         </div>
         <div class="panel-content" id="cooking-ingredient-optimizer">
-          <!-- Clown Vendor Row -->
-          <div class="ingredient-row-clown">
-            <div class="ingredient-row-label">🤡 Clown Vendor</div>
-            <div class="ingredient-row">
-              <div class="card card-md ingredient-card border-clown" style="text-align: center;">
-                <label style="display: block; font-weight: bold; margin-bottom: 8px;">🥩 Meat</label>
-                <input type="number" id="current-clown-meat" value="${ing.clownMeat}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
-              </div>
-              <div class="card card-md ingredient-card border-clown" style="text-align: center;">
-                <label style="display: block; font-weight: bold; margin-bottom: 8px;">🥬 Vegetable</label>
-                <input type="number" id="current-clown-vegetable" value="${ing.clownVegetable}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
-              </div>
-              <div class="card card-md ingredient-card border-clown" style="text-align: center;">
-                <label style="display: block; font-weight: bold; margin-bottom: 8px;">🌶️ Spice</label>
-                <input type="number" id="current-clown-spice" value="${ing.clownSpice}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
-              </div>
-            </div>
-          </div>
-          
-          <!-- Miraculand Vendor Row -->
-          <div class="ingredient-row-mirac">
-            <div class="ingredient-row-label">🌴 Miraculand Vendor</div>
-            <div class="ingredient-row">
-              <div class="card card-md ingredient-card border-mirac" style="text-align: center;">
-                <label style="display: block; font-weight: bold; margin-bottom: 8px;">🥩 Meat</label>
-                <input type="number" id="current-mirac-meat" value="${ing.miracMeat}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
-              </div>
-              <div class="card card-md ingredient-card border-mirac" style="text-align: center;">
-                <label style="display: block; font-weight: bold; margin-bottom: 8px;">🥬 Vegetable</label>
-                <input type="number" id="current-mirac-vegetable" value="${ing.miracVegetable}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
-              </div>
-              <div class="card card-md ingredient-card border-mirac" style="text-align: center;">
-                <label style="display: block; font-weight: bold; margin-bottom: 8px;">🌶️ Spice</label>
-                <input type="number" id="current-mirac-spice" value="${ing.miracSpice}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
-              </div>
-            </div>
-          </div>
-          
-          <!-- Beast (Orc Hunter's Tribe) Vendor Row -->
-          <div class="ingredient-row-beast">
-            <div class="ingredient-row-label">👹 Orc Hunter's Tribe</div>
-            <div class="ingredient-row">
-              <div class="card card-md ingredient-card border-beast" style="text-align: center;">
-                <label style="display: block; font-weight: bold; margin-bottom: 8px;">🥩 Meat</label>
-                <input type="number" id="current-beast-meat" value="${ing.beastMeat}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
-              </div>
-              <div class="card card-md ingredient-card border-beast" style="text-align: center;">
-                <label style="display: block; font-weight: bold; margin-bottom: 8px;">🥬 Vegetable</label>
-                <input type="number" id="current-beast-vegetable" value="${ing.beastVegetable}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
-              </div>
-              <div class="card card-md ingredient-card border-beast" style="text-align: center;">
-                <label style="display: block; font-weight: bold; margin-bottom: 8px;">🌶️ Spice</label>
-                <input type="number" id="current-beast-spice" value="${ing.beastSpice}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
-              </div>
-            </div>
-          </div>
-
-          <!-- Witch Alchemy Store Vendor Row -->
-          <div class="ingredient-row-witch">
-            <div class="ingredient-row-label">🧙 Witch Alchemy Store</div>
-            <div class="ingredient-row">
-              <div class="card card-md ingredient-card border-witch" style="text-align: center;">
-                <label style="display: block; font-weight: bold; margin-bottom: 8px;">🥩 Meat</label>
-                <input type="number" id="current-witch-meat" value="${ing.witchMeat}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
-              </div>
-              <div class="card card-md ingredient-card border-witch" style="text-align: center;">
-                <label style="display: block; font-weight: bold; margin-bottom: 8px;">🥬 Vegetable</label>
-                <input type="number" id="current-witch-vegetable" value="${ing.witchVegetable}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
-              </div>
-              <div class="card card-md ingredient-card border-witch" style="text-align: center;">
-                <label style="display: block; font-weight: bold; margin-bottom: 8px;">🌶️ Spice</label>
-                <input type="number" id="current-witch-spice" value="${ing.witchSpice}" min="0" max="9999" class="form-control w-full text-center" style="font-size: 1em; padding: 6px; box-sizing: border-box;">
-              </div>
-            </div>
-          </div>
+          ${inventoryVendors.length === 0 ? `
+            <div style="text-align: center; color: #888; padding: 8px;">No vendors unlocked.</div>
+          ` : `
+            <table class="inventory-table" style="width: 100%; border-collapse: collapse; font-size: 0.95em;">
+              <thead>
+                <tr>
+                  <th style="text-align: left; padding: 6px 10px; color: var(--text-muted, #888); font-weight: 500; font-size: 0.85em;">Vendor</th>
+                  <th style="padding: 4px 6px; color: var(--text-muted, #888); font-weight: 500; font-size: 0.85em;">🥩 Meat</th>
+                  <th style="padding: 4px 6px; color: var(--text-muted, #888); font-weight: 500; font-size: 0.85em;">🥬 Vegetable</th>
+                  <th style="padding: 4px 6px; color: var(--text-muted, #888); font-weight: 500; font-size: 0.85em;">🌶️ Spice</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${inventoryRows}
+              </tbody>
+            </table>
+          `}
         </div>
       </div>
       
@@ -1611,14 +1660,18 @@ function buildResultsDashboard(root) {
   
   container.innerHTML = html;
   
-  // Set up event listeners for shared ingredient inputs
-  ['clown-meat', 'clown-vegetable', 'clown-spice', 'mirac-meat', 'mirac-vegetable', 'mirac-spice', 'beast-meat', 'beast-vegetable', 'beast-spice'].forEach(id => {
+  // Set up event listeners for shared ingredient inputs (only those that exist after locked-vendor filtering)
+  [
+    'clown-meat', 'clown-vegetable', 'clown-spice',
+    'mirac-meat', 'mirac-vegetable', 'mirac-spice',
+    'beast-meat', 'beast-vegetable', 'beast-spice',
+    'witch-meat', 'witch-vegetable', 'witch-spice'
+  ].forEach(id => {
     const input = container.querySelector(`#current-${id}`);
     if (input) {
       input.addEventListener('input', () => {
         updateCurrentIngredients(root);
         calculateIngredientOptimizer(root);
-        // Also trigger stew calculator update
         calculateStewRanges(root);
       });
     }
@@ -1640,13 +1693,7 @@ function setupCookingEventListeners(root) {
     });
   });
   
-  // vendor config changes
-  root.querySelectorAll('#cooking-vendor-config input').forEach(input => {
-    input.addEventListener('change', () => {
-      updateVendorState(root);
-      recalculateCooking();
-    });
-  });
+  attachVendorConfigListeners(root);
   
   // checkbox to enable/disable rate inputs
   ['clown', 'mirac'].forEach(vendor => {
@@ -1662,54 +1709,9 @@ function setupCookingEventListeners(root) {
     });
   });
   
-  // shop config changes - includes both input and select elements
-  root.querySelectorAll('#cooking-shop-config input, #cooking-shop-config select').forEach(element => {
-    element.addEventListener('change', () => {
-      updateShopState(root);
-      recalculateCooking();
-    });
-  });
-  
-  // recipe changes
-  root.querySelectorAll('.recipe-enabled').forEach(checkbox => {
-    checkbox.addEventListener('change', (e) => {
-      const id = e.target.dataset.recipe;
-      cookingState.recipes[id].enabled = e.target.checked;
-      recalculateCooking();
-      saveCookingToStorage();
-    });
-  });
-  
-  root.querySelectorAll('.recipe-stars').forEach(select => {
-    select.addEventListener('change', (e) => {
-      const id = e.target.dataset.recipe;
-      cookingState.recipes[id].stars = parseInt(e.target.value);
-      // Auto-enable checkbox when stars are changed
-      cookingState.recipes[id].enabled = true;
-      const checkbox = root.querySelector(`.recipe-enabled[data-recipe="${id}"]`);
-      if (checkbox) checkbox.checked = true;
-      recalculateCooking();
-      saveCookingToStorage();
-    });
-  });
-  
-  root.querySelectorAll('.recipe-price').forEach(input => {
-    input.addEventListener('change', (e) => {
-      const id = e.target.dataset.recipe;
-      const newPrice = parseInt(e.target.value) || 0;
-      if (newPrice > 0) {
-        cookingState.recipes[id].price = newPrice;
-        // Auto-enable checkbox when price is entered
-        cookingState.recipes[id].enabled = true;
-        const checkbox = root.querySelector(`.recipe-enabled[data-recipe="${id}"]`);
-        if (checkbox) checkbox.checked = true;
-      } else {
-        cookingState.recipes[id].price = 0;
-      }
-      recalculateCooking();
-      saveCookingToStorage();
-    });
-  });
+  // shop config & recipe changes (also called after rebuilds)
+  attachShopConfigListeners(root);
+  attachRecipeManagerListeners(root);
   
   // preset buttons
   for (let i = 1; i <= 3; i++) {
@@ -1736,7 +1738,7 @@ function setupCookingEventListeners(root) {
 
 function updateVendorState(root) {
   // clown vendor - check which preset is selected
-  const clownPreset = root.querySelector('input[name="clown-preset"]:checked')?.value || 'all-three';
+  const clownPreset = root.querySelector('select[name="clown-preset"]')?.value || 'all-three';
   if (clownPreset === 'meat-only') {
     cookingState.vendors.clown.meatEnabled = true;
     cookingState.vendors.clown.meatRate = 1.00;
@@ -1762,7 +1764,7 @@ function updateVendorState(root) {
   cookingState.vendors.clown.preset = clownPreset;
   
   // miraculand vendor - check which preset is selected
-  const miracPreset = root.querySelector('input[name="mirac-preset"]:checked')?.value || 'meat-only';
+  const miracPreset = root.querySelector('select[name="mirac-preset"]')?.value || 'none';
   if (miracPreset === 'none') {
     cookingState.vendors.miraculand.meatEnabled = false;
     cookingState.vendors.miraculand.meatRate = 0;
@@ -1795,7 +1797,7 @@ function updateVendorState(root) {
   cookingState.vendors.miraculand.preset = miracPreset;
   
   // beast vendor (Orc Hunter's Tribe) - check which preset is selected
-  const beastPreset = root.querySelector('input[name="beast-preset"]:checked')?.value || 'meat-only';
+  const beastPreset = root.querySelector('select[name="beast-preset"]')?.value || 'none';
   if (beastPreset === 'none') {
     cookingState.vendors.beast.meatEnabled = false;
     cookingState.vendors.beast.meatRate = 0;
@@ -1828,7 +1830,7 @@ function updateVendorState(root) {
   cookingState.vendors.beast.preset = beastPreset;
 
   // witch vendor (Witch Alchemy Store) - check which preset is selected
-  const witchPreset = root.querySelector('input[name="witch-preset"]:checked')?.value || 'meat-only';
+  const witchPreset = root.querySelector('select[name="witch-preset"]')?.value || 'none';
   if (witchPreset === 'none') {
     cookingState.vendors.witch.meatEnabled = false;
     cookingState.vendors.witch.meatRate = 0;
@@ -3263,12 +3265,12 @@ function getAccordionState(accordionId) {
   try {
     const saved = localStorage.getItem(`accordion-${accordionId}`);
     if (saved === null) {
-      // Default states: vendor-config and current-inventory are open by default
-      return accordionId === 'vendor-config' || accordionId === 'current-inventory';
+      // Default states: only vendor-config is open by default
+      return accordionId === 'vendor-config';
     }
     return saved === 'true';
   } catch (e) {
-    return accordionId === 'vendor-config' || accordionId === 'current-inventory';
+    return accordionId === 'vendor-config';
   }
 }
 
@@ -3338,22 +3340,19 @@ function loadCookingFromStorage() {
 }
 
 function refreshCookingUI(root) {
-  // refresh vendor UI - set radio buttons based on saved preset
-  const clownPreset = cookingState.vendors.clown?.preset || 'all-three';
-  const clownRadio = root.querySelector(`input[name="clown-preset"][value="${clownPreset}"]`);
-  if (clownRadio) clownRadio.checked = true;
-  
-  const miracPreset = cookingState.vendors.miraculand?.preset || 'meat-only';
-  const miracRadio = root.querySelector(`input[name="mirac-preset"][value="${miracPreset}"]`);
-  if (miracRadio) miracRadio.checked = true;
-  
-  const beastPreset = cookingState.vendors.beast?.preset || 'meat-only';
-  const beastRadio = root.querySelector(`input[name="beast-preset"][value="${beastPreset}"]`);
-  if (beastRadio) beastRadio.checked = true;
-
-  const witchPreset = cookingState.vendors.witch?.preset || 'meat-only';
-  const witchRadio = root.querySelector(`input[name="witch-preset"][value="${witchPreset}"]`);
-  if (witchRadio) witchRadio.checked = true;
+  // refresh vendor UI - set select values based on saved preset, then rebuild the vendor config panel
+  // so that the subtitle (rate %) reflects the new preset.
+  const syncSelect = (name, value) => {
+    const sel = root.querySelector(`select[name="${name}"]`);
+    if (sel) sel.value = value;
+  };
+  syncSelect('clown-preset', cookingState.vendors.clown?.preset || 'all-three');
+  syncSelect('mirac-preset', cookingState.vendors.miraculand?.preset || 'none');
+  syncSelect('beast-preset', cookingState.vendors.beast?.preset || 'none');
+  syncSelect('witch-preset', cookingState.vendors.witch?.preset || 'none');
+  // Rebuild vendor-config so the rate subtitles reflect the current presets.
+  buildVendorConfig(root);
+  attachVendorConfigListeners(root);
 
   // refresh daily summary vendor toggle
   const dailyVendor = cookingState.dailySummaryVendor || 'clown';
@@ -3436,6 +3435,8 @@ function refreshCookingUI(root) {
     if (input) input.value = value;
   }
 
+  // Rebuild vendor-gated panels with freshly-loaded state (unlocks may have changed).
+  rebuildVendorGatedPanels(root);
   refreshBatchPlannerUI(root);
 }
 
@@ -3858,7 +3859,7 @@ function buildBatchPlanner(root) {
     const recipe = COOKING_RECIPES[id];
     if (!recipe) continue;
     const prefix = getRecipeVendorPrefix(recipe);
-    if (prefix && vendorGroups[prefix]) vendorGroups[prefix].push({ id, name: recipe.name });
+    if (prefix && vendorGroups[prefix] && isVendorUnlocked(prefix)) vendorGroups[prefix].push({ id, name: recipe.name });
   }
 
   const optgroups = Object.entries(vendorGroups)

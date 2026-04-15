@@ -674,6 +674,7 @@ const DEFAULT_VENDORS = {
   clown: {
     name: "Clown Vendor",
     enabled: true,
+    preset: "all-three",
     meatEnabled: true,
     meatRate: 0.65,
     vegetableEnabled: true,
@@ -684,8 +685,9 @@ const DEFAULT_VENDORS = {
   miraculand: {
     name: "Miraculand Vendor",
     enabled: true,
-    meatEnabled: true,
-    meatRate: 1.00,
+    preset: "none",
+    meatEnabled: false,
+    meatRate: 0.00,
     vegetableEnabled: false,
     vegetableRate: 0.00,
     spiceEnabled: false,
@@ -694,8 +696,9 @@ const DEFAULT_VENDORS = {
   beast: {
     name: "Orc Hunter's Tribe",
     enabled: true,
-    meatEnabled: true,
-    meatRate: 1.00,
+    preset: "none",
+    meatEnabled: false,
+    meatRate: 0.00,
     vegetableEnabled: false,
     vegetableRate: 0.00,
     spiceEnabled: false,
@@ -704,8 +707,9 @@ const DEFAULT_VENDORS = {
   witch: {
     name: "Witch Alchemy Store",
     enabled: true,
-    meatEnabled: true,
-    meatRate: 1.00,
+    preset: "none",
+    meatEnabled: false,
+    meatRate: 0.00,
     vegetableEnabled: false,
     vegetableRate: 0.00,
     spiceEnabled: false,

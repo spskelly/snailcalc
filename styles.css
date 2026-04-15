@@ -1754,12 +1754,30 @@ h1, h2 {
 
 /* ============== COOKING CALCULATOR STYLES ============== */
 
+/* Compact-mode overrides scoped to the cooking calculator only */
+#cookingCalculator .panel { margin-bottom: 12px; }
+#cookingCalculator .panel-content { padding: 14px; }
+#cookingCalculator .panel.collapsed .panel-content { padding: 0 14px; }
+#cookingCalculator .panel-header { padding: 10px 16px; }
+#cookingCalculator .shop-item { padding: 10px; }
+#cookingCalculator .info-blurb { margin-bottom: 10px; font-size: 0.95em; }
+#cookingCalculator .preset-set { gap: var(--space-xs); }
+#cookingCalculator .preset-label { font-size: 0.85em; }
+#cookingCalculator .button-row { margin-bottom: 8px; }
+#cookingCalculator .cooking-section { margin-bottom: 10px; }
+#cookingCalculator .cooking-section h3 { margin: 10px 0 6px 0; font-size: 1.1em; }
+#cookingCalculator .inventory-table th,
+#cookingCalculator .inventory-table td { vertical-align: middle; }
+#cookingCalculator .inventory-table tr + tr { border-top: 1px solid var(--border-light); }
+#cookingCalculator .vendor-config-grid .vendor-card { padding: 10px 12px; }
+#cookingCalculator .vendor-preset-select { font-size: 0.9em; padding: 4px 6px; }
+
 /* Daily Income Summary Panel */
 .daily-summary-card {
   background: var(--bg-card);
   border-radius: 12px;
   box-shadow: var(--shadow-lg);
-  margin-bottom: var(--space-lg);
+  margin-bottom: var(--space-md);
   overflow: hidden;
   border: 1px solid var(--border-light);
 }
