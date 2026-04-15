@@ -650,6 +650,23 @@ const COOKING_RECIPES = {
     witchVegetable: 0,
     witchSpice: 0
   },
+  "dragonhorn_bun": {
+    name: "Dragonhorn Bun",
+    defaultStars: 1,
+    defaultPrice: 0,
+    clownMeat: 0,
+    clownVegetable: 0,
+    clownSpice: 0,
+    miracMeat: 0,
+    miracVegetable: 0,
+    miracSpice: 0,
+    beastMeat: 0,
+    beastVegetable: 0,
+    beastSpice: 0,
+    witchMeat: 5,
+    witchVegetable: 0,
+    witchSpice: 0
+  },
 };
 
 // Default vendor configurations
@@ -811,5 +828,6 @@ const RECIPE_ORDER = [
   "elf_noodle",
   // Witch Alchemy Store
   "smoked_cerberus",
-  "slug_jelly"
+  "slug_jelly",
+  "dragonhorn_bun"
 ];
