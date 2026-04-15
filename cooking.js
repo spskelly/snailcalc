@@ -42,9 +42,11 @@ function initCookingCalculator() {
   buildShopConfig(root);
   buildRecipeManager(root);
   buildResultsDashboard(root);
-  
+  buildBatchPlanner(root);
+
   // set up event listeners
   setupCookingEventListeners(root);
+  setupBatchPlannerListeners(root);
   
   // load saved state if exists (must be before initial sync)
   loadCookingFromStorage();
@@ -2294,6 +2296,7 @@ function recalculateCooking() {
   updateShopROI(root);
   updateStrategySummary(root, results);
   updateStewCalculator(root);
+  updateBatchPlannerResults(root);
 }
 
 function updateRankingTable(root, results) {
@@ -3319,7 +3322,10 @@ function loadCookingFromStorage() {
       if (parsed.shop) {
         cookingState.shop = { ...cookingState.shop, ...parsed.shop };
       }
-      
+      if (parsed.batchPlanner) {
+        cookingState.batchPlanner = { ...(cookingState.batchPlanner || {}), ...parsed.batchPlanner };
+      }
+
       const root = document.getElementById('cookingCalculator');
       if (root) {
         refreshCookingUI(root);
@@ -3429,6 +3435,8 @@ function refreshCookingUI(root) {
     const input = root.querySelector(`#${inputId}`);
     if (input) input.value = value;
   }
+
+  refreshBatchPlannerUI(root);
 }
 
 function saveCookingPreset(num) {
@@ -3691,6 +3699,520 @@ function toggleRankingInfo() {
   const popup = document.getElementById('ranking-info-popup');
   if (popup) {
     popup.style.display = popup.style.display === 'none' ? 'block' : 'none';
+  }
+}
+
+// ============== RECIPE BATCH PLANNER ==============
+
+const BATCH_VENDOR_STATE_KEY = { clown: 'clown', mirac: 'miraculand', beast: 'beast', witch: 'witch' };
+const BATCH_VENDOR_LABEL = {
+  clown: '🤡 Clown',
+  mirac: '🌴 Miraculand',
+  beast: '👹 Orc Hunter\'s Tribe',
+  witch: '🧙 Witch Alchemy Store'
+};
+const BATCH_TYPE_ICON = { Meat: '🥩', Vegetable: '🥬', Spice: '🌶️' };
+const BATCH_ALL_ING_KEYS = [
+  'clownMeat', 'clownVegetable', 'clownSpice',
+  'miracMeat', 'miracVegetable', 'miracSpice',
+  'beastMeat', 'beastVegetable', 'beastSpice',
+  'witchMeat', 'witchVegetable', 'witchSpice'
+];
+
+function getRecipeVendorPrefix(recipe) {
+  if (recipe.clownMeat || recipe.clownVegetable || recipe.clownSpice) return 'clown';
+  if (recipe.miracMeat || recipe.miracVegetable || recipe.miracSpice) return 'mirac';
+  if (recipe.beastMeat || recipe.beastVegetable || recipe.beastSpice) return 'beast';
+  if (recipe.witchMeat || recipe.witchVegetable || recipe.witchSpice) return 'witch';
+  return null;
+}
+
+// Effective per-hour generation rate for each of the 12 ingredient keys,
+// assuming ALL supply orders (base + supply-deal bonus) go to the given vendor,
+// plus shop vegetable/spice purchases for that vendor (converted to hourly).
+// Only the vendor's own prefix keys will be non-zero.
+function computeVendorRatesPerHour(vendorPrefix) {
+  const rates = {
+    clownMeat: 0, clownVegetable: 0, clownSpice: 0,
+    miracMeat: 0, miracVegetable: 0, miracSpice: 0,
+    beastMeat: 0, beastVegetable: 0, beastSpice: 0,
+    witchMeat: 0, witchVegetable: 0, witchSpice: 0
+  };
+  const shop = cookingState.shop;
+  const vendorKey = BATCH_VENDOR_STATE_KEY[vendorPrefix];
+  const vendor = cookingState.vendors[vendorKey];
+  if (!vendor) return rates;
+
+  const baseOrdersPerHour = Number(shop.supplyOrdersPerHour) || 0;
+  const bonusOrdersPerDay = shop.supplyDeals && shop.supplyDeals.enabled
+    ? (shop.supplyDeals.quantity || 0) * (shop.supplyDeals.supplyOrdersEach || 0)
+    : 0;
+  const effectiveOrdersPerHour = baseOrdersPerHour + bonusOrdersPerDay / 24;
+
+  if (vendor.meatEnabled) rates[vendorPrefix + 'Meat'] = effectiveOrdersPerHour * (vendor.meatRate || 0);
+  if (vendor.vegetableEnabled) rates[vendorPrefix + 'Vegetable'] = effectiveOrdersPerHour * (vendor.vegetableRate || 0);
+  if (vendor.spiceEnabled) rates[vendorPrefix + 'Spice'] = effectiveOrdersPerHour * (vendor.spiceRate || 0);
+
+  // Shop purchases (daily qty → hourly)
+  const shopKeyMap = {
+    clown: { veg: 'vegetablePurchase', spice: 'spicePurchase' },
+    mirac: { veg: 'miracVegetablePurchase', spice: 'miracSpicePurchase' },
+    beast: { veg: 'beastVegetablePurchase', spice: 'beastSpicePurchase' },
+    witch: { veg: 'witchVegetablePurchase', spice: 'witchSpicePurchase' }
+  };
+  const m = shopKeyMap[vendorPrefix];
+  if (m) {
+    const vegShop = shop[m.veg];
+    if (vegShop && vegShop.enabled) rates[vendorPrefix + 'Vegetable'] += (vegShop.quantity || 0) / 24;
+    const spiceShop = shop[m.spice];
+    if (spiceShop && spiceShop.enabled) rates[vendorPrefix + 'Spice'] += (spiceShop.quantity || 0) / 24;
+  }
+
+  return rates;
+}
+
+function computeBatchPlan(recipeId, quantity) {
+  const recipe = COOKING_RECIPES[recipeId];
+  if (!recipe || !(quantity > 0)) return null;
+
+  const prefix = getRecipeVendorPrefix(recipe);
+  if (!prefix) return null;
+
+  const rates = computeVendorRatesPerHour(prefix);
+  const types = ['Meat', 'Vegetable', 'Spice'];
+
+  const required = {};
+  const perHour = {};
+  const unreachable = [];
+  let bottleneck = null;
+  let maxHours = 0;
+
+  for (const t of types) {
+    const k = prefix + t;
+    const amount = recipe[k] || 0;
+    if (amount <= 0) continue;
+    required[k] = amount * quantity;
+    const rateHr = rates[k] || 0;
+    perHour[k] = rateHr;
+    if (rateHr <= 0) {
+      unreachable.push(k);
+    } else {
+      const hrs = required[k] / rateHr;
+      if (hrs > maxHours) {
+        maxHours = hrs;
+        bottleneck = k;
+      }
+    }
+  }
+
+  const plan = {
+    recipeId, recipe, quantity, prefix,
+    required, perHour, bottleneck,
+    timeHours: maxHours,
+    unreachable,
+    generated: {}
+  };
+
+  if (unreachable.length > 0) return plan;
+
+  for (const t of types) {
+    const k = prefix + t;
+    const gen = (rates[k] || 0) * maxHours;
+    if (gen > 0 || required[k]) {
+      plan.generated[k] = gen;
+    }
+  }
+  return plan;
+}
+
+function formatBatchTime(hours) {
+  if (!(hours > 0)) return '—';
+  if (hours < 1) {
+    const mins = Math.round(hours * 60);
+    return `${mins} min`;
+  }
+  if (hours < 24) {
+    return `${hours.toFixed(1)} hours`;
+  }
+  const days = Math.floor(hours / 24);
+  const remHours = Math.round(hours - days * 24);
+  if (remHours === 0) return `${days}d`;
+  return `${days}d ${remHours}h`;
+}
+
+function formatBatchNumber(v) {
+  return Math.round(v).toLocaleString();
+}
+
+function buildBatchPlanner(root) {
+  const container = root.querySelector('#cooking-batch-planner');
+  if (!container) return;
+
+  if (!cookingState.batchPlanner) {
+    cookingState.batchPlanner = { recipeId: RECIPE_ORDER[0] || '', quantity: 10 };
+  }
+  const { recipeId, quantity } = cookingState.batchPlanner;
+
+  const vendorGroups = { clown: [], mirac: [], beast: [], witch: [] };
+  for (const id of RECIPE_ORDER) {
+    const recipe = COOKING_RECIPES[id];
+    if (!recipe) continue;
+    const prefix = getRecipeVendorPrefix(recipe);
+    if (prefix && vendorGroups[prefix]) vendorGroups[prefix].push({ id, name: recipe.name });
+  }
+
+  const optgroups = Object.entries(vendorGroups)
+    .filter(([, items]) => items.length > 0)
+    .map(([prefix, items]) => {
+      const opts = items
+        .map(r => `<option value="${r.id}" ${r.id === recipeId ? 'selected' : ''}>${r.name}</option>`)
+        .join('');
+      return `<optgroup label="${BATCH_VENDOR_LABEL[prefix]}">${opts}</optgroup>`;
+    }).join('');
+
+  const isCollapsed = getAccordionState('batch-planner') ? '' : ' collapsed';
+
+  container.innerHTML = `
+    <div class="panel${isCollapsed}" data-accordion-id="batch-planner" style="margin-bottom: 20px;">
+      <div class="panel-header" onclick="toggleAccordion(this)">
+        <span class="panel-toggle">▼</span>
+        <h3 class="panel-title">⏱️ Recipe Batch Planner</h3>
+      </div>
+      <div class="panel-content">
+        <div style="font-size: 0.9em; color: #666; margin-bottom: 12px;">
+          Pick a recipe and target quantity — see how long it takes to gather ingredients at your current supply rate, and what to do with leftovers.
+        </div>
+        <div class="d-flex items-center gap-md" style="flex-wrap: wrap; margin-bottom: 15px;">
+          <label style="display: flex; align-items: center; gap: 6px;">
+            <span><strong>Recipe:</strong></span>
+            <select id="batch-planner-recipe" class="form-control form-control-md" style="min-width: 220px;">
+              ${optgroups}
+            </select>
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px;">
+            <span><strong>Quantity:</strong></span>
+            <input type="number" id="batch-planner-qty" value="${quantity}" min="1" max="9999" step="1" class="form-control form-control-md" style="width: 100px;">
+          </label>
+        </div>
+        <div id="batch-planner-results"></div>
+      </div>
+    </div>
+  `;
+}
+
+function updateBatchPlannerResults(root) {
+  const container = root.querySelector('#batch-planner-results');
+  if (!container) return;
+
+  const state = cookingState.batchPlanner || {};
+  const recipeId = state.recipeId;
+  const quantity = Number(state.quantity) || 0;
+
+  if (!recipeId || !COOKING_RECIPES[recipeId] || quantity <= 0) {
+    container.innerHTML = `<div style="text-align: center; color: #666; padding: 10px;">Select a recipe and enter a quantity.</div>`;
+    return;
+  }
+
+  const plan = computeBatchPlan(recipeId, quantity);
+  if (!plan) {
+    container.innerHTML = `<div style="text-align: center; color: #c62828; padding: 10px;">Unable to plan this recipe.</div>`;
+    return;
+  }
+
+  const vendorLabel = BATCH_VENDOR_LABEL[plan.prefix];
+
+  // Effective orders/hour includes base supply orders + (supply deal bonus / 24)
+  const shop = cookingState.shop;
+  const baseOrdersPerHour = Number(shop.supplyOrdersPerHour) || 0;
+  const bonusOrdersPerDay = shop.supplyDeals && shop.supplyDeals.enabled
+    ? (shop.supplyDeals.quantity || 0) * (shop.supplyDeals.supplyOrdersEach || 0)
+    : 0;
+  const effectiveOrdersPerHour = baseOrdersPerHour + bonusOrdersPerDay / 24;
+
+  if (plan.unreachable.length > 0 || plan.timeHours <= 0) {
+    const reasons = [];
+    if (effectiveOrdersPerHour <= 0) {
+      reasons.push('Set <strong>Supply Orders per Hour</strong> above 0 in the Vendor Configuration.');
+    }
+    for (const k of plan.unreachable) {
+      const type = k.replace(plan.prefix, '');
+      reasons.push(`${vendorLabel} is not producing <strong>${BATCH_TYPE_ICON[type]} ${type}</strong> — enable or purchase it, or adjust vendor rates.`);
+    }
+    container.innerHTML = `
+      <div style="padding: 12px; background: var(--bg-alt); border-radius: 6px; border-left: 4px solid #c62828;">
+        <strong style="color: #c62828;">⚠️ Unreachable with current config</strong>
+        <ul style="margin: 6px 0 0 20px;">${reasons.map(r => `<li>${r}</li>`).join('')}</ul>
+      </div>
+    `;
+    return;
+  }
+
+  const bottleneckType = plan.bottleneck.replace(plan.prefix, '');
+  const bottleneckLabel = `${BATCH_TYPE_ICON[bottleneckType]} ${vendorLabel} ${bottleneckType}`;
+
+  const reqRows = Object.entries(plan.required).map(([k, amt]) => {
+    const type = k.replace(plan.prefix, '');
+    const per = plan.perHour[k] || 0;
+    const hrs = per > 0 ? amt / per : 0;
+    const isBottleneck = k === plan.bottleneck;
+    return `
+      <div style="padding: 6px 0; ${isBottleneck ? 'color: #c62828;' : ''}">
+        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+          <span style="${isBottleneck ? 'font-weight: bold;' : ''}">
+            ${BATCH_TYPE_ICON[type]} ${type}${isBottleneck ? ' <span style="font-size: 0.8em; font-weight: normal;">(bottleneck)</span>' : ''}
+          </span>
+          <span style="font-weight: ${isBottleneck ? 'bold' : 'normal'};">${formatBatchNumber(amt)} needed</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.8em; color: ${isBottleneck ? '#c62828' : '#888'}; margin-top: 2px;">
+          <span>${per.toFixed(1)}/hr</span>
+          <span>${formatBatchTime(hrs)}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Build available dishes once for the phase-based sequencer.
+  const availableDishes = cookingState.results.map(r => ({
+    id: r.id,
+    name: r.name,
+    recipe: COOKING_RECIPES[r.id],
+    state: cookingState.recipes[r.id],
+    goldPerOrder: r.goldPerOrder
+  }));
+
+  // --- Target scenario: what you earn while targeting this recipe ---
+  // Start with ingredients generated during the gather window.
+  const targetIngredients = {
+    clownMeat: 0, clownVegetable: 0, clownSpice: 0,
+    miracMeat: 0, miracVegetable: 0, miracSpice: 0,
+    beastMeat: 0, beastVegetable: 0, beastSpice: 0,
+    witchMeat: 0, witchVegetable: 0, witchSpice: 0
+  };
+  Object.assign(targetIngredients, plan.generated);
+  // Deduct what the target recipe consumes.
+  for (const k of BATCH_ALL_ING_KEYS) {
+    const need = (plan.recipe[k] || 0) * quantity;
+    if (need > 0) targetIngredients[k] = Math.max(0, targetIngredients[k] - need);
+  }
+  // Run the phase-based sequencer on what's left, excluding the target recipe itself.
+  const fillerDishes = availableDishes.filter(d => d.id !== recipeId);
+  const targetSeq = calculatePhaseBasedSequence(targetIngredients, fillerDishes);
+  const fillers = targetSeq.sequence;
+  const fillerGold = targetSeq.totalGold;
+  const stewValue = targetSeq.stewValue;
+  const residue = targetSeq.remaining;
+
+  const recipeSaleGold = quantity * (cookingState.recipes[recipeId]?.price || plan.recipe.defaultPrice || 0);
+  const totalGold = recipeSaleGold + fillerGold + stewValue;
+  const days = plan.timeHours / 24;
+  const goldPerDay = days > 0 ? totalGold / days : 0;
+
+  const leftoverChips = Object.entries(residue)
+    .filter(([, v]) => Math.round(v) > 0)
+    .map(([k, v]) => {
+      const prefix = k.startsWith('clown') ? 'clown' : k.startsWith('mirac') ? 'mirac' : k.startsWith('beast') ? 'beast' : 'witch';
+      const type = k.replace(prefix, '');
+      return `<span>${BATCH_TYPE_ICON[type]} ${type}: ${formatBatchNumber(v)}</span>`;
+    }).join('');
+
+  const fillersHtml = fillers.length > 0
+    ? fillers.slice(0, 5).map(s => `
+        <div class="daily-summary-row" style="padding: 6px 0;">
+          <span><strong>${s.name}</strong></span>
+          <span style="text-align: right;">
+            <span style="font-weight: bold;">${s.quantity}×</span>
+            <span style="color: #2e7d32; font-weight: bold; margin-left: 8px;">+${Math.round(s.gold).toLocaleString()}g</span>
+          </span>
+        </div>
+      `).join('')
+    : `<div style="text-align: center; color: #666; padding: 6px;">No filler recipes fit the leftover ingredients.</div>`;
+
+  // --- Optimal comparison: for the same time window, check each vendor independently. ---
+  const optimalByVendor = [];
+  for (const prefix of ['clown', 'mirac', 'beast', 'witch']) {
+    const rates = computeVendorRatesPerHour(prefix);
+    const ing = {
+      clownMeat: 0, clownVegetable: 0, clownSpice: 0,
+      miracMeat: 0, miracVegetable: 0, miracSpice: 0,
+      beastMeat: 0, beastVegetable: 0, beastSpice: 0,
+      witchMeat: 0, witchVegetable: 0, witchSpice: 0
+    };
+    for (const k of BATCH_ALL_ING_KEYS) ing[k] = (rates[k] || 0) * plan.timeHours;
+    const seq = calculatePhaseBasedSequence(ing, availableDishes);
+    const total = seq.totalGold + seq.stewValue;
+    optimalByVendor.push({ prefix, total, seq });
+  }
+  optimalByVendor.sort((a, b) => b.total - a.total);
+  const optimal = optimalByVendor[0];
+  const optimalTotal = optimal ? optimal.total : 0;
+  const opportunityCost = optimalTotal - totalGold;
+  const targetIsOptimal = opportunityCost <= 1;
+  const optimalSameVendor = optimal && optimal.prefix === plan.prefix;
+  const optimalTopSteps = optimal ? optimal.seq.sequence.slice(0, 5) : [];
+
+  container.innerHTML = `
+    <div class="daily-summary-grid">
+      <div class="daily-summary-section">
+        <div class="daily-summary-section-title">⏱️ Time to Gather</div>
+        <div style="text-align: center; padding: 10px;">
+          <div style="font-size: 1.6em; font-weight: bold; color: #2e7d32;">${formatBatchTime(plan.timeHours)}</div>
+          <div style="font-size: 0.85em; color: #666; margin-top: 4px;">
+            ${Math.ceil(plan.timeHours * effectiveOrdersPerHour).toLocaleString()} supply orders
+            at ${effectiveOrdersPerHour.toFixed(1)}/hr${bonusOrdersPerDay > 0 ? ` (incl. ${bonusOrdersPerDay}/day deals)` : ''}
+          </div>
+          <div style="font-size: 0.85em; margin-top: 8px;">
+            Bottleneck: <strong>${bottleneckLabel}</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="daily-summary-section">
+        <div class="daily-summary-section-title">📦 Ingredients Needed</div>
+        <div style="padding: 6px 0; font-size: 0.9em;">
+          ${reqRows}
+        </div>
+        <div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed #ccc; font-size: 0.9em; text-align: center;">
+          Recipe sales: <strong style="color: #2e7d32;">+${recipeSaleGold.toLocaleString()}g</strong>
+        </div>
+      </div>
+
+      <div class="daily-summary-section">
+        <div class="daily-summary-section-title">🍳 Best Use of Leftovers</div>
+        <div style="font-size: 0.8em; color: #666; margin-bottom: 6px;">Filler recipes you can also make in the same window</div>
+        <div style="padding: 8px; background: var(--bg-alt); border-radius: 6px; font-size: 0.9em;">
+          ${fillersHtml}
+          ${leftoverChips ? `
+            <div style="margin-top: 10px; padding-top: 8px; border-top: 1px dashed #ccc;">
+              <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; font-size: 0.85em; color: #666;">
+                <span>Residue:</span>${leftoverChips}
+              </div>
+              <div style="text-align: center;">
+                🍲 Mega Stew Value:
+                <strong style="color: #2e7d32;">${Math.round(stewValue).toLocaleString()}g</strong>
+              </div>
+            </div>
+          ` : stewValue > 0 ? `
+            <div style="margin-top: 10px; padding-top: 8px; border-top: 1px dashed #ccc; text-align: center;">
+              🍲 Mega Stew Value:
+              <strong style="color: #2e7d32;">${Math.round(stewValue).toLocaleString()}g</strong>
+            </div>
+          ` : ''}
+        </div>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 24px; margin-top: 20px;">
+    <div class="daily-summary-section">
+      <div class="daily-summary-section-title">🎯 Targeting ${plan.recipe.name}</div>
+      <div style="font-size: 0.85em; color: #888; margin-bottom: 8px;">over ${formatBatchTime(plan.timeHours)}</div>
+      <div class="daily-summary-row">
+        <span>⭐ ${plan.recipe.name} × ${quantity}</span>
+        <span class="daily-value positive">+${recipeSaleGold.toLocaleString()}g</span>
+      </div>
+      ${fillers.map(s => `
+        <div class="daily-summary-row">
+          <span>${s.name} × ${s.quantity}</span>
+          <span class="daily-value positive">+${Math.round(s.gold).toLocaleString()}g</span>
+        </div>
+      `).join('')}
+      ${stewValue > 0 ? `
+        <div class="daily-summary-row">
+          <span>🍲 Mega Stew (leftovers)</span>
+          <span class="daily-value positive">+${Math.round(stewValue).toLocaleString()}g</span>
+        </div>
+      ` : ''}
+      <div class="daily-summary-row" style="font-size: 1.2em; padding-top: 10px; border-top: 2px solid var(--border-color);">
+        <span><strong>Total Earnings</strong></span>
+        <span class="daily-value positive" style="font-size: 1.3em;"><strong>+${Math.round(totalGold).toLocaleString()}g</strong></span>
+      </div>
+      ${days >= 0.5 ? `
+        <div class="daily-summary-row" style="font-size: 0.9em; color: #666;">
+          <span>≈ ${Math.round(goldPerDay).toLocaleString()}g / day</span>
+          <span></span>
+        </div>
+      ` : ''}
+    </div>
+
+    ${optimal ? `
+      <div class="daily-summary-section">
+        <div class="daily-summary-section-title">📊 Optimal ${optimalSameVendor ? `<span style="font-size: 0.85em; font-weight: normal; color: #888;">(same vendor)</span>` : ''}</div>
+        <div style="font-size: 0.85em; color: #888; margin-bottom: 8px;">${optimalSameVendor ? BATCH_VENDOR_LABEL[optimal.prefix] : `switch to <strong style="color: inherit;">${BATCH_VENDOR_LABEL[optimal.prefix]}</strong>`}</div>
+        ${optimalTopSteps.map(s => `
+          <div class="daily-summary-row">
+            <span>${s.name} × ${s.quantity}</span>
+            <span class="daily-value positive">+${Math.round(s.gold).toLocaleString()}g</span>
+          </div>
+        `).join('')}
+        ${optimal.seq.stewValue > 0 ? `
+          <div class="daily-summary-row">
+            <span>🍲 Mega Stew (leftovers)</span>
+            <span class="daily-value positive">+${Math.round(optimal.seq.stewValue).toLocaleString()}g</span>
+          </div>
+        ` : ''}
+        <div class="daily-summary-row" style="font-size: 1.2em; padding-top: 10px; border-top: 2px solid var(--border-color);">
+          <span><strong>Optimal Total</strong></span>
+          <span class="daily-value positive" style="font-size: 1.3em;"><strong>+${Math.round(optimalTotal).toLocaleString()}g</strong></span>
+        </div>
+        ${days >= 0.5 ? `
+          <div class="daily-summary-row" style="font-size: 0.9em; color: #666;">
+            <span>≈ ${Math.round(optimalTotal / days).toLocaleString()}g / day</span>
+            <span></span>
+          </div>
+        ` : ''}
+      </div>
+    ` : ''}
+    </div>
+
+    ${optimal ? `
+      <div class="daily-summary-total" style="margin-top: 12px;">
+        <div class="daily-summary-row" style="font-size: 1.15em;">
+          <span><strong>💰 Cost of targeting ${plan.recipe.name}</strong></span>
+          <span class="daily-value ${targetIsOptimal ? 'positive' : 'negative'}" style="font-size: 1.25em;">
+            <strong>${targetIsOptimal ? '✅ already optimal' : `-${Math.round(opportunityCost).toLocaleString()}g`}</strong>
+          </span>
+        </div>
+        ${!targetIsOptimal && optimalTopSteps.length === 0 ? `
+          <div class="daily-summary-row" style="font-size: 0.85em; color: #666;">
+            <span>(no enabled recipes can be made from optimal vendor — enable some to see the full comparison)</span>
+            <span></span>
+          </div>
+        ` : ''}
+      </div>
+    ` : ''}
+  `;
+}
+
+function setupBatchPlannerListeners(root) {
+  const sel = root.querySelector('#batch-planner-recipe');
+  const qty = root.querySelector('#batch-planner-qty');
+  if (sel) {
+    sel.addEventListener('change', (e) => {
+      if (!cookingState.batchPlanner) cookingState.batchPlanner = { recipeId: '', quantity: 10 };
+      cookingState.batchPlanner.recipeId = e.target.value;
+      updateBatchPlannerResults(root);
+      saveCookingToStorage();
+    });
+  }
+  if (qty) {
+    qty.addEventListener('input', (e) => {
+      const n = parseInt(e.target.value, 10);
+      if (!cookingState.batchPlanner) cookingState.batchPlanner = { recipeId: '', quantity: 10 };
+      cookingState.batchPlanner.quantity = (isNaN(n) || n < 1) ? 1 : n;
+      updateBatchPlannerResults(root);
+      saveCookingToStorage();
+    });
+  }
+}
+
+function refreshBatchPlannerUI(root) {
+  if (!cookingState.batchPlanner) return;
+  const sel = root.querySelector('#batch-planner-recipe');
+  const qty = root.querySelector('#batch-planner-qty');
+  if (sel && cookingState.batchPlanner.recipeId && sel.querySelector(`option[value="${cookingState.batchPlanner.recipeId}"]`)) {
+    sel.value = cookingState.batchPlanner.recipeId;
+  }
+  if (qty && cookingState.batchPlanner.quantity) {
+    qty.value = cookingState.batchPlanner.quantity;
   }
 }
 
