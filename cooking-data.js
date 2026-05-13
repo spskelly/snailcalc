@@ -667,6 +667,23 @@ const COOKING_RECIPES = {
     witchVegetable: 0,
     witchSpice: 0
   },
+  "worm_with_truffle": {
+    name: "Worm with Truffle",
+    defaultStars: 1,
+    defaultPrice: 0,
+    clownMeat: 0,
+    clownVegetable: 0,
+    clownSpice: 0,
+    miracMeat: 0,
+    miracVegetable: 0,
+    miracSpice: 0,
+    beastMeat: 0,
+    beastVegetable: 0,
+    beastSpice: 0,
+    witchMeat: 2,
+    witchVegetable: 1,
+    witchSpice: 0
+  },
 };
 
 // Default vendor configurations
@@ -786,7 +803,7 @@ const MEGA_STEW_VALUES = {
   beastVegetable: 144,   // 48-240 range, mid = 144
   beastSpice: 260,       // 120-400 range, mid = 260
   witchMeat: 60.00,      // 20-100 range, mid = 60
-  witchVegetable: 180,   // ~60-300 range, mid = 180 (estimated, ~3x witch meat)
+  witchVegetable: 180,   // 60-300 range, mid = 180 
   witchSpice: 325        // ~150-500 range, mid = 325 (estimated, ~5.4x witch meat)
 };
 
@@ -833,5 +850,6 @@ const RECIPE_ORDER = [
   // Witch Alchemy Store
   "smoked_cerberus",
   "slug_jelly",
-  "dragonhorn_bun"
+  "dragonhorn_bun",
+  "worm_with_truffle"
 ];
