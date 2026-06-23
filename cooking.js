@@ -509,7 +509,7 @@ function updateDailySummary(root) {
       ` : ''}
       <div class="daily-summary-row" style="font-size: 1.2em; padding-top: 10px; border-top: 2px solid var(--border-color);">
         <span><strong>Net Daily Profit</strong></span>
-        <span class="daily-value ${profitClass}" style="font-size: 1.3em;"><strong>${netDailyProfit >= 0 ? '+' : ''}${netDailyProfit.toLocaleString()}g</strong></span>
+        <span class="daily-value ${profitClass}" style="font-size: 1.3em;"><strong>${netDailyProfit >= 0 ? '+' : ''}${Math.round(netDailyProfit).toLocaleString()}g</strong></span>
       </div>
     </div>
   `;
@@ -1947,7 +1947,7 @@ function calculatePhaseBasedSequence(ingredients, availableDishes) {
   // These recipes use vegetables, so we prioritize them to avoid wasting high-value veggies
   const vegetableDishes = availableDishes.filter(d => {
     const r = d.recipe;
-    return (r.clownVegetable > 0 || r.miracVegetable > 0 || r.beastVegetable > 0);
+    return (r.clownVegetable > 0 || r.miracVegetable > 0 || r.beastVegetable > 0 || r.witchVegetable > 0);
   }).sort((a, b) => b.goldPerOrder - a.goldPerOrder);
   
   for (const dish of vegetableDishes) {
@@ -3515,8 +3515,21 @@ function importCookingConfig(base64String) {
       throw new Error("Invalid configuration format - missing required data");
     }
     
-    // Import the state
-    cookingState = importedData.state;
+    // Import the state by merging onto defaults, so recipes that exist in this
+    // version but are absent from an older export still get a default state
+    // entry (prevents an undefined-state crash when rendering recipe cards).
+    loadCookingDefaults();
+    const imported = importedData.state;
+    for (const [id, st] of Object.entries(imported.recipes || {})) {
+      if (cookingState.recipes[id]) {
+        cookingState.recipes[id] = { ...cookingState.recipes[id], ...st };
+      }
+    }
+    cookingState.vendors = { ...cookingState.vendors, ...(imported.vendors || {}) };
+    cookingState.shop    = { ...cookingState.shop,    ...(imported.shop || {}) };
+    if (imported.batchPlanner) {
+      cookingState.batchPlanner = { ...(cookingState.batchPlanner || {}), ...imported.batchPlanner };
+    }
     
     // Refresh UI and recalculate
     refreshCookingUI(root);
