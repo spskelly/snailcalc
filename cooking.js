@@ -549,9 +549,9 @@ function buildVendorConfig(root) {
 
   const vendorCard = (prefix, preset, name, icon, allowNone) => `
     <div class="card vendor-card" style="padding: 10px 12px;">
-      <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px;">
+      <div style="margin-bottom: 6px;">
         <strong style="font-size: 0.95em;">${icon} ${name}</strong>
-        ${presetSubtitle(preset)}
+        <div style="margin-top: 2px;">${presetSubtitle(preset)}</div>
       </div>
       <select name="${prefix}-preset" class="form-control form-control-sm vendor-preset-select" style="width: 100%;">
         ${allowNone ? `<option value="none"${sel(preset, 'none')}>None (Not Unlocked)</option>` : ''}
@@ -3328,6 +3328,9 @@ function loadCookingFromStorage() {
       if (parsed.batchPlanner) {
         cookingState.batchPlanner = { ...(cookingState.batchPlanner || {}), ...parsed.batchPlanner };
       }
+      if (parsed.dailySummaryVendor) {
+        cookingState.dailySummaryVendor = parsed.dailySummaryVendor;
+      }
 
       const root = document.getElementById('cookingCalculator');
       if (root) {
@@ -3530,6 +3533,9 @@ function importCookingConfig(base64String) {
     cookingState.shop    = { ...cookingState.shop,    ...(imported.shop || {}) };
     if (imported.batchPlanner) {
       cookingState.batchPlanner = { ...(cookingState.batchPlanner || {}), ...imported.batchPlanner };
+    }
+    if (imported.dailySummaryVendor) {
+      cookingState.dailySummaryVendor = imported.dailySummaryVendor;
     }
     
     // Refresh UI and recalculate
