@@ -2306,17 +2306,18 @@ function updateRankingTable(root, results) {
   if (!tbody) return;
   
   let html = '';
+  const vendorRowClass = { Clown: 'clown-row', Miraculand: 'mirac-row', Orc: 'beast-row', Witch: 'witch-row' };
   results.forEach((r, i) => {
     const rank = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
-    const vendorClass = r.vendor === 'Miraculand' ? 'mirac-row' : '';
+    const vendorClass = vendorRowClass[r.vendor] || '';
     
     // Get vendor icon
     const vendorIcon = r.vendor === 'Clown' ? '🤡' : r.vendor === 'Miraculand' ? '🌴' : r.vendor === 'Witch' ? '🧙' : '👹';
     
     html += `
       <tr class="${vendorClass}">
-        <td>${rank}</td>
-        <td>${vendorIcon} ${r.name} <span class="stars">${'★'.repeat(r.stars)}</span></td>
+        <td>${vendorIcon} ${rank}</td>
+        <td>${r.name} <span class="stars">${'★'.repeat(r.stars)}</span></td>
         <td><strong>${r.goldPerOrder.toFixed(2)}</strong></td>
         <td>${r.goldPerHour.toFixed(0).toLocaleString()}</td>
         <td>${r.limiting}</td>
