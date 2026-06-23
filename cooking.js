@@ -22,17 +22,73 @@ let cookingState = {
     witchVegetable: 0,
     witchSpice: 0
   },
-  dailySummaryVendor: 'clown'  // user-selected vendor for daily summary
+  dailySummaryVendor: 'clown',  // user-selected vendor for daily summary
+  unicornExpressLevel: 3        // linear vendor-unlock progression (1..12, extensible)
 };
 
 // ============== VENDOR UNLOCK HELPERS ==============
 
+// Unicorn Express unlock ladder: one ingredient per level, in this order.
+// Vendor keys match cookingState.vendors keys. Extensible — levels above the
+// known length saturate (everything unlocked) until future tiers are known.
+const UNICORN_LADDER = [
+  ['clown', 'meat'], ['clown', 'veg'], ['clown', 'spice'],
+  ['miraculand', 'meat'], ['miraculand', 'veg'], ['miraculand', 'spice'],
+  ['beast', 'meat'], ['beast', 'veg'], ['beast', 'spice'],
+  ['witch', 'meat'], ['witch', 'veg'], ['witch', 'spice'],
+];
+const UNICORN_MAX_LEVEL = UNICORN_LADDER.length; // 12
+
+// Rate distribution by how many of a vendor's ingredients are unlocked.
+const VENDOR_RATES_BY_COUNT = [
+  { meatEnabled: false, meatRate: 0,      vegetableEnabled: false, vegetableRate: 0,      spiceEnabled: false, spiceRate: 0 },
+  { meatEnabled: true,  meatRate: 1.0000, vegetableEnabled: false, vegetableRate: 0,      spiceEnabled: false, spiceRate: 0 },
+  { meatEnabled: true,  meatRate: 0.7222, vegetableEnabled: true,  vegetableRate: 0.2778, spiceEnabled: false, spiceRate: 0 },
+  { meatEnabled: true,  meatRate: 0.6500, vegetableEnabled: true,  vegetableRate: 0.2500, spiceEnabled: true,  spiceRate: 0.1000 },
+];
+
+// How many ingredients each vendor has unlocked at the given level.
+function unicornUnlockCounts(level) {
+  const counts = { clown: 0, miraculand: 0, beast: 0, witch: 0 };
+  const n = Math.max(0, Math.min(level | 0, UNICORN_MAX_LEVEL));
+  for (let i = 0; i < n; i++) counts[UNICORN_LADDER[i][0]]++;
+  return counts;
+}
+
+// Write each vendor's rate fields from the level (the engine reads these).
+function applyUnicornLevel(level) {
+  const counts = unicornUnlockCounts(level);
+  for (const key of Object.keys(counts)) {
+    const v = cookingState.vendors[key];
+    if (!v) continue;
+    Object.assign(v, VENDOR_RATES_BY_COUNT[counts[key]]);
+  }
+}
+
+// Backward-compat: derive a level from existing per-vendor rate fields.
+// Level = ladder position of the furthest unlocked ingredient (so legacy /
+// non-contiguous states resolve to their furthest progress). Never below 1.
+function deriveUnicornLevel() {
+  const isUnlocked = (key, ing) => {
+    const v = cookingState.vendors && cookingState.vendors[key];
+    if (!v) return false;
+    if (ing === 'meat') return (v.meatRate || 0) > 0 || v.meatEnabled === true;
+    if (ing === 'veg') return (v.vegetableRate || 0) > 0 || v.vegetableEnabled === true;
+    return (v.spiceRate || 0) > 0 || v.spiceEnabled === true; // spice
+  };
+  let level = 0;
+  for (let i = 0; i < UNICORN_LADDER.length; i++) {
+    if (isUnlocked(UNICORN_LADDER[i][0], UNICORN_LADDER[i][1])) level = i + 1;
+  }
+  return level || 1;
+}
+
 function isVendorUnlocked(prefix) {
   // prefix: 'clown' | 'mirac' | 'beast' | 'witch'
-  if (prefix === 'clown') return true;
+  if (prefix === 'clown') return true; // level >= 1 always unlocks clown meat
   const key = prefix === 'mirac' ? 'miraculand' : prefix;
-  const preset = cookingState.vendors?.[key]?.preset;
-  return preset && preset !== 'none';
+  const v = cookingState.vendors && cookingState.vendors[key];
+  return !!v && ((v.meatRate || 0) > 0 || v.meatEnabled === true);
 }
 
 function rebuildVendorGatedPanels(root) {
@@ -51,26 +107,21 @@ function rebuildVendorGatedPanels(root) {
 }
 
 function attachVendorConfigListeners(root) {
-  root.querySelectorAll('#cooking-vendor-config input, #cooking-vendor-config select').forEach(el => {
+  root.querySelectorAll('#cooking-vendor-config input').forEach(el => {
     el.addEventListener('change', (e) => {
       const prevUnlocks = {
-        clown: isVendorUnlocked('clown'),
-        mirac: isVendorUnlocked('mirac'),
-        beast: isVendorUnlocked('beast'),
-        witch: isVendorUnlocked('witch')
+        clown: isVendorUnlocked('clown'), mirac: isVendorUnlocked('mirac'),
+        beast: isVendorUnlocked('beast'), witch: isVendorUnlocked('witch')
       };
       updateVendorState(root);
       const nextUnlocks = {
-        clown: isVendorUnlocked('clown'),
-        mirac: isVendorUnlocked('mirac'),
-        beast: isVendorUnlocked('beast'),
-        witch: isVendorUnlocked('witch')
+        clown: isVendorUnlocked('clown'), mirac: isVendorUnlocked('mirac'),
+        beast: isVendorUnlocked('beast'), witch: isVendorUnlocked('witch')
       };
       const unlockChanged = Object.keys(prevUnlocks).some(k => prevUnlocks[k] !== nextUnlocks[k]);
-      // If a vendor preset changed (not just supply orders), rebuild the vendor config
-      // so the rate subtitle reflects the new preset.
-      const isPresetSelect = e.target.matches('select[name$="-preset"]');
-      if (isPresetSelect) {
+      // Level changes alter the rate subtitles/lock state -> rebuild the cards
+      // (supply-orders-only changes don't, but rebuilding is cheap and safe).
+      if (e.target.id === 'unicorn-express-level') {
         buildVendorConfig(root);
         attachVendorConfigListeners(root);
       }
@@ -177,6 +228,11 @@ function loadCookingDefaults() {
   
   // copy shop defaults
   cookingState.shop = JSON.parse(JSON.stringify(DEFAULT_SHOP));
+
+  // Vendor rates are derived from the Unicorn Express level (default 3 ==
+  // clown all-three, others locked — matches the previous DEFAULT_VENDORS).
+  cookingState.unicornExpressLevel = 3;
+  applyUnicornLevel(cookingState.unicornExpressLevel);
 }
 
 // ============== UI BUILDERS ==============
@@ -530,52 +586,58 @@ function buildVendorConfig(root) {
   html += '</div>';
   html += '<div class="panel-content">';
 
-  const clownPreset = cookingState.vendors?.clown?.preset || 'all-three';
-  const miracPreset = cookingState.vendors?.miraculand?.preset || 'none';
-  const beastPreset = cookingState.vendors?.beast?.preset || 'none';
-  const witchPreset = cookingState.vendors?.witch?.preset || 'none';
   const supplyOrdersValue = cookingState.shop?.supplyOrdersPerHour ?? 30;
 
-  const presetSubtitle = (preset) => {
-    switch (preset) {
-      case 'meat-only': return '<span style="color: var(--text-muted, #888); font-size: 0.85em;">🥩 100%</span>';
-      case 'meat-vegetable': return '<span style="color: var(--text-muted, #888); font-size: 0.85em;">🥩 72% · 🥬 28%</span>';
-      case 'all-three': return '<span style="color: var(--text-muted, #888); font-size: 0.85em;">🥩 65% · 🥬 25% · 🌶️ 10%</span>';
-      default: return '<span style="color: var(--text-muted, #888); font-size: 0.85em;">—</span>';
+  const level = cookingState.unicornExpressLevel || 1;
+  const counts = unicornUnlockCounts(level);
+
+  // count -> {label, rates html}
+  const TIER = [
+    { label: 'Locked', rates: '' },
+    { label: 'Meat Only', rates: '🥩 100%' },
+    { label: 'Meat + Veg', rates: '🥩 72% · 🥬 28%' },
+    { label: 'Meat + Veg + Spice', rates: '🥩 65% · 🥬 25% · 🌶️ 10%' },
+  ];
+
+  const vendorCard = (countKey, name, icon) => {
+    const c = counts[countKey];
+    const t = TIER[c];
+    if (c === 0) {
+      return `
+        <div class="card vendor-card vendor-card-locked" style="padding: 10px 12px; opacity: 0.55;">
+          <strong style="font-size: 0.95em;">${icon} ${name}</strong>
+          <div style="margin-top: 4px; font-size: 0.85em; color: var(--text-muted, #888);">🔒 Locked</div>
+        </div>
+      `;
     }
+    return `
+      <div class="card vendor-card" style="padding: 10px 12px;">
+        <strong style="font-size: 0.95em;">${icon} ${name}</strong>
+        <div style="margin-top: 4px; font-size: 0.85em; color: var(--text-muted, #888);">${t.label}</div>
+        <div style="margin-top: 2px; font-size: 0.85em;">${t.rates}</div>
+      </div>
+    `;
   };
 
-  const sel = (preset, value) => preset === value ? ' selected' : '';
-
-  const vendorCard = (prefix, preset, name, icon, allowNone) => `
-    <div class="card vendor-card" style="padding: 10px 12px;">
-      <div style="margin-bottom: 6px;">
-        <strong style="font-size: 0.95em;">${icon} ${name}</strong>
-        <div style="margin-top: 2px;">${presetSubtitle(preset)}</div>
-      </div>
-      <div style="font-size: 0.72em; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted, #888); margin-bottom: 3px;">Produces</div>
-      <select name="${prefix}-preset" class="form-control form-control-sm vendor-preset-select" style="width: 100%;">
-        ${allowNone ? `<option value="none"${sel(preset, 'none')}>None (Not Unlocked)</option>` : ''}
-        <option value="meat-only"${sel(preset, 'meat-only')}>🥩 Meat Only</option>
-        <option value="meat-vegetable"${sel(preset, 'meat-vegetable')}>🥩🥬 Meat + Veg</option>
-        <option value="all-three"${sel(preset, 'all-three')}>🥩🥬🌶️ Meat + Veg + Spice</option>
-      </select>
-    </div>
-  `;
-
-  // Compact, left-aligned supply-orders control (sizes to its content)
+  // Compact controls row: Unicorn Express level + supply orders, left-aligned
   html += `
-    <div style="display: inline-flex; align-items: center; gap: 8px; margin-bottom: 12px; padding: 6px 12px; background: var(--bg-alt); border-radius: 6px;">
-      <label for="supply-orders-per-hour" style="font-size: 0.9em; font-weight: 600; margin: 0;">⚡ Supply Orders / hr</label>
-      <input type="number" id="supply-orders-per-hour" value="${supplyOrdersValue}" min="1" max="999" class="form-control form-control-sm" style="width: 70px; text-align: center;">
+    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+      <div style="display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--bg-alt); border-radius: 6px;">
+        <label for="unicorn-express-level" style="font-size: 0.9em; font-weight: 600; margin: 0;">🦄 Unicorn Express Level</label>
+        <input type="number" id="unicorn-express-level" value="${level}" min="1" class="form-control form-control-sm" style="width: 64px; text-align: center;">
+      </div>
+      <div style="display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--bg-alt); border-radius: 6px;">
+        <label for="supply-orders-per-hour" style="font-size: 0.9em; font-weight: 600; margin: 0;">⚡ Supply Orders / hr</label>
+        <input type="number" id="supply-orders-per-hour" value="${supplyOrdersValue}" min="1" max="999" class="form-control form-control-sm" style="width: 70px; text-align: center;">
+      </div>
     </div>
   `;
 
-  html += '<div class="vendor-config-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--space-sm);">';
-  html += vendorCard('clown', clownPreset, 'Clown Vendor', '🤡', false);
-  html += vendorCard('mirac', miracPreset, 'Miraculand', '🌴', true);
-  html += vendorCard('beast', beastPreset, "Orc Hunter's Tribe", '👹', true);
-  html += vendorCard('witch', witchPreset, 'Witch Alchemy Store', '🧙', true);
+  html += '<div class="vendor-config-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-sm);">';
+  html += vendorCard('clown', 'Clown Vendor', '🤡');
+  html += vendorCard('miraculand', 'Miraculand', '🌴');
+  html += vendorCard('beast', "Orc Hunter's Tribe", '👹');
+  html += vendorCard('witch', 'Witch Alchemy Store', '🧙');
   html += '</div>'; // end grid
 
   html += '</div>'; // end panel-content
@@ -1762,134 +1824,15 @@ function setupCookingEventListeners(root) {
 }
 
 function updateVendorState(root) {
-  // clown vendor - check which preset is selected
-  const clownPreset = root.querySelector('select[name="clown-preset"]')?.value || 'all-three';
-  if (clownPreset === 'meat-only') {
-    cookingState.vendors.clown.meatEnabled = true;
-    cookingState.vendors.clown.meatRate = 1.00;
-    cookingState.vendors.clown.vegetableEnabled = false;
-    cookingState.vendors.clown.vegetableRate = 0;
-    cookingState.vendors.clown.spiceEnabled = false;
-    cookingState.vendors.clown.spiceRate = 0;
-  } else if (clownPreset === 'meat-vegetable') {
-    cookingState.vendors.clown.meatEnabled = true;
-    cookingState.vendors.clown.meatRate = 0.7222;
-    cookingState.vendors.clown.vegetableEnabled = true;
-    cookingState.vendors.clown.vegetableRate = 0.2778;
-    cookingState.vendors.clown.spiceEnabled = false;
-    cookingState.vendors.clown.spiceRate = 0;
-  } else { // all-three
-    cookingState.vendors.clown.meatEnabled = true;
-    cookingState.vendors.clown.meatRate = 0.65;
-    cookingState.vendors.clown.vegetableEnabled = true;
-    cookingState.vendors.clown.vegetableRate = 0.25;
-    cookingState.vendors.clown.spiceEnabled = true;
-    cookingState.vendors.clown.spiceRate = 0.10;
-  }
-  cookingState.vendors.clown.preset = clownPreset;
-  
-  // miraculand vendor - check which preset is selected
-  const miracPreset = root.querySelector('select[name="mirac-preset"]')?.value || 'none';
-  if (miracPreset === 'none') {
-    cookingState.vendors.miraculand.meatEnabled = false;
-    cookingState.vendors.miraculand.meatRate = 0;
-    cookingState.vendors.miraculand.vegetableEnabled = false;
-    cookingState.vendors.miraculand.vegetableRate = 0;
-    cookingState.vendors.miraculand.spiceEnabled = false;
-    cookingState.vendors.miraculand.spiceRate = 0;
-  } else if (miracPreset === 'meat-only') {
-    cookingState.vendors.miraculand.meatEnabled = true;
-    cookingState.vendors.miraculand.meatRate = 1.00;
-    cookingState.vendors.miraculand.vegetableEnabled = false;
-    cookingState.vendors.miraculand.vegetableRate = 0;
-    cookingState.vendors.miraculand.spiceEnabled = false;
-    cookingState.vendors.miraculand.spiceRate = 0;
-  } else if (miracPreset === 'meat-vegetable') {
-    cookingState.vendors.miraculand.meatEnabled = true;
-    cookingState.vendors.miraculand.meatRate = 0.7222;
-    cookingState.vendors.miraculand.vegetableEnabled = true;
-    cookingState.vendors.miraculand.vegetableRate = 0.2778;
-    cookingState.vendors.miraculand.spiceEnabled = false;
-    cookingState.vendors.miraculand.spiceRate = 0;
-  } else { // all-three
-    cookingState.vendors.miraculand.meatEnabled = true;
-    cookingState.vendors.miraculand.meatRate = 0.65;
-    cookingState.vendors.miraculand.vegetableEnabled = true;
-    cookingState.vendors.miraculand.vegetableRate = 0.25;
-    cookingState.vendors.miraculand.spiceEnabled = true;
-    cookingState.vendors.miraculand.spiceRate = 0.10;
-  }
-  cookingState.vendors.miraculand.preset = miracPreset;
-  
-  // beast vendor (Orc Hunter's Tribe) - check which preset is selected
-  const beastPreset = root.querySelector('select[name="beast-preset"]')?.value || 'none';
-  if (beastPreset === 'none') {
-    cookingState.vendors.beast.meatEnabled = false;
-    cookingState.vendors.beast.meatRate = 0;
-    cookingState.vendors.beast.vegetableEnabled = false;
-    cookingState.vendors.beast.vegetableRate = 0;
-    cookingState.vendors.beast.spiceEnabled = false;
-    cookingState.vendors.beast.spiceRate = 0;
-  } else if (beastPreset === 'meat-only') {
-    cookingState.vendors.beast.meatEnabled = true;
-    cookingState.vendors.beast.meatRate = 1.00;
-    cookingState.vendors.beast.vegetableEnabled = false;
-    cookingState.vendors.beast.vegetableRate = 0;
-    cookingState.vendors.beast.spiceEnabled = false;
-    cookingState.vendors.beast.spiceRate = 0;
-  } else if (beastPreset === 'meat-vegetable') {
-    cookingState.vendors.beast.meatEnabled = true;
-    cookingState.vendors.beast.meatRate = 0.7222;
-    cookingState.vendors.beast.vegetableEnabled = true;
-    cookingState.vendors.beast.vegetableRate = 0.2778;
-    cookingState.vendors.beast.spiceEnabled = false;
-    cookingState.vendors.beast.spiceRate = 0;
-  } else { // all-three
-    cookingState.vendors.beast.meatEnabled = true;
-    cookingState.vendors.beast.meatRate = 0.65;
-    cookingState.vendors.beast.vegetableEnabled = true;
-    cookingState.vendors.beast.vegetableRate = 0.25;
-    cookingState.vendors.beast.spiceEnabled = true;
-    cookingState.vendors.beast.spiceRate = 0.10;
-  }
-  cookingState.vendors.beast.preset = beastPreset;
-
-  // witch vendor (Witch Alchemy Store) - check which preset is selected
-  const witchPreset = root.querySelector('select[name="witch-preset"]')?.value || 'none';
-  if (witchPreset === 'none') {
-    cookingState.vendors.witch.meatEnabled = false;
-    cookingState.vendors.witch.meatRate = 0;
-    cookingState.vendors.witch.vegetableEnabled = false;
-    cookingState.vendors.witch.vegetableRate = 0;
-    cookingState.vendors.witch.spiceEnabled = false;
-    cookingState.vendors.witch.spiceRate = 0;
-  } else if (witchPreset === 'meat-only') {
-    cookingState.vendors.witch.meatEnabled = true;
-    cookingState.vendors.witch.meatRate = 1.00;
-    cookingState.vendors.witch.vegetableEnabled = false;
-    cookingState.vendors.witch.vegetableRate = 0;
-    cookingState.vendors.witch.spiceEnabled = false;
-    cookingState.vendors.witch.spiceRate = 0;
-  } else if (witchPreset === 'meat-vegetable') {
-    cookingState.vendors.witch.meatEnabled = true;
-    cookingState.vendors.witch.meatRate = 0.7222;
-    cookingState.vendors.witch.vegetableEnabled = true;
-    cookingState.vendors.witch.vegetableRate = 0.2778;
-    cookingState.vendors.witch.spiceEnabled = false;
-    cookingState.vendors.witch.spiceRate = 0;
-  } else { // all-three
-    cookingState.vendors.witch.meatEnabled = true;
-    cookingState.vendors.witch.meatRate = 0.65;
-    cookingState.vendors.witch.vegetableEnabled = true;
-    cookingState.vendors.witch.vegetableRate = 0.25;
-    cookingState.vendors.witch.spiceEnabled = true;
-    cookingState.vendors.witch.spiceRate = 0.10;
-  }
-  cookingState.vendors.witch.preset = witchPreset;
+  // Unicorn Express level drives every vendor's rates.
+  const raw = parseInt(root.querySelector('#unicorn-express-level')?.value, 10);
+  const level = (isNaN(raw) || raw < 1) ? 1 : raw;
+  cookingState.unicornExpressLevel = level;
+  applyUnicornLevel(level);
 
   // supply orders per hour
   cookingState.shop.supplyOrdersPerHour = parseInt(root.querySelector('#supply-orders-per-hour')?.value) || 30;
-  
+
   saveCookingToStorage();
 }
 
@@ -3399,6 +3342,13 @@ function loadCookingFromStorage() {
         cookingState.dailySummaryVendor = parsed.dailySummaryVendor;
       }
 
+      // Restore the Unicorn Express level, or derive it from legacy saved
+      // rates (old configs predate the level field).
+      cookingState.unicornExpressLevel = (typeof parsed.unicornExpressLevel === 'number')
+        ? parsed.unicornExpressLevel
+        : deriveUnicornLevel();
+      applyUnicornLevel(cookingState.unicornExpressLevel);
+
       const root = document.getElementById('cookingCalculator');
       if (root) {
         refreshCookingUI(root);
@@ -3411,17 +3361,10 @@ function loadCookingFromStorage() {
 }
 
 function refreshCookingUI(root) {
-  // refresh vendor UI - set select values based on saved preset, then rebuild the vendor config panel
-  // so that the subtitle (rate %) reflects the new preset.
-  const syncSelect = (name, value) => {
-    const sel = root.querySelector(`select[name="${name}"]`);
-    if (sel) sel.value = value;
-  };
-  syncSelect('clown-preset', cookingState.vendors.clown?.preset || 'all-three');
-  syncSelect('mirac-preset', cookingState.vendors.miraculand?.preset || 'none');
-  syncSelect('beast-preset', cookingState.vendors.beast?.preset || 'none');
-  syncSelect('witch-preset', cookingState.vendors.witch?.preset || 'none');
-  // Rebuild vendor-config so the rate subtitles reflect the current presets.
+  // Reflect the Unicorn Express level; vendor rates were applied on load/import.
+  const levelInput = root.querySelector('#unicorn-express-level');
+  if (levelInput) levelInput.value = cookingState.unicornExpressLevel || 1;
+  // Rebuild vendor-config so the read-only cards reflect the current level.
   buildVendorConfig(root);
   attachVendorConfigListeners(root);
 
@@ -3525,7 +3468,30 @@ function loadCookingPreset(num, root) {
     const saved = localStorage.getItem(`cookingPreset${num}`);
     if (saved) {
       const parsed = JSON.parse(saved);
-      cookingState = parsed;
+      // Merge onto defaults (like import) so a slot saved before newer recipes/
+      // vendors still gets default entries for them (avoids missing-state
+      // crashes); then restore the slot's values and derive the Unicorn level.
+      loadCookingDefaults();
+      for (const [id, st] of Object.entries(parsed.recipes || {})) {
+        if (cookingState.recipes[id]) {
+          cookingState.recipes[id] = { ...cookingState.recipes[id], ...st };
+        }
+      }
+      cookingState.vendors = { ...cookingState.vendors, ...(parsed.vendors || {}) };
+      cookingState.shop    = { ...cookingState.shop,    ...(parsed.shop || {}) };
+      if (parsed.currentIngredients) {
+        cookingState.currentIngredients = { ...cookingState.currentIngredients, ...parsed.currentIngredients };
+      }
+      if (parsed.batchPlanner) {
+        cookingState.batchPlanner = { ...(cookingState.batchPlanner || {}), ...parsed.batchPlanner };
+      }
+      if (parsed.dailySummaryVendor) {
+        cookingState.dailySummaryVendor = parsed.dailySummaryVendor;
+      }
+      cookingState.unicornExpressLevel = (typeof parsed.unicornExpressLevel === 'number')
+        ? parsed.unicornExpressLevel
+        : deriveUnicornLevel();
+      applyUnicornLevel(cookingState.unicornExpressLevel);
       refreshCookingUI(root);
       recalculateCooking();
       saveCookingToStorage();
@@ -3604,7 +3570,11 @@ function importCookingConfig(base64String) {
     if (imported.dailySummaryVendor) {
       cookingState.dailySummaryVendor = imported.dailySummaryVendor;
     }
-    
+    cookingState.unicornExpressLevel = (typeof imported.unicornExpressLevel === 'number')
+      ? imported.unicornExpressLevel
+      : deriveUnicornLevel();
+    applyUnicornLevel(cookingState.unicornExpressLevel);
+
     // Refresh UI and recalculate
     refreshCookingUI(root);
     recalculateCooking();
