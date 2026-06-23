@@ -553,6 +553,7 @@ function buildVendorConfig(root) {
         <strong style="font-size: 0.95em;">${icon} ${name}</strong>
         <div style="margin-top: 2px;">${presetSubtitle(preset)}</div>
       </div>
+      <div style="font-size: 0.72em; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted, #888); margin-bottom: 3px;">Produces</div>
       <select name="${prefix}-preset" class="form-control form-control-sm vendor-preset-select" style="width: 100%;">
         ${allowNone ? `<option value="none"${sel(preset, 'none')}>None (Not Unlocked)</option>` : ''}
         <option value="meat-only"${sel(preset, 'meat-only')}>🥩 Meat Only</option>
@@ -562,11 +563,11 @@ function buildVendorConfig(root) {
     </div>
   `;
 
-  // Top compact row: supply orders input
+  // Compact, left-aligned supply-orders control (sizes to its content)
   html += `
-    <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; padding: 8px 12px; background: var(--bg-alt); border-radius: 6px;">
-      <label for="supply-orders-per-hour" style="font-size: 0.9em; font-weight: 600; margin: 0;">⚡ Supply Orders per Hour</label>
-      <input type="number" id="supply-orders-per-hour" value="${supplyOrdersValue}" min="1" max="999" class="form-control form-control-sm" style="width: 80px; text-align: center;">
+    <div style="display: inline-flex; align-items: center; gap: 8px; margin-bottom: 12px; padding: 6px 12px; background: var(--bg-alt); border-radius: 6px;">
+      <label for="supply-orders-per-hour" style="font-size: 0.9em; font-weight: 600; margin: 0;">⚡ Supply Orders / hr</label>
+      <input type="number" id="supply-orders-per-hour" value="${supplyOrdersValue}" min="1" max="999" class="form-control form-control-sm" style="width: 70px; text-align: center;">
     </div>
   `;
 
@@ -817,7 +818,31 @@ function buildShopConfig(root) {
   
   // Right column: ROI summary
   html += '<div class="card card-lg shop-roi-card">';
-  html += '<h4 class="card-header">💰 Daily Shop ROI</h4>';
+  html += `
+    <h4 class="card-header">
+      💰 Daily Shop ROI
+      <span class="info-icon" onclick="event.stopPropagation(); toggleShopRoiInfo()" title="How is this calculated?" style="cursor: pointer; margin-left: 8px; font-size: 0.9em; color: #2e7d32;">ℹ️</span>
+    </h4>
+    <div id="shop-roi-info-popup" style="display: none; margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-left: 4px solid #2e7d32; border-radius: 6px;">
+      <div style="display: flex; align-items: start; gap: 10px;">
+        <div style="font-size: 1.5em;">ℹ️</div>
+        <div style="flex: 1;">
+          <div style="font-weight: bold; color: #2e7d32; margin-bottom: 8px;">How Shop ROI is Calculated</div>
+          <div style="font-size: 0.9em; line-height: 1.6; color: #555;">
+            These are <strong>estimated</strong> values, not gold you directly receive:
+            <ul style="margin: 8px 0; padding-left: 20px;">
+              <li><strong>Vegetables:</strong> valued by the supply orders they save (1 ÷ vendor veg rate) × your top recipe's g/order.</li>
+              <li><strong>Spice:</strong> valued at its Mega Stew dump value.</li>
+              <li><strong>Supply Deals:</strong> valued at the extra supply orders gained × your top recipe's g/order.</li>
+            </ul>
+            <div style="margin-top: 8px; padding: 8px; background: #fff; border-radius: 4px; font-style: italic;">
+              💡 A negative ROI just means the purchase costs more than this baseline — fine if you're stocking up for future recipes rather than immediate resale.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
   html += '<div id="shop-roi-summary"></div>';
   html += '</div>'; // end shop-roi-card
   
@@ -2380,11 +2405,19 @@ function updateShopROI(root) {
   const spiceResult = root.querySelector('#shop-spice-result');
   const miracVegetableResult = root.querySelector('#shop-mirac-vegetable-result');
   const miracSpiceResult = root.querySelector('#shop-mirac-spice-result');
+  const beastVegetableResult = root.querySelector('#shop-beast-vegetable-result');
+  const beastSpiceResult = root.querySelector('#shop-beast-spice-result');
+  const witchVegetableResult = root.querySelector('#shop-witch-vegetable-result');
+  const witchSpiceResult = root.querySelector('#shop-witch-spice-result');
   if (supplyResult) supplyResult.innerHTML = '';
   if (vegetableResult) vegetableResult.innerHTML = '';
   if (spiceResult) spiceResult.innerHTML = '';
   if (miracVegetableResult) miracVegetableResult.innerHTML = '';
   if (miracSpiceResult) miracSpiceResult.innerHTML = '';
+  if (beastVegetableResult) beastVegetableResult.innerHTML = '';
+  if (beastSpiceResult) beastSpiceResult.innerHTML = '';
+  if (witchVegetableResult) witchVegetableResult.innerHTML = '';
+  if (witchSpiceResult) witchSpiceResult.innerHTML = '';
   
   // supply deals
   if (shop.supplyDeals.enabled && shop.supplyDeals.quantity > 0) {
@@ -2525,6 +2558,40 @@ function updateShopROI(root) {
     if (miracSpiceResult) miracSpiceResult.innerHTML = `<span class="${profitClass}">${profit >= 0 ? '+' : ''}${profit.toFixed(0).toLocaleString()}g (${roi}%)</span>`;
   }
   
+  // Orc (beast) & Witch purchases — same value model as the clown/mirac blocks
+  // above: vegetables valued by supply-order savings, spice by Mega Stew value.
+  const roiItem = (label, purchase, valueOf, resultEl) => {
+    if (!purchase.enabled || purchase.quantity <= 0) return;
+    const cost = purchase.quantity * purchase.cost;
+    const value = valueOf(purchase.quantity);
+    const profit = value - cost;
+    const roi = cost > 0 ? ((value / cost - 1) * 100).toFixed(0) : 0;
+    totalCost += cost;
+    totalProfit += profit;
+    const profitClass = profit >= 0 ? 'positive' : 'negative';
+    html += `
+      <div class="roi-item">
+        <div class="roi-name">${label} (×${purchase.quantity})</div>
+        <div class="roi-details">
+          <span>Cost: ${cost.toLocaleString()}g</span>
+          <span>Value: ${value.toFixed(0).toLocaleString()}g</span>
+        </div>
+        <div class="roi-result ${profitClass}">
+          ${profit >= 0 ? '+' : ''}${profit.toFixed(0).toLocaleString()}g (${roi}% ROI)
+        </div>
+      </div>
+    `;
+    if (resultEl) resultEl.innerHTML = `<span class="${profitClass}">${profit >= 0 ? '+' : ''}${profit.toFixed(0).toLocaleString()}g (${roi}%)</span>`;
+  };
+
+  const beastVegOrderCost = cookingState.vendors.beast.vegetableRate > 0 ? 1 / cookingState.vendors.beast.vegetableRate : 3.6;
+  roiItem('Orc Vegetables', shop.beastVegetablePurchase, (q) => q * beastVegOrderCost * topGoldPerOrder, beastVegetableResult);
+  roiItem('Orc Spice', shop.beastSpicePurchase, (q) => q * MEGA_STEW_VALUES.beastSpice, beastSpiceResult);
+
+  const witchVegOrderCost = cookingState.vendors.witch.vegetableRate > 0 ? 1 / cookingState.vendors.witch.vegetableRate : 3.6;
+  roiItem('Witch Vegetables', shop.witchVegetablePurchase, (q) => q * witchVegOrderCost * topGoldPerOrder, witchVegetableResult);
+  roiItem('Witch Spice', shop.witchSpicePurchase, (q) => q * MEGA_STEW_VALUES.witchSpice, witchSpiceResult);
+
   // total
   if (totalCost > 0) {
     const totalROI = ((totalProfit / totalCost) * 100).toFixed(0);
@@ -3718,6 +3785,13 @@ function setupExportImportListeners(root) {
 
 function toggleRankingInfo() {
   const popup = document.getElementById('ranking-info-popup');
+  if (popup) {
+    popup.style.display = popup.style.display === 'none' ? 'block' : 'none';
+  }
+}
+
+function toggleShopRoiInfo() {
+  const popup = document.getElementById('shop-roi-info-popup');
   if (popup) {
     popup.style.display = popup.style.display === 'none' ? 'block' : 'none';
   }
