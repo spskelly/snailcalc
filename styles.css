@@ -2453,9 +2453,15 @@ h1, h2 {
   margin-left: 5px;
 }
 
-#cooking-ranking-table .mirac-row {
-  background: var(--vendor-mirac-bg);
-}
+/* Neutral zebra striping for readability */
+#cooking-ranking-table tbody tr:nth-child(odd)  { background: var(--bg-card); }
+#cooking-ranking-table tbody tr:nth-child(even) { background: var(--bg-alt); }
+
+/* Vendor identity shown only as a bright left-edge accent (no full-row tint) */
+#cooking-ranking-table tbody tr.clown-row { box-shadow: inset 5px 0 0 var(--vendor-clown-border); }
+#cooking-ranking-table tbody tr.mirac-row { box-shadow: inset 5px 0 0 var(--vendor-mirac-border); }
+#cooking-ranking-table tbody tr.beast-row { box-shadow: inset 5px 0 0 var(--vendor-beast-border); }
+#cooking-ranking-table tbody tr.witch-row { box-shadow: inset 5px 0 0 var(--vendor-witch-border); }
 
 /* Section Headers */
 .cooking-section {
