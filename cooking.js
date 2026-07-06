@@ -706,7 +706,7 @@ function buildShopConfig(root) {
           </select>
         </label>
         <label>Qty: <input type="number" id="shop-skillbooks-qty" value="${shop.skillBooks.quantity}" min="0" max="4" step="1" class="form-control form-control-xs"></label>
-        <label>@ <span class="fixed-price" id="shop-skillbooks-price">${shop.skillBooks.level === 3 ? '15,000g' : shop.skillBooks.level === 2 ? '10,000g' : '5,000g'}</span> each</label>
+        <label>@ <span class="fixed-price" id="shop-skillbooks-price">${shop.skillBooks.level === 3 ? '20,000g' : shop.skillBooks.level === 2 ? '10,000g' : '5,000g'}</span> each</label>
       </div>
       <div class="shop-result" id="shop-skillbooks-result"></div>
     </div>
@@ -1880,7 +1880,7 @@ function updateShopState(root) {
   
   // Update cost based on level
   if (cookingState.shop.skillBooks.level === 3) {
-    cookingState.shop.skillBooks.cost = 15000;
+    cookingState.shop.skillBooks.cost = 20000;
   } else if (cookingState.shop.skillBooks.level === 2) {
     cookingState.shop.skillBooks.cost = 10000;
   } else {
@@ -3412,7 +3412,7 @@ function refreshCookingUI(root) {
   // Update the price display
   const priceDisplay = root.querySelector('#shop-skillbooks-price');
   if (priceDisplay) {
-    const displayCost = (shop.skillBooks.level === 2) ? '10,000g' : '5,000g';
+    const displayCost = (shop.skillBooks.level === 3) ? '20,000g' : (shop.skillBooks.level === 2) ? '10,000g' : '5,000g';
     priceDisplay.textContent = displayCost;
   }
   

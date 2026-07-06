@@ -213,7 +213,7 @@ const DEFAULT_SHOP = {
     enabled: false,
     quantity: 0,
     cost: 5000,
-    level: 1  // 1 = 5000g, 2 = 10000g, 3 = 15000g
+    level: 1  // 1 = 5000g, 2 = 10000g, 3 = 20000g
   }
 };
 
