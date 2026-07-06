@@ -98,18 +98,18 @@ defineVendor("beast", [
 // can use the calculator now. To name one later, change ONLY the name string and
 // keep the id (ids are persisted in saved/exported configs).
 defineVendor("witch", [
-  ["smoked_cerberus",   "Smoked Cerberus"],          // 0  meat 1
-  ["slug_jelly",        "Slug Jelly"],               // 1  meat 3
-  ["dragonhorn_bun",    "Dragonhorn Bun"],           // 2  meat 5
-  ["worm_with_truffle", "Worm with Truffle"],        // 3  meat 2 / veg 1
-  ["steel_baked_dire_bird", "Steel Baked Dire Bird"],// 4  meat 3 / veg 2
-  ["ghoul_salad", "Ghoul Salad"],                    // 5  meat 4 / veg 2
-  ["fried_burrowing_bug", "Fried Burrowing Bug"],    // 6  meat 6 / veg 3
-  ["witch_r08", "Witch Recipe (8/4)"],               // 7  meat 8 / veg 4
-  ["witch_r09", "Witch Recipe (10/6)"],              // 8  meat 10 / veg 6
-  ["witch_r10", "Witch Recipe (5/2/1)"],             // 9  meat 5 / veg 2 / spice 1
-  ["witch_r11", "Witch Recipe (8/5/3)"],             // 10 meat 8 / veg 5 / spice 3
-  ["witch_r12", "Witch Recipe (20/10/5)"],           // 11 meat 20 / veg 10 / spice 5
+  ["smoked_cerberus",   "Smoked Cerberus"],                     // 0  meat 1
+  ["slug_jelly",        "Slug Jelly"],                          // 1  meat 3
+  ["dragonhorn_bun",    "Dragonhorn Bun"],                      // 2  meat 5
+  ["worm_with_truffle", "Worm with Truffle"],                   // 3  meat 2 / veg 1
+  ["steel_baked_dire_bird", "Steel Baked Dire Bird"],           // 4  meat 3 / veg 2
+  ["ghoul_salad", "Ghoul Salad"],                               // 5  meat 4 / veg 2
+  ["fried_burrowing_bug", "Fried Burrowing Bug"],               // 6  meat 6 / veg 3
+  ["blanched_chimera", "Blanched Chimera"],                     // 7  meat 8 / veg 4
+  ["witch_r09", "Witch Recipe (10/6)"],                         // 8  meat 10 / veg 6
+  ["chilled_bbq_manticore_tail", "Chilled BBQ Manticore Tail"], // 9  meat 5 / veg 2 / spice 1
+  ["witch_r11", "Witch Recipe (8/5/3)"],                        // 10 meat 8 / veg 5 / spice 3
+  ["witch_r12", "Witch Recipe (20/10/5)"],                      // 11 meat 20 / veg 10 / spice 5
 ]);
 
 // Default vendor configurations
