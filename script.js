@@ -897,6 +897,23 @@ function addEventListeners() {
     });
   }
 
+  const toggleSnailAmuletsBtn = document.getElementById("toggleSnailAmulets");
+  const snailAmuletQuantityWrapper = document.getElementById("snail-amulet-quantity-wrapper");
+  if (toggleSnailAmuletsBtn && snailAmuletQuantityWrapper) {
+    toggleSnailAmuletsBtn.addEventListener("click", () => {
+      const isExpanded = toggleSnailAmuletsBtn.getAttribute("aria-expanded") === "true";
+      if (isExpanded) {
+        snailAmuletQuantityWrapper.style.display = "none";
+        toggleSnailAmuletsBtn.textContent = "+";
+        toggleSnailAmuletsBtn.setAttribute("aria-expanded", "false");
+      } else {
+        snailAmuletQuantityWrapper.style.display = "";
+        toggleSnailAmuletsBtn.textContent = "−";
+        toggleSnailAmuletsBtn.setAttribute("aria-expanded", "true");
+      }
+    });
+  }
+
   // Expand/collapse for unequipped minion section
   const toggleMinionBtn = document.getElementById("toggleMinionUnequipped");
   const minionUnequippedRow = document.getElementById("minion-row-2");
@@ -911,6 +928,23 @@ function addEventListeners() {
         minionUnequippedRow.style.display = "";
         toggleMinionBtn.textContent = "−";
         toggleMinionBtn.setAttribute("aria-expanded", "true");
+      }
+    });
+  }
+
+  const toggleMinionAmuletsBtn = document.getElementById("toggleMinionAmulets");
+  const minionAmuletQuantityWrapper = document.getElementById("minion-amulet-quantity-wrapper");
+  if (toggleMinionAmuletsBtn && minionAmuletQuantityWrapper) {
+    toggleMinionAmuletsBtn.addEventListener("click", () => {
+      const isExpanded = toggleMinionAmuletsBtn.getAttribute("aria-expanded") === "true";
+      if (isExpanded) {
+        minionAmuletQuantityWrapper.style.display = "none";
+        toggleMinionAmuletsBtn.textContent = "+";
+        toggleMinionAmuletsBtn.setAttribute("aria-expanded", "false");
+      } else {
+        minionAmuletQuantityWrapper.style.display = "";
+        toggleMinionAmuletsBtn.textContent = "−";
+        toggleMinionAmuletsBtn.setAttribute("aria-expanded", "true");
       }
     });
   }
