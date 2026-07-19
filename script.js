@@ -168,6 +168,146 @@ MINION_UPGRADE_PATH.forEach(level => {
   MINION_GEAR[level] = calculateMinionCumulativeCost(level);
 });
 
+// ===== Additional standalone amulet quantities =====
+// These stay separate from existing slot selections and storage records.
+
+// Maps a slot-style amulet display label (e.g. "Amulet (Red)", "Amulet +1")
+// to the cost-data key used by WILL_AMULET_INCREMENTAL / DEMON_GOD_AMULET_INCREMENTAL.
+function amuletLabelToCostKey(label) {
+  if (label === "Amulet (Red)") return "Red";
+  if (typeof label === "string" && label.startsWith("Amulet +")) {
+    return "+" + label.split("+")[1];
+  }
+  return null;
+}
+
+// Normalizes a raw quantity input into a safe non-negative integer. Empty,
+// non-numeric, fractional, or negative values contribute zero.
+function normalizeAmuletQuantity(rawValue) {
+  const numericValue = Number(rawValue);
+  if (!Number.isFinite(numericValue)) return 0;
+  if (!Number.isInteger(numericValue)) return 0;
+  if (numericValue < 0) return 0;
+  return numericValue;
+}
+
+// Builds a zeroed quantity map keyed by each supported amulet option label.
+function getDefaultAmuletQuantityMap(amuletOptions) {
+  const quantityMap = {};
+  amuletOptions.forEach(label => { quantityMap[label] = 0; });
+  return quantityMap;
+}
+
+// Reads a quantity map from localStorage, normalizing every entry. Missing
+// or malformed records default to all zero without throwing or altering
+// any other stored data.
+function readAmuletQuantities(storageKey, amuletOptions) {
+  const quantityMap = getDefaultAmuletQuantityMap(amuletOptions);
+  const rawRecord = localStorage.getItem(storageKey);
+  if (!rawRecord) return quantityMap;
+
+  let parsedRecord;
+  try {
+    parsedRecord = JSON.parse(rawRecord);
+  } catch {
+    return quantityMap;
+  }
+  if (!parsedRecord || typeof parsedRecord !== "object") return quantityMap;
+
+  amuletOptions.forEach(label => {
+    quantityMap[label] = normalizeAmuletQuantity(parsedRecord[label]);
+  });
+  return quantityMap;
+}
+
+// Persists a quantity map under the given localStorage key.
+function writeAmuletQuantities(storageKey, quantityMap) {
+  localStorage.setItem(storageKey, JSON.stringify(quantityMap));
+}
+
+// Sums cumulative amulet cost x quantity across every entry in a quantity map.
+function calculateAmuletQuantityTotals(quantityMap, amuletData) {
+  const total = { abyss: 0, heaven: 0, eoh: 0, eye: 0, glue: 0, orange: 0, b_tad: 0, will_crystal: 0, dg_crystal: 0 };
+  Object.keys(quantityMap).forEach(label => {
+    const quantity = normalizeAmuletQuantity(quantityMap[label]);
+    if (quantity <= 0) return;
+    const costKey = amuletLabelToCostKey(label);
+    if (!costKey || !amuletData[costKey]) return;
+    const unitCost = calculateAmuletCumulativeCost(costKey, amuletData);
+    total.abyss += (unitCost.abyss || 0) * quantity;
+    total.heaven += (unitCost.heaven || 0) * quantity;
+    total.eoh += (unitCost.eoh || 0) * quantity;
+    total.eye += (unitCost.eye || 0) * quantity;
+    total.glue += (unitCost.glue || 0) * quantity;
+    total.orange += (unitCost.orange || 0) * quantity;
+    total.b_tad += (unitCost.b_tad || 0) * quantity;
+    total.will_crystal += (unitCost.will_crystal || 0) * quantity;
+    total.dg_crystal += (unitCost.dg_crystal || 0) * quantity;
+  });
+  return total;
+}
+
+// Renders one quantity input per amulet option into the given container and
+// wires each input's input event to onQuantityChange(label, normalizedValue).
+function renderAmuletQuantityInputs(containerId, amuletOptions, quantityMap, onQuantityChange) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = "";
+  amuletOptions.forEach(label => {
+    const item = document.createElement("div");
+    item.className = "card card-sm amulet-qty-item";
+
+    const itemLabel = document.createElement("span");
+    itemLabel.className = "amulet-qty-label";
+    itemLabel.textContent = label;
+
+    const input = document.createElement("input");
+    input.type = "number";
+    input.min = "0";
+    input.step = "1";
+    input.className = "form-control form-control-sm amulet-qty-input";
+    input.value = quantityMap[label] || 0;
+    input.setAttribute("aria-label", `${label} quantity`);
+    input.dataset.amuletLabel = label;
+
+    input.addEventListener("input", () => {
+      const normalizedValue = normalizeAmuletQuantity(input.value);
+      input.value = normalizedValue;
+      onQuantityChange(label, normalizedValue);
+    });
+
+    item.appendChild(itemLabel);
+    item.appendChild(input);
+    container.appendChild(item);
+  });
+}
+
+// Updates the displayed values of already-rendered quantity inputs without
+// recreating them (keeps existing change listeners intact).
+function setAmuletQuantityInputValues(containerId, quantityMap) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.querySelectorAll(".amulet-qty-input").forEach(input => {
+    const label = input.dataset.amuletLabel;
+    input.value = quantityMap[label] || 0;
+  });
+}
+
+const snailAmuletQuantities = readAmuletQuantities("snailAmuletQuantities", SNAIL_AMULET_OPTIONS);
+const minionAmuletQuantities = readAmuletQuantities("minionAmuletQuantities", MINION_AMULET_OPTIONS);
+
+renderAmuletQuantityInputs("snailAmuletQuantityGrid", SNAIL_AMULET_OPTIONS, snailAmuletQuantities, (label, quantity) => {
+  snailAmuletQuantities[label] = quantity;
+  writeAmuletQuantities("snailAmuletQuantities", snailAmuletQuantities);
+  renderSnailMainTable();
+});
+
+renderAmuletQuantityInputs("minionAmuletQuantityGrid", MINION_AMULET_OPTIONS, minionAmuletQuantities, (label, quantity) => {
+  minionAmuletQuantities[label] = quantity;
+  writeAmuletQuantities("minionAmuletQuantities", minionAmuletQuantities);
+  renderMinionMainTable();
+});
+
 function createSlotElement(id, isSnail = false) {
   const container = document.createElement("div");
   container.className = "card card-sm slot-container";
@@ -327,6 +467,9 @@ function resetSnailGear() {
       selectEl.value = "None";
     }
   }
+  SNAIL_AMULET_OPTIONS.forEach(label => { snailAmuletQuantities[label] = 0; });
+  setAmuletQuantityInputValues("snailAmuletQuantityGrid", snailAmuletQuantities);
+  localStorage.removeItem("snailAmuletQuantities");
   calculateSnailTotals();
   saveToLocalStorage();
 }
@@ -338,6 +481,9 @@ function resetMinionGear() {
       selectEl.value = "None";
     }
   }
+  MINION_AMULET_OPTIONS.forEach(label => { minionAmuletQuantities[label] = 0; });
+  setAmuletQuantityInputValues("minionAmuletQuantityGrid", minionAmuletQuantities);
+  localStorage.removeItem("minionAmuletQuantities");
   calculateMinionTotals();
   saveToLocalStorage();
 }
@@ -438,6 +584,15 @@ function renderSnailMainTable() {
       }
     }
   }
+  // Additional standalone amulet quantities (additive to slot selections above)
+  const snailQuantityTotals = calculateAmuletQuantityTotals(snailAmuletQuantities, WILL_AMULET_INCREMENTAL);
+  current.eoh += snailQuantityTotals.eoh;
+  current.orange += snailQuantityTotals.orange;
+  current.abyss += snailQuantityTotals.abyss;
+  current.heaven += snailQuantityTotals.heaven;
+  current.glue += snailQuantityTotals.glue;
+  current.b_tad += snailQuantityTotals.b_tad;
+  current.will_crystal += snailQuantityTotals.will_crystal;
   // Presets
   const presets = [1, 2, 3].map(getSnailPresetTotals);
   let html = '<div class="table-responsive-wrapper"><table class="cost-table"><tr>';
@@ -505,6 +660,15 @@ function renderMinionMainTable() {
       }
     }
   }
+  // Additional standalone amulet quantities (additive to slot selections above)
+  const minionQuantityTotals = calculateAmuletQuantityTotals(minionAmuletQuantities, DEMON_GOD_AMULET_INCREMENTAL);
+  current.eye += minionQuantityTotals.eye;
+  current.orange += minionQuantityTotals.orange;
+  current.abyss += minionQuantityTotals.abyss;
+  current.heaven += minionQuantityTotals.heaven;
+  current.glue += minionQuantityTotals.glue;
+  current.b_tad += minionQuantityTotals.b_tad;
+  current.dg_crystal += minionQuantityTotals.dg_crystal;
   // Presets
   const presets = [1, 2, 3].map(getMinionPresetTotals);
   let html = '<div class="table-responsive-wrapper"><table class="cost-table"><tr>';
@@ -529,6 +693,7 @@ function saveSnailPreset(slot) {
     if (selectEl) preset[i] = selectEl.value;
   }
   localStorage.setItem("snailPreset" + slot, JSON.stringify(preset));
+  writeAmuletQuantities("snailAmuletPreset" + slot, snailAmuletQuantities);
   renderSnailMainTable();
 }
 
@@ -538,6 +703,10 @@ function loadSnailPreset(slot) {
     const selectEl = document.getElementById("snail" + i);
     if (selectEl) selectEl.value = preset[i] || "None";
   }
+  const loadedSnailQuantities = readAmuletQuantities("snailAmuletPreset" + slot, SNAIL_AMULET_OPTIONS);
+  SNAIL_AMULET_OPTIONS.forEach(label => { snailAmuletQuantities[label] = loadedSnailQuantities[label]; });
+  setAmuletQuantityInputValues("snailAmuletQuantityGrid", snailAmuletQuantities);
+  writeAmuletQuantities("snailAmuletQuantities", snailAmuletQuantities);
   calculateSnailTotals();
   saveToLocalStorage();
   renderSnailMainTable();
@@ -550,6 +719,7 @@ function saveMinionPreset(slot) {
     if (selectEl) preset[i] = selectEl.value;
   }
   localStorage.setItem("minionPreset" + slot, JSON.stringify(preset));
+  writeAmuletQuantities("minionAmuletPreset" + slot, minionAmuletQuantities);
   renderMinionMainTable();
 }
 
@@ -575,6 +745,11 @@ function loadMinionPreset(slot) {
       renderMinionMainTable();
     });
   });
+  // Additional standalone amulet quantities load outside the select-clone loop above
+  const loadedMinionQuantities = readAmuletQuantities("minionAmuletPreset" + slot, MINION_AMULET_OPTIONS);
+  MINION_AMULET_OPTIONS.forEach(label => { minionAmuletQuantities[label] = loadedMinionQuantities[label]; });
+  setAmuletQuantityInputValues("minionAmuletQuantityGrid", minionAmuletQuantities);
+  writeAmuletQuantities("minionAmuletQuantities", minionAmuletQuantities);
   calculateMinionTotals();
   saveToLocalStorage();
   renderMinionMainTable();
@@ -596,6 +771,15 @@ function getMinionPresetTotals(slot) {
       total.dg_crystal += gearData.dg_crystal;
     }
   }
+  const presetMinionQuantities = readAmuletQuantities("minionAmuletPreset" + slot, MINION_AMULET_OPTIONS);
+  const presetMinionQuantityTotals = calculateAmuletQuantityTotals(presetMinionQuantities, DEMON_GOD_AMULET_INCREMENTAL);
+  total.eye += presetMinionQuantityTotals.eye;
+  total.orange += presetMinionQuantityTotals.orange;
+  total.abyss += presetMinionQuantityTotals.abyss;
+  total.heaven += presetMinionQuantityTotals.heaven;
+  total.glue += presetMinionQuantityTotals.glue;
+  total.b_tad += presetMinionQuantityTotals.b_tad;
+  total.dg_crystal += presetMinionQuantityTotals.dg_crystal;
   return total;
 }
 
@@ -616,6 +800,15 @@ function getSnailPresetTotals(slot) {
       total.will_crystal += gearData.will_crystal;
     }
   }
+  const presetSnailQuantities = readAmuletQuantities("snailAmuletPreset" + slot, SNAIL_AMULET_OPTIONS);
+  const presetSnailQuantityTotals = calculateAmuletQuantityTotals(presetSnailQuantities, WILL_AMULET_INCREMENTAL);
+  total.eoh += presetSnailQuantityTotals.eoh;
+  total.orange += presetSnailQuantityTotals.orange;
+  total.abyss += presetSnailQuantityTotals.abyss;
+  total.heaven += presetSnailQuantityTotals.heaven;
+  total.glue += presetSnailQuantityTotals.glue;
+  total.b_tad += presetSnailQuantityTotals.b_tad;
+  total.will_crystal += presetSnailQuantityTotals.will_crystal;
   return total;
 }
 

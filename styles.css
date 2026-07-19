@@ -1077,6 +1077,52 @@ h1, h2 {
   min-width: 280px;
 }
 
+.amulet-quantity-section {
+  margin-block: var(--space-md);
+  background: #fff4cc;
+  border-color: #d6a84b;
+}
+
+[data-theme="dark"] .amulet-quantity-section {
+  background: #3a321f;
+  border-color: #d6a84b;
+}
+
+.amulet-quantity-section h3 {
+  margin: 0 0 var(--space-xs);
+  color: var(--text-secondary);
+  font-size: var(--font-size-lg);
+}
+
+.amulet-quantity-note {
+  margin: 0 0 var(--space-md);
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+}
+
+.amulet-qty-item {
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm);
+}
+
+.amulet-qty-label {
+  min-width: 0;
+  color: var(--text-secondary);
+  font-weight: bold;
+  line-height: 1.4;
+}
+
+.amulet-qty-input {
+  width: 4.5rem;
+  min-height: 2rem;
+  justify-self: start;
+  text-align: left;
+}
+
 .totals-column p {
   margin-block: var(--space-xs);
   font-size: clamp(14px, 2vw, 16px);
@@ -1432,6 +1478,12 @@ h1, h2 {
 .unequipped-label {
   color: var(--color-unequipped);
   background-color: rgba(178, 34, 34, 0.1); /* Light background for emphasis (Issue #12) */
+}
+
+.amulet-slot-note {
+  margin: 0 var(--space-xs) var(--space-xs);
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
 }
 
 /* Issue #13: Tighten vertical spacing on laptop/desktop */
@@ -2838,7 +2890,7 @@ h1, h2 {
   .grid-responsive { 
     --min-col-width: 100%; 
   }
-  
+
   /* Rocket device grid - full stack */
   .rocket-device-grid { 
     grid-template-columns: 1fr; 
