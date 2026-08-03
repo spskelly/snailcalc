@@ -106,7 +106,7 @@ defineVendor("witch", [
   ["ghoul_salad", "Ghoul Salad"],                               // 5  meat 4 / veg 2
   ["fried_burrowing_bug", "Fried Burrowing Bug"],               // 6  meat 6 / veg 3
   ["witch_r08", "Blanched Chimera"],                            // 7  meat 8 / veg 4
-  ["witch_r09", "Witch Recipe (10/6)"],                         // 8  meat 10 / veg 6
+  ["witch_r09", "Petroleum Trotter Ultimate"],                  // 8  meat 10 / veg 6
   ["witch_r10", "Chilled BBQ Manticore Tail"],                  // 9  meat 5 / veg 2 / spice 1
   ["witch_r11", "Witch Recipe (8/5/3)"],                        // 10 meat 8 / veg 5 / spice 3
   ["witch_r12", "Witch Recipe (20/10/5)"],                      // 11 meat 20 / veg 10 / spice 5
