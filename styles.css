@@ -1481,12 +1481,6 @@ h1, h2 {
   color: #d6a84b;
 }
 
-.amulet-slot-note {
-  margin: 0 var(--space-xs) var(--space-xs);
-  color: var(--text-muted);
-  font-size: var(--font-size-sm);
-}
-
 /* Issue #13: Tighten vertical spacing on laptop/desktop */
 @media (min-width: 1024px) and (max-width: 1440px) {
   .equipped-row,

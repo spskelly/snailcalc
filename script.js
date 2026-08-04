@@ -168,8 +168,9 @@ MINION_UPGRADE_PATH.forEach(level => {
   MINION_GEAR[level] = calculateMinionCumulativeCost(level);
 });
 
-// ===== Additional standalone amulet quantities =====
-// These stay separate from existing slot selections and storage records.
+// ===== Amulet quantities =====
+// Amulets are tracked here as quantities; gear slots no longer offer amulet
+// options (migrateAmuletSlots below converts legacy slot selections).
 
 // Maps a slot-style amulet display label (e.g. "Amulet (Red)", "Amulet +1")
 // to the cost-data key used by WILL_AMULET_INCREMENTAL / DEMON_GOD_AMULET_INCREMENTAL.
@@ -293,6 +294,45 @@ function setAmuletQuantityInputValues(containerId, quantityMap) {
   });
 }
 
+// One-time migration (issue #41): amulets used to be selectable in gear slots.
+// Converts any stored amulet slot selections (live settings and presets) into
+// Additional Amulets quantities. Idempotent: once converted, no amulet labels
+// remain in the slot records, so later runs find nothing to do. Malformed
+// records are left untouched.
+function migrateAmuletSlots(slotsKey, quantitiesKey, amuletOptions) {
+  const rawRecord = localStorage.getItem(slotsKey);
+  if (!rawRecord) return;
+  let slots;
+  try {
+    slots = JSON.parse(rawRecord);
+  } catch {
+    return;
+  }
+  if (!slots || typeof slots !== "object") return;
+
+  const quantityMap = readAmuletQuantities(quantitiesKey, amuletOptions);
+  let changed = false;
+  Object.keys(slots).forEach(slotIndex => {
+    const label = slots[slotIndex];
+    if (amuletOptions.includes(label)) {
+      quantityMap[label] += 1;
+      slots[slotIndex] = "None";
+      changed = true;
+    }
+  });
+  if (changed) {
+    localStorage.setItem(slotsKey, JSON.stringify(slots));
+    writeAmuletQuantities(quantitiesKey, quantityMap);
+  }
+}
+
+migrateAmuletSlots("snailGearSettings", "snailAmuletQuantities", SNAIL_AMULET_OPTIONS);
+migrateAmuletSlots("minionGearSettings", "minionAmuletQuantities", MINION_AMULET_OPTIONS);
+[1, 2, 3].forEach(slot => {
+  migrateAmuletSlots("snailPreset" + slot, "snailAmuletPreset" + slot, SNAIL_AMULET_OPTIONS);
+  migrateAmuletSlots("minionPreset" + slot, "minionAmuletPreset" + slot, MINION_AMULET_OPTIONS);
+});
+
 const snailAmuletQuantities = readAmuletQuantities("snailAmuletQuantities", SNAIL_AMULET_OPTIONS);
 const minionAmuletQuantities = readAmuletQuantities("minionAmuletQuantities", MINION_AMULET_OPTIONS);
 
@@ -316,15 +356,8 @@ function createSlotElement(id, isSnail = false) {
   select.id = id;
   select.className = "form-control select form-control-full upgrade-select";
 
-  // Use the keys from our data objects to create the options
-  let options;
-  if (isSnail) {
-    // Combine gear and amulet options for snail slots
-    options = [...Object.keys(SNAIL_GEAR), ...SNAIL_AMULET_OPTIONS];
-  } else {
-    // Combine minion gear and amulet options for minion slots (up to +4)
-    options = [...Object.keys(MINION_GEAR), ...MINION_AMULET_OPTIONS];
-  }
+  // Gear levels only; amulets are tracked in the Amulets section, not gear slots
+  const options = isSnail ? Object.keys(SNAIL_GEAR) : Object.keys(MINION_GEAR);
 
   options.forEach((value) => {
     const option = document.createElement("option");
@@ -373,37 +406,15 @@ function calculateMinionTotals() {
     const selectEl = document.getElementById("slot" + i);
     const upgrade = selectEl.value;
 
-    // Check if this is an amulet option
-    let isAmulet = false;
-    let amuletKey = null;
-    if (upgrade === "Amulet (Red)") {
-      isAmulet = true;
-      amuletKey = "Red";
-    } else if (upgrade.startsWith("Amulet +")) {
-      isAmulet = true;
-      amuletKey = "+" + upgrade.split("+")[1];
-    }
-
-    if (isAmulet && amuletKey && DEMON_GOD_AMULET_INCREMENTAL[amuletKey]) {
-      const amuletCost = calculateAmuletCumulativeCost(amuletKey, DEMON_GOD_AMULET_INCREMENTAL);
-      totalEye += amuletCost.eye || 0;
-      totalOrange += amuletCost.orange || 0;
-      totalAbyss += amuletCost.abyss || 0;
-      totalHeaven += amuletCost.heaven || 0;
-      totalGlue += amuletCost.glue || 0;
-      totalBTad += amuletCost.b_tad || 0;
-      totalDgCrystal += amuletCost.dg_crystal || 0;
-    } else {
-      const gearData = calculateMinionCumulativeCost(upgrade); // Use new calculation function
-      if (gearData) {
-        totalEye += gearData.eye;
-        totalOrange += gearData.orange;
-        totalAbyss += gearData.abyss;
-        totalHeaven += gearData.heaven;
-        totalGlue += gearData.glue;
-        totalBTad += gearData.b_tad;
-        totalDgCrystal += gearData.dg_crystal;
-      }
+    const gearData = calculateMinionCumulativeCost(upgrade);
+    if (gearData) {
+      totalEye += gearData.eye;
+      totalOrange += gearData.orange;
+      totalAbyss += gearData.abyss;
+      totalHeaven += gearData.heaven;
+      totalGlue += gearData.glue;
+      totalBTad += gearData.b_tad;
+      totalDgCrystal += gearData.dg_crystal;
     }
   }
 
@@ -423,37 +434,15 @@ function calculateSnailTotals() {
     const selectEl = document.getElementById("snail" + i);
     const upgrade = selectEl.value;
 
-    // Check if this is an amulet option
-    let isAmulet = false;
-    let amuletKey = null;
-    if (upgrade === "Amulet (Red)") {
-      isAmulet = true;
-      amuletKey = "Red";
-    } else if (upgrade.startsWith("Amulet +")) {
-      isAmulet = true;
-      amuletKey = "+" + upgrade.split("+")[1];
-    }
-
-    if (isAmulet && amuletKey && WILL_AMULET_INCREMENTAL[amuletKey]) {
-      const amuletCost = calculateAmuletCumulativeCost(amuletKey, WILL_AMULET_INCREMENTAL);
-      totalEoH += amuletCost.eoh || 0;
-      totalOrange += amuletCost.orange || 0;
-      totalAbyss += amuletCost.abyss || 0;
-      totalHeaven += amuletCost.heaven || 0;
-      totalGlue += amuletCost.glue || 0;
-      totalBTad += amuletCost.b_tad || 0;
-      totalWillCrystal += amuletCost.will_crystal || 0;
-    } else {
-      const gearData = calculateSnailCumulativeCost(upgrade); // Use new calculation function
-      if (gearData) {
-        totalEoH += gearData.eoh;
-        totalOrange += gearData.orange;
-        totalAbyss += gearData.abyss;
-        totalHeaven += gearData.heaven;
-        totalGlue += gearData.glue;
-        totalBTad += gearData.b_tad;
-        totalWillCrystal += gearData.will_crystal;
-      }
+    const gearData = calculateSnailCumulativeCost(upgrade);
+    if (gearData) {
+      totalEoH += gearData.eoh;
+      totalOrange += gearData.orange;
+      totalAbyss += gearData.abyss;
+      totalHeaven += gearData.heaven;
+      totalGlue += gearData.glue;
+      totalBTad += gearData.b_tad;
+      totalWillCrystal += gearData.will_crystal;
     }
   }
 
@@ -552,36 +541,15 @@ function renderSnailMainTable() {
   for (let i = 1; i <= 24; i++) {
     const selectEl = document.getElementById("snail" + i);
     const upgrade = selectEl ? selectEl.value : "None";
-    // Amulet detection logic
-    let isAmulet = false;
-    let amuletKey = null;
-    if (upgrade === "Amulet (Red)") {
-      isAmulet = true;
-      amuletKey = "Red";
-    } else if (upgrade.startsWith("Amulet +")) {
-      isAmulet = true;
-      amuletKey = "+" + upgrade.split("+")[1];
-    }
-    if (isAmulet && amuletKey && WILL_AMULET_INCREMENTAL[amuletKey]) {
-      const amuletCost = calculateAmuletCumulativeCost(amuletKey, WILL_AMULET_INCREMENTAL);
-      current.eoh += amuletCost.eoh || 0;
-      current.orange += amuletCost.orange || 0;
-      current.abyss += amuletCost.abyss || 0;
-      current.heaven += amuletCost.heaven || 0;
-      current.glue += amuletCost.glue || 0;
-      current.b_tad += amuletCost.b_tad || 0;
-      current.will_crystal += amuletCost.will_crystal || 0;
-    } else {
-      const gearData = calculateSnailCumulativeCost(upgrade);
-      if (gearData) {
-        current.eoh += gearData.eoh;
-        current.orange += gearData.orange;
-        current.abyss += gearData.abyss;
-        current.heaven += gearData.heaven;
-        current.glue += gearData.glue;
-        current.b_tad += gearData.b_tad;
-        current.will_crystal += gearData.will_crystal;
-      }
+    const gearData = calculateSnailCumulativeCost(upgrade);
+    if (gearData) {
+      current.eoh += gearData.eoh;
+      current.orange += gearData.orange;
+      current.abyss += gearData.abyss;
+      current.heaven += gearData.heaven;
+      current.glue += gearData.glue;
+      current.b_tad += gearData.b_tad;
+      current.will_crystal += gearData.will_crystal;
     }
   }
   // Additional standalone amulet quantities (additive to slot selections above)
@@ -628,36 +596,15 @@ function renderMinionMainTable() {
   for (let i = 1; i <= 12; i++) {
     const selectEl = document.getElementById("slot" + i);
     const upgrade = selectEl ? selectEl.value : "None";
-    // Amulet detection logic
-    let isAmulet = false;
-    let amuletKey = null;
-    if (upgrade === "Amulet (Red)") {
-      isAmulet = true;
-      amuletKey = "Red";
-    } else if (upgrade.startsWith("Amulet +")) {
-      isAmulet = true;
-      amuletKey = "+" + upgrade.split("+")[1];
-    }
-    if (isAmulet && amuletKey && DEMON_GOD_AMULET_INCREMENTAL[amuletKey]) {
-      const amuletCost = calculateAmuletCumulativeCost(amuletKey, DEMON_GOD_AMULET_INCREMENTAL);
-      current.eye += amuletCost.eye || 0;
-      current.orange += amuletCost.orange || 0;
-      current.abyss += amuletCost.abyss || 0;
-      current.heaven += amuletCost.heaven || 0;
-      current.glue += amuletCost.glue || 0;
-      current.b_tad += amuletCost.b_tad || 0;
-      current.dg_crystal += amuletCost.dg_crystal || 0;
-    } else {
-      const gearData = calculateMinionCumulativeCost(upgrade);
-      if (gearData) {
-        current.eye += gearData.eye;
-        current.orange += gearData.orange;
-        current.abyss += gearData.abyss;
-        current.heaven += gearData.heaven;
-        current.glue += gearData.glue;
-        current.b_tad += gearData.b_tad;
-        current.dg_crystal += gearData.dg_crystal;
-      }
+    const gearData = calculateMinionCumulativeCost(upgrade);
+    if (gearData) {
+      current.eye += gearData.eye;
+      current.orange += gearData.orange;
+      current.abyss += gearData.abyss;
+      current.heaven += gearData.heaven;
+      current.glue += gearData.glue;
+      current.b_tad += gearData.b_tad;
+      current.dg_crystal += gearData.dg_crystal;
     }
   }
   // Additional standalone amulet quantities (additive to slot selections above)
