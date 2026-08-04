@@ -1088,12 +1088,6 @@ h1, h2 {
   border-color: #d6a84b;
 }
 
-.amulet-quantity-section h3 {
-  margin: 0 0 var(--space-xs);
-  color: var(--text-secondary);
-  font-size: var(--font-size-lg);
-}
-
 .amulet-quantity-note {
   margin: 0 0 var(--space-md);
   color: var(--text-muted);
@@ -1462,7 +1456,7 @@ h1, h2 {
   box-shadow: var(--shadow-sm);
   border: 1px solid rgba(178, 34, 34, 0.2); /* Subtle border for definition (Issue #12) */
 }
-.equipped-label, .unequipped-label {
+.equipped-label, .unequipped-label, .amulet-quantity-label {
   font-weight: bold;
   margin: var(--space-sm) 0 var(--space-xs) var(--space-xs); /* Adjusted margins (Issue #13) */
   font-size: 1.1em;
@@ -1478,6 +1472,13 @@ h1, h2 {
 .unequipped-label {
   color: var(--color-unequipped);
   background-color: rgba(178, 34, 34, 0.1); /* Light background for emphasis (Issue #12) */
+}
+.amulet-quantity-label {
+  color: #b8860b;
+  background-color: rgba(214, 168, 75, 0.15);
+}
+[data-theme="dark"] .amulet-quantity-label {
+  color: #d6a84b;
 }
 
 .amulet-slot-note {
@@ -1495,7 +1496,8 @@ h1, h2 {
   }
   
   .equipped-label,
-  .unequipped-label {
+  .unequipped-label,
+  .amulet-quantity-label {
     margin-top: var(--space-xs);
     margin-bottom: var(--space-2xs);
   }
