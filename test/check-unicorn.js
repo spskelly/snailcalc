@@ -28,12 +28,12 @@ let failures = 0;
 const fail = (m) => { console.error('FAIL: ' + m); failures++; };
 const eq = (a, b, m) => { if (JSON.stringify(a) !== JSON.stringify(b)) fail(`${m}: expected ${JSON.stringify(b)}, got ${JSON.stringify(a)}`); };
 
-const seed = () => { api.cookingState.vendors = { clown: {}, miraculand: {}, beast: {}, witch: {} }; };
+const seed = () => { api.cookingState.vendors = { clown: {}, miraculand: {}, beast: {}, witch: {}, eden: {} }; };
 const rates = (k) => { const v = api.cookingState.vendors[k]; return [v.meatRate || 0, v.vegetableRate || 0, v.spiceRate || 0]; };
 
 // unlock counts
-eq(api.unicornUnlockCounts(5), { clown: 3, miraculand: 2, beast: 0, witch: 0 }, 'counts@5');
-eq(api.unicornUnlockCounts(99), { clown: 3, miraculand: 3, beast: 3, witch: 3 }, 'counts saturate@99');
+eq(api.unicornUnlockCounts(5), { clown: 3, miraculand: 2, beast: 0, witch: 0, eden: 0 }, 'counts@5');
+eq(api.unicornUnlockCounts(99), { clown: 3, miraculand: 3, beast: 3, witch: 3, eden: 3 }, 'counts saturate@99');
 
 // level -> rates
 seed(); api.applyUnicornLevel(1);
@@ -47,8 +47,13 @@ eq(rates('miraculand'), [0.7222, 0.2778, 0], 'L5 mirac meat+veg');
 eq(rates('beast'), [0, 0, 0], 'L5 beast locked');
 seed(); api.applyUnicornLevel(12);
 ['clown', 'miraculand', 'beast', 'witch'].forEach((k) => eq(rates(k), [0.65, 0.25, 0.10], `L12 ${k} all-three`));
+eq(rates('eden'), [0, 0, 0], 'L12 eden locked');
+seed(); api.applyUnicornLevel(13);
+eq(rates('eden'), [1, 0, 0], 'L13 eden meat-only');
+seed(); api.applyUnicornLevel(15);
+['clown', 'miraculand', 'beast', 'witch', 'eden'].forEach((k) => eq(rates(k), [0.65, 0.25, 0.10], `L15 ${k} all-three`));
 seed(); api.applyUnicornLevel(99);
-eq(rates('witch'), [0.65, 0.25, 0.10], 'L99 saturates to all-three');
+eq(rates('eden'), [0.65, 0.25, 0.10], 'L99 saturates to all-three');
 
 // round-trip derive
 for (let L = 1; L <= api.UNICORN_MAX_LEVEL; L++) {

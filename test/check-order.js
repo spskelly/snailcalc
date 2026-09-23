@@ -7,7 +7,7 @@ const { COOKING_RECIPES, RECIPE_ORDER, RECIPE_TIERS } = extract();
 
 if (!RECIPE_TIERS) { console.error('FAIL: RECIPE_TIERS not defined'); process.exit(1); }
 
-const VENDORS = ['clown', 'mirac', 'beast', 'witch'];
+const VENDORS = ['clown', 'mirac', 'beast', 'witch', 'eden'];
 let failures = 0;
 const fail = (msg) => { console.error('FAIL: ' + msg); failures++; };
 

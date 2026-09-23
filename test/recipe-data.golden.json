@@ -15,7 +15,10 @@
       "beastSpice": 0,
       "witchMeat": 0,
       "witchVegetable": 0,
-      "witchSpice": 0
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
     },
     "goblin_burger": {
       "name": "Goblin Burger",
@@ -32,7 +35,10 @@
       "beastSpice": 0,
       "witchMeat": 0,
       "witchVegetable": 0,
-      "witchSpice": 0
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
     },
     "toad_egg_salad": {
       "name": "Toad Egg Salad",
@@ -49,7 +55,10 @@
       "beastSpice": 0,
       "witchMeat": 0,
       "witchVegetable": 0,
-      "witchSpice": 0
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
     },
     "rust_pudding": {
       "name": "Rust Pudding",
@@ -66,7 +75,10 @@
       "beastSpice": 0,
       "witchMeat": 0,
       "witchVegetable": 0,
-      "witchSpice": 0
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
     },
     "braised_gumball": {
       "name": "Braised Gumball",
@@ -83,7 +95,10 @@
       "beastSpice": 0,
       "witchMeat": 0,
       "witchVegetable": 0,
-      "witchSpice": 0
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
     },
     "garlic_dried_gecko": {
       "name": "Garlic Dried Gecko",
@@ -100,7 +115,10 @@
       "beastSpice": 0,
       "witchMeat": 0,
       "witchVegetable": 0,
-      "witchSpice": 0
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
     },
     "fried_demon_beef_rib": {
       "name": "Fried Demon Beef Rib",
@@ -117,7 +135,10 @@
       "beastSpice": 0,
       "witchMeat": 0,
       "witchVegetable": 0,
-      "witchSpice": 0
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
     },
     "teriyaki_blood_elf": {
       "name": "Teriyaki Blood Elf",
@@ -134,7 +155,10 @@
       "beastSpice": 0,
       "witchMeat": 0,
       "witchVegetable": 0,
-      "witchSpice": 0
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
     },
     "worm_cheese": {
       "name": "Worm Cheese",
@@ -151,7 +175,10 @@
       "beastSpice": 0,
       "witchMeat": 0,
       "witchVegetable": 0,
-      "witchSpice": 0
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
     },
     "spider_eyeball_soup": {
       "name": "Spider Eyeball Soup",
@@ -168,7 +195,10 @@
       "beastSpice": 0,
       "witchMeat": 0,
       "witchVegetable": 0,
-      "witchSpice": 0
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
     },
     "spicy_griffon_claw": {
       "name": "Spicy Griffon Claw",
@@ -185,41 +215,10 @@
       "beastSpice": 0,
       "witchMeat": 0,
       "witchVegetable": 0,
-      "witchSpice": 0
-    },
-    "nuclear_bbq_oyster": {
-      "name": "Nuclear BBQ Oyster",
-      "defaultStars": 1,
-      "defaultPrice": 0,
-      "clownMeat": 0,
-      "clownVegetable": 0,
-      "clownSpice": 0,
-      "miracMeat": 1,
-      "miracVegetable": 0,
-      "miracSpice": 0,
-      "beastMeat": 0,
-      "beastVegetable": 0,
-      "beastSpice": 0,
-      "witchMeat": 0,
-      "witchVegetable": 0,
-      "witchSpice": 0
-    },
-    "marinated_octopus": {
-      "name": "Marinated Octopus",
-      "defaultStars": 1,
-      "defaultPrice": 0,
-      "clownMeat": 0,
-      "clownVegetable": 0,
-      "clownSpice": 0,
-      "miracMeat": 3,
-      "miracVegetable": 0,
-      "miracSpice": 0,
-      "beastMeat": 0,
-      "beastVegetable": 0,
-      "beastSpice": 0,
-      "witchMeat": 0,
-      "witchVegetable": 0,
-      "witchSpice": 0
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
     },
     "lube_cheese_brick": {
       "name": "Lube-Cheese Brick",
@@ -236,7 +235,50 @@
       "beastSpice": 0,
       "witchMeat": 0,
       "witchVegetable": 0,
-      "witchSpice": 0
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
+    },
+    "nuclear_bbq_oyster": {
+      "name": "Nuclear BBQ Oyster",
+      "defaultStars": 1,
+      "defaultPrice": 0,
+      "clownMeat": 0,
+      "clownVegetable": 0,
+      "clownSpice": 0,
+      "miracMeat": 1,
+      "miracVegetable": 0,
+      "miracSpice": 0,
+      "beastMeat": 0,
+      "beastVegetable": 0,
+      "beastSpice": 0,
+      "witchMeat": 0,
+      "witchVegetable": 0,
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
+    },
+    "marinated_octopus": {
+      "name": "Marinated Octopus",
+      "defaultStars": 1,
+      "defaultPrice": 0,
+      "clownMeat": 0,
+      "clownVegetable": 0,
+      "clownSpice": 0,
+      "miracMeat": 3,
+      "miracVegetable": 0,
+      "miracSpice": 0,
+      "beastMeat": 0,
+      "beastVegetable": 0,
+      "beastSpice": 0,
+      "witchMeat": 0,
+      "witchVegetable": 0,
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
     },
     "manta_ray_sashimi": {
       "name": "Manta Ray Sashimi",
@@ -253,7 +295,10 @@
       "beastSpice": 0,
       "witchMeat": 0,
       "witchVegetable": 0,
-      "witchSpice": 0
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
     },
     "braised_dire_shrimp": {
       "name": "Braised Dire Shrimp",
@@ -270,7 +315,10 @@
       "beastSpice": 0,
       "witchMeat": 0,
       "witchVegetable": 0,
-      "witchSpice": 0
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
     },
     "stir_fried_sea_dragon": {
       "name": "Stir-fried Sea Dragon",
@@ -287,7 +335,10 @@
       "beastSpice": 0,
       "witchMeat": 0,
       "witchVegetable": 0,
-      "witchSpice": 0
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
     },
     "sea_salt_cheese": {
       "name": "Sea Salt Cheese",
@@ -304,7 +355,10 @@
       "beastSpice": 0,
       "witchMeat": 0,
       "witchVegetable": 0,
-      "witchSpice": 0
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
     },
     "mosasaur_teppanyaki": {
       "name": "Mosasuar Teppanyaki",
@@ -321,7 +375,10 @@
       "beastSpice": 0,
       "witchMeat": 0,
       "witchVegetable": 0,
-      "witchSpice": 0
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
     },
     "stir_fried_sea_snake": {
       "name": "Stir-fried Sea Snake",
@@ -338,24 +395,10 @@
       "beastSpice": 0,
       "witchMeat": 0,
       "witchVegetable": 0,
-      "witchSpice": 0
-    },
-    "sour_merman_fin": {
-      "name": "Sour Merman Fin",
-      "defaultStars": 1,
-      "defaultPrice": 0,
-      "clownMeat": 0,
-      "clownVegetable": 0,
-      "clownSpice": 0,
-      "miracMeat": 5,
-      "miracVegetable": 2,
-      "miracSpice": 1,
-      "beastMeat": 0,
-      "beastVegetable": 0,
-      "beastSpice": 0,
-      "witchMeat": 0,
-      "witchVegetable": 0,
-      "witchSpice": 0
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
     },
     "fermented_squid": {
       "name": "Fermented Squid",
@@ -372,7 +415,30 @@
       "beastSpice": 0,
       "witchMeat": 0,
       "witchVegetable": 0,
-      "witchSpice": 0
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
+    },
+    "sour_merman_fin": {
+      "name": "Sour Merman Fin",
+      "defaultStars": 1,
+      "defaultPrice": 0,
+      "clownMeat": 0,
+      "clownVegetable": 0,
+      "clownSpice": 0,
+      "miracMeat": 5,
+      "miracVegetable": 2,
+      "miracSpice": 1,
+      "beastMeat": 0,
+      "beastVegetable": 0,
+      "beastSpice": 0,
+      "witchMeat": 0,
+      "witchVegetable": 0,
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
     },
     "grilled_horn_shark": {
       "name": "Grilled Horn Shark",
@@ -389,7 +455,10 @@
       "beastSpice": 0,
       "witchMeat": 0,
       "witchVegetable": 0,
-      "witchSpice": 0
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
     },
     "naga_fin_soup": {
       "name": "Naga Fin Soup",
@@ -406,7 +475,10 @@
       "beastSpice": 0,
       "witchMeat": 0,
       "witchVegetable": 0,
-      "witchSpice": 0
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
     },
     "bite_back_biscuits": {
       "name": "Bite-Back Biscuits",
@@ -423,24 +495,10 @@
       "beastSpice": 0,
       "witchMeat": 0,
       "witchVegetable": 0,
-      "witchSpice": 0
-    },
-    "dwarven_flame_wine": {
-      "name": "Dwarven Flame Wine",
-      "defaultStars": 1,
-      "defaultPrice": 0,
-      "clownMeat": 0,
-      "clownVegetable": 0,
-      "clownSpice": 0,
-      "miracMeat": 0,
-      "miracVegetable": 0,
-      "miracSpice": 0,
-      "beastMeat": 5,
-      "beastVegetable": 0,
-      "beastSpice": 0,
-      "witchMeat": 0,
-      "witchVegetable": 0,
-      "witchSpice": 0
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
     },
     "salamander_brew": {
       "name": "Salamander Brew",
@@ -457,7 +515,30 @@
       "beastSpice": 0,
       "witchMeat": 0,
       "witchVegetable": 0,
-      "witchSpice": 0
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
+    },
+    "dwarven_flame_wine": {
+      "name": "Dwarven Flame Wine",
+      "defaultStars": 1,
+      "defaultPrice": 0,
+      "clownMeat": 0,
+      "clownVegetable": 0,
+      "clownSpice": 0,
+      "miracMeat": 0,
+      "miracVegetable": 0,
+      "miracSpice": 0,
+      "beastMeat": 5,
+      "beastVegetable": 0,
+      "beastSpice": 0,
+      "witchMeat": 0,
+      "witchVegetable": 0,
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
     },
     "bane_spider_pudding": {
       "name": "Bane Spider Pudding",
@@ -474,7 +555,10 @@
       "beastSpice": 0,
       "witchMeat": 0,
       "witchVegetable": 0,
-      "witchSpice": 0
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
     },
     "smoked_spider": {
       "name": "Smoked Spider",
@@ -491,7 +575,10 @@
       "beastSpice": 0,
       "witchMeat": 0,
       "witchVegetable": 0,
-      "witchSpice": 0
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
     },
     "dry_ice_soda": {
       "name": "Dry Ice Soda",
@@ -508,7 +595,10 @@
       "beastSpice": 0,
       "witchMeat": 0,
       "witchVegetable": 0,
-      "witchSpice": 0
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
     },
     "pickled_deathcaller": {
       "name": "Pickled Deathcaller",
@@ -525,7 +615,10 @@
       "beastSpice": 0,
       "witchMeat": 0,
       "witchVegetable": 0,
-      "witchSpice": 0
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
     },
     "braised_wolfclaw": {
       "name": "Braised Wolfclaw",
@@ -542,7 +635,10 @@
       "beastSpice": 0,
       "witchMeat": 0,
       "witchVegetable": 0,
-      "witchSpice": 0
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
     },
     "fried_fire_dragon_egg": {
       "name": "Fried Fire Dragon Egg",
@@ -559,7 +655,10 @@
       "beastSpice": 0,
       "witchMeat": 0,
       "witchVegetable": 0,
-      "witchSpice": 0
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
     },
     "siliconmon_shortcake": {
       "name": "Siliconmon Shortcake",
@@ -576,7 +675,10 @@
       "beastSpice": 1,
       "witchMeat": 0,
       "witchVegetable": 0,
-      "witchSpice": 0
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
     },
     "pufferfish_mousse": {
       "name": "Pufferfish Mousse",
@@ -593,7 +695,10 @@
       "beastSpice": 3,
       "witchMeat": 0,
       "witchVegetable": 0,
-      "witchSpice": 0
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
     },
     "elf_noodle": {
       "name": "Elf Noodle",
@@ -610,7 +715,10 @@
       "beastSpice": 5,
       "witchMeat": 0,
       "witchVegetable": 0,
-      "witchSpice": 0
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
     },
     "smoked_cerberus": {
       "name": "Smoked Cerberus",
@@ -627,7 +735,10 @@
       "beastSpice": 0,
       "witchMeat": 1,
       "witchVegetable": 0,
-      "witchSpice": 0
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
     },
     "slug_jelly": {
       "name": "Slug Jelly",
@@ -644,7 +755,10 @@
       "beastSpice": 0,
       "witchMeat": 3,
       "witchVegetable": 0,
-      "witchSpice": 0
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
     },
     "dragonhorn_bun": {
       "name": "Dragonhorn Bun",
@@ -661,7 +775,10 @@
       "beastSpice": 0,
       "witchMeat": 5,
       "witchVegetable": 0,
-      "witchSpice": 0
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
     },
     "worm_with_truffle": {
       "name": "Worm with Truffle",
@@ -678,7 +795,410 @@
       "beastSpice": 0,
       "witchMeat": 2,
       "witchVegetable": 1,
-      "witchSpice": 0
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
+    },
+    "steel_baked_dire_bird": {
+      "name": "Steel Baked Dire Bird",
+      "defaultStars": 1,
+      "defaultPrice": 0,
+      "clownMeat": 0,
+      "clownVegetable": 0,
+      "clownSpice": 0,
+      "miracMeat": 0,
+      "miracVegetable": 0,
+      "miracSpice": 0,
+      "beastMeat": 0,
+      "beastVegetable": 0,
+      "beastSpice": 0,
+      "witchMeat": 3,
+      "witchVegetable": 2,
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
+    },
+    "ghoul_salad": {
+      "name": "Ghoul Salad",
+      "defaultStars": 1,
+      "defaultPrice": 0,
+      "clownMeat": 0,
+      "clownVegetable": 0,
+      "clownSpice": 0,
+      "miracMeat": 0,
+      "miracVegetable": 0,
+      "miracSpice": 0,
+      "beastMeat": 0,
+      "beastVegetable": 0,
+      "beastSpice": 0,
+      "witchMeat": 4,
+      "witchVegetable": 2,
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
+    },
+    "fried_burrowing_bug": {
+      "name": "Fried Burrowing Bug",
+      "defaultStars": 1,
+      "defaultPrice": 0,
+      "clownMeat": 0,
+      "clownVegetable": 0,
+      "clownSpice": 0,
+      "miracMeat": 0,
+      "miracVegetable": 0,
+      "miracSpice": 0,
+      "beastMeat": 0,
+      "beastVegetable": 0,
+      "beastSpice": 0,
+      "witchMeat": 6,
+      "witchVegetable": 3,
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
+    },
+    "witch_r08": {
+      "name": "Blanched Chimera",
+      "defaultStars": 1,
+      "defaultPrice": 0,
+      "clownMeat": 0,
+      "clownVegetable": 0,
+      "clownSpice": 0,
+      "miracMeat": 0,
+      "miracVegetable": 0,
+      "miracSpice": 0,
+      "beastMeat": 0,
+      "beastVegetable": 0,
+      "beastSpice": 0,
+      "witchMeat": 8,
+      "witchVegetable": 4,
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
+    },
+    "witch_r09": {
+      "name": "Petroleum Trotter",
+      "defaultStars": 1,
+      "defaultPrice": 0,
+      "clownMeat": 0,
+      "clownVegetable": 0,
+      "clownSpice": 0,
+      "miracMeat": 0,
+      "miracVegetable": 0,
+      "miracSpice": 0,
+      "beastMeat": 0,
+      "beastVegetable": 0,
+      "beastSpice": 0,
+      "witchMeat": 10,
+      "witchVegetable": 6,
+      "witchSpice": 0,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
+    },
+    "witch_r10": {
+      "name": "Chilled BBQ Manticore Tail",
+      "defaultStars": 1,
+      "defaultPrice": 0,
+      "clownMeat": 0,
+      "clownVegetable": 0,
+      "clownSpice": 0,
+      "miracMeat": 0,
+      "miracVegetable": 0,
+      "miracSpice": 0,
+      "beastMeat": 0,
+      "beastVegetable": 0,
+      "beastSpice": 0,
+      "witchMeat": 5,
+      "witchVegetable": 2,
+      "witchSpice": 1,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
+    },
+    "witch_r11": {
+      "name": "Elemental Ice-cream",
+      "defaultStars": 1,
+      "defaultPrice": 0,
+      "clownMeat": 0,
+      "clownVegetable": 0,
+      "clownSpice": 0,
+      "miracMeat": 0,
+      "miracVegetable": 0,
+      "miracSpice": 0,
+      "beastMeat": 0,
+      "beastVegetable": 0,
+      "beastSpice": 0,
+      "witchMeat": 8,
+      "witchVegetable": 5,
+      "witchSpice": 3,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
+    },
+    "witch_r12": {
+      "name": "Witch Recipe (20/10/5)",
+      "defaultStars": 1,
+      "defaultPrice": 0,
+      "clownMeat": 0,
+      "clownVegetable": 0,
+      "clownSpice": 0,
+      "miracMeat": 0,
+      "miracVegetable": 0,
+      "miracSpice": 0,
+      "beastMeat": 0,
+      "beastVegetable": 0,
+      "beastSpice": 0,
+      "witchMeat": 20,
+      "witchVegetable": 10,
+      "witchSpice": 5,
+      "edenMeat": 0,
+      "edenVegetable": 0,
+      "edenSpice": 0
+    },
+    "fried_boom_conch": {
+      "name": "Fried Boom Conch",
+      "defaultStars": 1,
+      "defaultPrice": 0,
+      "clownMeat": 0,
+      "clownVegetable": 0,
+      "clownSpice": 0,
+      "miracMeat": 0,
+      "miracVegetable": 0,
+      "miracSpice": 0,
+      "beastMeat": 0,
+      "beastVegetable": 0,
+      "beastSpice": 0,
+      "witchMeat": 0,
+      "witchVegetable": 0,
+      "witchSpice": 0,
+      "edenMeat": 1,
+      "edenVegetable": 0,
+      "edenSpice": 0
+    },
+    "steamed_titan": {
+      "name": "Steamed Titan",
+      "defaultStars": 1,
+      "defaultPrice": 0,
+      "clownMeat": 0,
+      "clownVegetable": 0,
+      "clownSpice": 0,
+      "miracMeat": 0,
+      "miracVegetable": 0,
+      "miracSpice": 0,
+      "beastMeat": 0,
+      "beastVegetable": 0,
+      "beastSpice": 0,
+      "witchMeat": 0,
+      "witchVegetable": 0,
+      "witchSpice": 0,
+      "edenMeat": 3,
+      "edenVegetable": 0,
+      "edenSpice": 0
+    },
+    "eden_r03": {
+      "name": "Eden Recipe (5)",
+      "defaultStars": 1,
+      "defaultPrice": 0,
+      "clownMeat": 0,
+      "clownVegetable": 0,
+      "clownSpice": 0,
+      "miracMeat": 0,
+      "miracVegetable": 0,
+      "miracSpice": 0,
+      "beastMeat": 0,
+      "beastVegetable": 0,
+      "beastSpice": 0,
+      "witchMeat": 0,
+      "witchVegetable": 0,
+      "witchSpice": 0,
+      "edenMeat": 5,
+      "edenVegetable": 0,
+      "edenSpice": 0
+    },
+    "eden_r04": {
+      "name": "Eden Recipe (2/1)",
+      "defaultStars": 1,
+      "defaultPrice": 0,
+      "clownMeat": 0,
+      "clownVegetable": 0,
+      "clownSpice": 0,
+      "miracMeat": 0,
+      "miracVegetable": 0,
+      "miracSpice": 0,
+      "beastMeat": 0,
+      "beastVegetable": 0,
+      "beastSpice": 0,
+      "witchMeat": 0,
+      "witchVegetable": 0,
+      "witchSpice": 0,
+      "edenMeat": 2,
+      "edenVegetable": 1,
+      "edenSpice": 0
+    },
+    "eden_r05": {
+      "name": "Eden Recipe (3/2)",
+      "defaultStars": 1,
+      "defaultPrice": 0,
+      "clownMeat": 0,
+      "clownVegetable": 0,
+      "clownSpice": 0,
+      "miracMeat": 0,
+      "miracVegetable": 0,
+      "miracSpice": 0,
+      "beastMeat": 0,
+      "beastVegetable": 0,
+      "beastSpice": 0,
+      "witchMeat": 0,
+      "witchVegetable": 0,
+      "witchSpice": 0,
+      "edenMeat": 3,
+      "edenVegetable": 2,
+      "edenSpice": 0
+    },
+    "eden_r06": {
+      "name": "Eden Recipe (4/2)",
+      "defaultStars": 1,
+      "defaultPrice": 0,
+      "clownMeat": 0,
+      "clownVegetable": 0,
+      "clownSpice": 0,
+      "miracMeat": 0,
+      "miracVegetable": 0,
+      "miracSpice": 0,
+      "beastMeat": 0,
+      "beastVegetable": 0,
+      "beastSpice": 0,
+      "witchMeat": 0,
+      "witchVegetable": 0,
+      "witchSpice": 0,
+      "edenMeat": 4,
+      "edenVegetable": 2,
+      "edenSpice": 0
+    },
+    "eden_r07": {
+      "name": "Eden Recipe (6/3)",
+      "defaultStars": 1,
+      "defaultPrice": 0,
+      "clownMeat": 0,
+      "clownVegetable": 0,
+      "clownSpice": 0,
+      "miracMeat": 0,
+      "miracVegetable": 0,
+      "miracSpice": 0,
+      "beastMeat": 0,
+      "beastVegetable": 0,
+      "beastSpice": 0,
+      "witchMeat": 0,
+      "witchVegetable": 0,
+      "witchSpice": 0,
+      "edenMeat": 6,
+      "edenVegetable": 3,
+      "edenSpice": 0
+    },
+    "eden_r08": {
+      "name": "Eden Recipe (8/4)",
+      "defaultStars": 1,
+      "defaultPrice": 0,
+      "clownMeat": 0,
+      "clownVegetable": 0,
+      "clownSpice": 0,
+      "miracMeat": 0,
+      "miracVegetable": 0,
+      "miracSpice": 0,
+      "beastMeat": 0,
+      "beastVegetable": 0,
+      "beastSpice": 0,
+      "witchMeat": 0,
+      "witchVegetable": 0,
+      "witchSpice": 0,
+      "edenMeat": 8,
+      "edenVegetable": 4,
+      "edenSpice": 0
+    },
+    "eden_r09": {
+      "name": "Eden Recipe (10/6)",
+      "defaultStars": 1,
+      "defaultPrice": 0,
+      "clownMeat": 0,
+      "clownVegetable": 0,
+      "clownSpice": 0,
+      "miracMeat": 0,
+      "miracVegetable": 0,
+      "miracSpice": 0,
+      "beastMeat": 0,
+      "beastVegetable": 0,
+      "beastSpice": 0,
+      "witchMeat": 0,
+      "witchVegetable": 0,
+      "witchSpice": 0,
+      "edenMeat": 10,
+      "edenVegetable": 6,
+      "edenSpice": 0
+    },
+    "eden_r10": {
+      "name": "Eden Recipe (5/2/1)",
+      "defaultStars": 1,
+      "defaultPrice": 0,
+      "clownMeat": 0,
+      "clownVegetable": 0,
+      "clownSpice": 0,
+      "miracMeat": 0,
+      "miracVegetable": 0,
+      "miracSpice": 0,
+      "beastMeat": 0,
+      "beastVegetable": 0,
+      "beastSpice": 0,
+      "witchMeat": 0,
+      "witchVegetable": 0,
+      "witchSpice": 0,
+      "edenMeat": 5,
+      "edenVegetable": 2,
+      "edenSpice": 1
+    },
+    "eden_r11": {
+      "name": "Eden Recipe (8/5/3)",
+      "defaultStars": 1,
+      "defaultPrice": 0,
+      "clownMeat": 0,
+      "clownVegetable": 0,
+      "clownSpice": 0,
+      "miracMeat": 0,
+      "miracVegetable": 0,
+      "miracSpice": 0,
+      "beastMeat": 0,
+      "beastVegetable": 0,
+      "beastSpice": 0,
+      "witchMeat": 0,
+      "witchVegetable": 0,
+      "witchSpice": 0,
+      "edenMeat": 8,
+      "edenVegetable": 5,
+      "edenSpice": 3
+    },
+    "eden_r12": {
+      "name": "Eden Recipe (20/10/5)",
+      "defaultStars": 1,
+      "defaultPrice": 0,
+      "clownMeat": 0,
+      "clownVegetable": 0,
+      "clownSpice": 0,
+      "miracMeat": 0,
+      "miracVegetable": 0,
+      "miracSpice": 0,
+      "beastMeat": 0,
+      "beastVegetable": 0,
+      "beastSpice": 0,
+      "witchMeat": 0,
+      "witchVegetable": 0,
+      "witchSpice": 0,
+      "edenMeat": 20,
+      "edenVegetable": 10,
+      "edenSpice": 5
     }
   },
   "order": [
@@ -702,8 +1222,8 @@
     "sea_salt_cheese",
     "mosasaur_teppanyaki",
     "stir_fried_sea_snake",
-    "sour_merman_fin",
     "fermented_squid",
+    "sour_merman_fin",
     "grilled_horn_shark",
     "naga_fin_soup",
     "bite_back_biscuits",
@@ -721,6 +1241,26 @@
     "smoked_cerberus",
     "slug_jelly",
     "dragonhorn_bun",
-    "worm_with_truffle"
+    "worm_with_truffle",
+    "steel_baked_dire_bird",
+    "ghoul_salad",
+    "fried_burrowing_bug",
+    "witch_r08",
+    "witch_r09",
+    "witch_r10",
+    "witch_r11",
+    "witch_r12",
+    "fried_boom_conch",
+    "steamed_titan",
+    "eden_r03",
+    "eden_r04",
+    "eden_r05",
+    "eden_r06",
+    "eden_r07",
+    "eden_r08",
+    "eden_r09",
+    "eden_r10",
+    "eden_r11",
+    "eden_r12"
   ]
 }

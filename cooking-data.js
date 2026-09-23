@@ -21,7 +21,7 @@ const RECIPE_TIERS = [
 const COOKING_RECIPES = {};
 
 // Register one vendor's recipes. `prefix` is the ingredient-field prefix
-// ("clown" | "mirac" | "beast" | "witch"). entries[i] maps to RECIPE_TIERS[i].
+// ("clown" | "mirac" | "beast" | "witch" | "eden"). entries[i] maps to RECIPE_TIERS[i].
 //   entry = [id, name]                      -> ratio from the template by slot
 //   entry = [id, name, { meat, veg, spice }] -> override the template ratio
 //   entry = null                             -> empty slot (no recipe)
@@ -38,6 +38,7 @@ function defineVendor(prefix, entries) {
       miracMeat: 0, miracVegetable: 0, miracSpice: 0,
       beastMeat: 0, beastVegetable: 0, beastSpice: 0,
       witchMeat: 0, witchVegetable: 0, witchSpice: 0,
+      edenMeat: 0, edenVegetable: 0, edenSpice: 0,
     };
     COOKING_RECIPES[id][prefix + "Meat"]      = amt.meat  || 0;
     COOKING_RECIPES[id][prefix + "Vegetable"] = amt.veg   || 0;
@@ -112,6 +113,25 @@ defineVendor("witch", [
   ["witch_r12", "Witch Recipe (20/10/5)"],                      // 11 meat 20 / veg 10 / spice 5
 ]);
 
+// Eden Fresh Produce
+// Same placeholder convention as the witch tier: eden_r03+ carry the known
+// slot ratio so the calculator is usable now. To name one later, change ONLY
+// the name string and keep the id (ids are persisted in saved/exported configs).
+defineVendor("eden", [
+  ["fried_boom_conch", "Fried Boom Conch"],                     // 0  meat 1
+  ["steamed_titan",    "Steamed Titan"],                        // 1  meat 3
+  ["eden_r03", "Eden Recipe (5)"],                              // 2  meat 5
+  ["eden_r04", "Eden Recipe (2/1)"],                            // 3  meat 2 / veg 1
+  ["eden_r05", "Eden Recipe (3/2)"],                            // 4  meat 3 / veg 2
+  ["eden_r06", "Eden Recipe (4/2)"],                            // 5  meat 4 / veg 2
+  ["eden_r07", "Eden Recipe (6/3)"],                            // 6  meat 6 / veg 3
+  ["eden_r08", "Eden Recipe (8/4)"],                            // 7  meat 8 / veg 4
+  ["eden_r09", "Eden Recipe (10/6)"],                           // 8  meat 10 / veg 6
+  ["eden_r10", "Eden Recipe (5/2/1)"],                          // 9  meat 5 / veg 2 / spice 1
+  ["eden_r11", "Eden Recipe (8/5/3)"],                          // 10 meat 8 / veg 5 / spice 3
+  ["eden_r12", "Eden Recipe (20/10/5)"],                        // 11 meat 20 / veg 10 / spice 5
+]);
+
 // Default vendor configurations
 const DEFAULT_VENDORS = {
   clown: {
@@ -149,6 +169,17 @@ const DEFAULT_VENDORS = {
   },
   witch: {
     name: "Witch Alchemy Store",
+    enabled: true,
+    preset: "none",
+    meatEnabled: false,
+    meatRate: 0.00,
+    vegetableEnabled: false,
+    vegetableRate: 0.00,
+    spiceEnabled: false,
+    spiceRate: 0.00
+  },
+  eden: {
+    name: "Eden Fresh Produce",
     enabled: true,
     preset: "none",
     meatEnabled: false,
@@ -209,6 +240,16 @@ const DEFAULT_SHOP = {
     quantity: 0,
     cost: 750  // estimated (~1.25x beast spice cost of 600)
   },
+  edenVegetablePurchase: {
+    enabled: false,
+    quantity: 0,
+    cost: 560  // estimated (~1.25x witch vegetable cost of 450)
+  },
+  edenSpicePurchase: {
+    enabled: false,
+    quantity: 0,
+    cost: 940  // estimated (~1.25x witch spice cost of 750)
+  },
   skillBooks: {
     enabled: false,
     quantity: 0,
@@ -230,7 +271,10 @@ const MEGA_STEW_VALUES = {
   beastSpice: 260,       // 120-400 range, mid = 260
   witchMeat: 60.00,      // 20-100 range, mid = 60
   witchVegetable: 180,   // 60-300 range, mid = 180
-  witchSpice: 325        // ~150-500 range, mid = 325 (estimated, ~5.4x witch meat)
+  witchSpice: 325,       // ~150-500 range, mid = 325 (estimated, ~5.4x witch meat)
+  edenMeat: 72.00,       // ~24-120 range, mid = 72 (estimated, tier scaling: +12 per tier)
+  edenVegetable: 216,    // ~72-360 range, mid = 216 (estimated, 3x eden meat)
+  edenSpice: 390         // ~180-600 range, mid = 390 (estimated, ~5.4x eden meat)
 };
 
 // Display order is derived from registration order (vendor order, then slot

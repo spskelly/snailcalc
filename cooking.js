@@ -20,10 +20,13 @@ let cookingState = {
     beastSpice: 0,
     witchMeat: 0,
     witchVegetable: 0,
-    witchSpice: 0
+    witchSpice: 0,
+    edenMeat: 0,
+    edenVegetable: 0,
+    edenSpice: 0
   },
   dailySummaryVendor: 'clown',  // user-selected vendor for daily summary
-  unicornExpressLevel: 3        // linear vendor-unlock progression (1..12, extensible)
+  unicornExpressLevel: 3        // linear vendor-unlock progression (1..15, extensible)
 };
 
 // ============== VENDOR UNLOCK HELPERS ==============
@@ -36,8 +39,9 @@ const UNICORN_LADDER = [
   ['miraculand', 'meat'], ['miraculand', 'veg'], ['miraculand', 'spice'],
   ['beast', 'meat'], ['beast', 'veg'], ['beast', 'spice'],
   ['witch', 'meat'], ['witch', 'veg'], ['witch', 'spice'],
+  ['eden', 'meat'], ['eden', 'veg'], ['eden', 'spice'],
 ];
-const UNICORN_MAX_LEVEL = UNICORN_LADDER.length; // 12
+const UNICORN_MAX_LEVEL = UNICORN_LADDER.length; // 15
 
 // Rate distribution by how many of a vendor's ingredients are unlocked.
 const VENDOR_RATES_BY_COUNT = [
@@ -49,7 +53,7 @@ const VENDOR_RATES_BY_COUNT = [
 
 // How many ingredients each vendor has unlocked at the given level.
 function unicornUnlockCounts(level) {
-  const counts = { clown: 0, miraculand: 0, beast: 0, witch: 0 };
+  const counts = { clown: 0, miraculand: 0, beast: 0, witch: 0, eden: 0 };
   const n = Math.max(0, Math.min(level | 0, UNICORN_MAX_LEVEL));
   for (let i = 0; i < n; i++) counts[UNICORN_LADDER[i][0]]++;
   return counts;
@@ -84,7 +88,7 @@ function deriveUnicornLevel() {
 }
 
 function isVendorUnlocked(prefix) {
-  // prefix: 'clown' | 'mirac' | 'beast' | 'witch'
+  // prefix: 'clown' | 'mirac' | 'beast' | 'witch' | 'eden'
   if (prefix === 'clown') return true; // level >= 1 always unlocks clown meat
   const key = prefix === 'mirac' ? 'miraculand' : prefix;
   const v = cookingState.vendors && cookingState.vendors[key];
@@ -111,12 +115,14 @@ function attachVendorConfigListeners(root) {
     el.addEventListener('change', (e) => {
       const prevUnlocks = {
         clown: isVendorUnlocked('clown'), mirac: isVendorUnlocked('mirac'),
-        beast: isVendorUnlocked('beast'), witch: isVendorUnlocked('witch')
+        beast: isVendorUnlocked('beast'), witch: isVendorUnlocked('witch'),
+        eden: isVendorUnlocked('eden')
       };
       updateVendorState(root);
       const nextUnlocks = {
         clown: isVendorUnlocked('clown'), mirac: isVendorUnlocked('mirac'),
-        beast: isVendorUnlocked('beast'), witch: isVendorUnlocked('witch')
+        beast: isVendorUnlocked('beast'), witch: isVendorUnlocked('witch'),
+        eden: isVendorUnlocked('eden')
       };
       const unlockChanged = Object.keys(prevUnlocks).some(k => prevUnlocks[k] !== nextUnlocks[k]);
       // Level changes alter the rate subtitles/lock state -> rebuild the cards
@@ -263,6 +269,10 @@ function buildDailySummary(root) {
               <input type="radio" name="daily-vendor-select" value="witch">
               🧙 Witch
             </label>
+            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; font-size: 0.9em;">
+              <input type="radio" name="daily-vendor-select" value="eden">
+              😇 Eden
+            </label>
           </div>
         </div>
         <span class="daily-summary-subtitle">Based on 24 hours of passive supply order generation</span>
@@ -284,6 +294,7 @@ function updateDailySummary(root) {
   const mirac = cookingState.vendors.miraculand;
   const beast = cookingState.vendors.beast;
   const witch = cookingState.vendors.witch;
+  const eden = cookingState.vendors.eden;
 
   // Check if we have any enabled recipes
   if (results.length === 0) {
@@ -301,11 +312,12 @@ function updateDailySummary(root) {
   const totalDailyOrders = baseOrdersPerDay + bonusOrders;
   
   // Use user-selected vendor from toggle
-  const selectedVendor = cookingState.dailySummaryVendor; // 'clown', 'miraculand', 'beast', or 'witch'
+  const selectedVendor = cookingState.dailySummaryVendor; // 'clown', 'miraculand', 'beast', 'witch', or 'eden'
   const usesClown = selectedVendor === 'clown';
   const usesMirac = selectedVendor === 'miraculand';
   const usesBeast = selectedVendor === 'beast';
   const usesWitch = selectedVendor === 'witch';
+  const usesEden = selectedVendor === 'eden';
   
   // Shop costs - only include vendor-agnostic items and items matching selected vendor
   let shopCosts = 0;
@@ -338,6 +350,13 @@ function updateDailySummary(root) {
     if (shop.witchSpicePurchase.enabled && shop.witchSpicePurchase.quantity > 0) {
       shopCosts += shop.witchSpicePurchase.quantity * shop.witchSpicePurchase.cost;
     }
+  } else if (usesEden) {
+    if (shop.edenVegetablePurchase.enabled && shop.edenVegetablePurchase.quantity > 0) {
+      shopCosts += shop.edenVegetablePurchase.quantity * shop.edenVegetablePurchase.cost;
+    }
+    if (shop.edenSpicePurchase.enabled && shop.edenSpicePurchase.quantity > 0) {
+      shopCosts += shop.edenSpicePurchase.quantity * shop.edenSpicePurchase.cost;
+    }
   }
   
   // === STEP 1: Calculate total daily ingredients from vendor ===
@@ -353,7 +372,10 @@ function updateDailySummary(root) {
     beastSpice: 0,
     witchMeat: 0,
     witchVegetable: 0,
-    witchSpice: 0
+    witchSpice: 0,
+    edenMeat: 0,
+    edenVegetable: 0,
+    edenSpice: 0
   };
   
   // Generate ingredients from all supply orders based on selected vendor
@@ -402,6 +424,17 @@ function updateDailySummary(root) {
     }
     if (shop.witchSpicePurchase.enabled) {
       dailyIngredients.witchSpice += shop.witchSpicePurchase.quantity;
+    }
+  } else if (usesEden) {
+    dailyIngredients.edenMeat = totalDailyOrders * eden.meatRate;
+    dailyIngredients.edenVegetable = totalDailyOrders * eden.vegetableRate;
+    dailyIngredients.edenSpice = totalDailyOrders * eden.spiceRate;
+
+    if (shop.edenVegetablePurchase.enabled) {
+      dailyIngredients.edenVegetable += shop.edenVegetablePurchase.quantity;
+    }
+    if (shop.edenSpicePurchase.enabled) {
+      dailyIngredients.edenSpice += shop.edenSpicePurchase.quantity;
     }
   }
   
@@ -473,7 +506,15 @@ function updateDailySummary(root) {
               ${witch.spiceRate > 0 ? `<span>🌶️: ${formatIngredient(totalDailyOrders * witch.spiceRate)}</span>` : ''}
             </div>
           ` : ''}
-          ${(usesClown && (shop.vegetablePurchase.enabled && shop.vegetablePurchase.quantity > 0 || shop.spicePurchase.enabled && shop.spicePurchase.quantity > 0)) || (usesMirac && (shop.miracVegetablePurchase.enabled && shop.miracVegetablePurchase.quantity > 0 || shop.miracSpicePurchase.enabled && shop.miracSpicePurchase.quantity > 0)) || (usesBeast && (shop.beastVegetablePurchase.enabled && shop.beastVegetablePurchase.quantity > 0 || shop.beastSpicePurchase.enabled && shop.beastSpicePurchase.quantity > 0)) || (usesWitch && (shop.witchVegetablePurchase.enabled && shop.witchVegetablePurchase.quantity > 0 || shop.witchSpicePurchase.enabled && shop.witchSpicePurchase.quantity > 0)) ? `
+          ${usesEden ? `
+            <div style="margin-bottom: 6px;"><strong>😇 Eden Fresh Produce:</strong></div>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-left: 8px;">
+              <span>🥩: ${formatIngredient(totalDailyOrders * eden.meatRate)}</span>
+              ${eden.vegetableRate > 0 ? `<span>🥬: ${formatIngredient(totalDailyOrders * eden.vegetableRate)}</span>` : ''}
+              ${eden.spiceRate > 0 ? `<span>🌶️: ${formatIngredient(totalDailyOrders * eden.spiceRate)}</span>` : ''}
+            </div>
+          ` : ''}
+          ${(usesClown && (shop.vegetablePurchase.enabled && shop.vegetablePurchase.quantity > 0 || shop.spicePurchase.enabled && shop.spicePurchase.quantity > 0)) || (usesMirac && (shop.miracVegetablePurchase.enabled && shop.miracVegetablePurchase.quantity > 0 || shop.miracSpicePurchase.enabled && shop.miracSpicePurchase.quantity > 0)) || (usesBeast && (shop.beastVegetablePurchase.enabled && shop.beastVegetablePurchase.quantity > 0 || shop.beastSpicePurchase.enabled && shop.beastSpicePurchase.quantity > 0)) || (usesWitch && (shop.witchVegetablePurchase.enabled && shop.witchVegetablePurchase.quantity > 0 || shop.witchSpicePurchase.enabled && shop.witchSpicePurchase.quantity > 0)) || (usesEden && (shop.edenVegetablePurchase.enabled && shop.edenVegetablePurchase.quantity > 0 || shop.edenSpicePurchase.enabled && shop.edenSpicePurchase.quantity > 0)) ? `
             <div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed #ccc;">
               <div style="margin-bottom: 6px;"><strong>🛒 Shop Purchases:</strong></div>
               <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-left: 8px;">
@@ -485,6 +526,8 @@ function updateDailySummary(root) {
                 ${usesBeast && shop.beastSpicePurchase.enabled && shop.beastSpicePurchase.quantity > 0 ? `<span>🌶️: ${formatIngredient(shop.beastSpicePurchase.quantity)}</span>` : ''}
                 ${usesWitch && shop.witchVegetablePurchase.enabled && shop.witchVegetablePurchase.quantity > 0 ? `<span>🥬: ${formatIngredient(shop.witchVegetablePurchase.quantity)}</span>` : ''}
                 ${usesWitch && shop.witchSpicePurchase.enabled && shop.witchSpicePurchase.quantity > 0 ? `<span>🌶️: ${formatIngredient(shop.witchSpicePurchase.quantity)}</span>` : ''}
+                ${usesEden && shop.edenVegetablePurchase.enabled && shop.edenVegetablePurchase.quantity > 0 ? `<span>🥬: ${formatIngredient(shop.edenVegetablePurchase.quantity)}</span>` : ''}
+                ${usesEden && shop.edenSpicePurchase.enabled && shop.edenSpicePurchase.quantity > 0 ? `<span>🌶️: ${formatIngredient(shop.edenSpicePurchase.quantity)}</span>` : ''}
               </div>
             </div>
           ` : ''}
@@ -531,6 +574,9 @@ function updateDailySummary(root) {
               ${Math.round(remaining.witchMeat) > 0 ? `<span>🥩: ${formatIngredient(remaining.witchMeat)} (w)</span>` : ''}
               ${Math.round(remaining.witchVegetable) > 0 ? `<span>🥬: ${formatIngredient(remaining.witchVegetable)} (w)</span>` : ''}
               ${Math.round(remaining.witchSpice) > 0 ? `<span>🌶️: ${formatIngredient(remaining.witchSpice)} (w)</span>` : ''}
+              ${Math.round(remaining.edenMeat) > 0 ? `<span>🥩: ${formatIngredient(remaining.edenMeat)} (e)</span>` : ''}
+              ${Math.round(remaining.edenVegetable) > 0 ? `<span>🥬: ${formatIngredient(remaining.edenVegetable)} (e)</span>` : ''}
+              ${Math.round(remaining.edenSpice) > 0 ? `<span>🌶️: ${formatIngredient(remaining.edenSpice)} (e)</span>` : ''}
             </div>
             <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ccc; text-align: center;">
               🍲 Mega Stew Value: <strong style="color: #2e7d32;">${Math.round(stewValue).toLocaleString()}g</strong>
@@ -638,6 +684,7 @@ function buildVendorConfig(root) {
   html += vendorCard('miraculand', 'Miraculand', '🌴');
   html += vendorCard('beast', "Orc Hunter's Tribe", '👹');
   html += vendorCard('witch', 'Witch Alchemy Store', '🧙');
+  html += vendorCard('eden', 'Eden Fresh Produce', '😇');
   html += '</div>'; // end grid
 
   html += '</div>'; // end panel-content
@@ -875,6 +922,46 @@ function buildShopConfig(root) {
   html += '</div>'; // end shop-row
   } // end witch unlock
 
+  // Row 6: Eden Fresh Produce vendor items
+  if (isVendorUnlocked('eden')) {
+  html += '<div class="shop-row">';
+  html += '<div class="shop-row-label">😇 Eden</div>';
+  html += '<div class="shop-row-items">';
+
+  // eden vegetable purchase
+  html += `
+    <div class="shop-item">
+      <label>
+        <input type="checkbox" id="shop-eden-vegetable-enabled" ${shop.edenVegetablePurchase.enabled ? 'checked' : ''}>
+        <strong>🥬 Vegetables</strong>
+      </label>
+      <div class="d-flex items-center gap-sm">
+        <label>Qty: <input type="number" id="shop-eden-vegetable-qty" value="${shop.edenVegetablePurchase.quantity}" min="0" max="5" step="1" class="form-control form-control-xs"></label>
+        <label>@ <span class="fixed-price">${shop.edenVegetablePurchase.cost}g</span> each <span style="font-size: 0.8em; color: #888;">(est.)</span></label>
+      </div>
+      <div class="shop-result" id="shop-eden-vegetable-result"></div>
+    </div>
+  `;
+
+  // eden spice purchase
+  html += `
+    <div class="shop-item">
+      <label>
+        <input type="checkbox" id="shop-eden-spice-enabled" ${shop.edenSpicePurchase.enabled ? 'checked' : ''}>
+        <strong>🌶️ Spice</strong>
+      </label>
+      <div class="d-flex items-center gap-sm">
+        <label>Qty: <input type="number" id="shop-eden-spice-qty" value="${shop.edenSpicePurchase.quantity}" min="0" max="5" step="1" class="form-control form-control-xs"></label>
+        <label>@ <span class="fixed-price">${shop.edenSpicePurchase.cost}g</span> each <span style="font-size: 0.8em; color: #888;">(est.)</span></label>
+      </div>
+      <div class="shop-result" id="shop-eden-spice-result"></div>
+    </div>
+  `;
+
+  html += '</div>'; // end shop-row-items
+  html += '</div>'; // end shop-row
+  } // end eden unlock
+
   html += '</div>'; // end shop-items-list
   html += '</div>'; // end shop-items-card
   
@@ -941,14 +1028,33 @@ function buildRecipeManager(root) {
     meatVeg: [],
     meatVegSpice: []
   };
+  const edenRecipes = {
+    meatOnly: [],
+    meatVeg: [],
+    meatVegSpice: []
+  };
 
   for (const id of RECIPE_ORDER) {
     const recipe = COOKING_RECIPES[id];
     const usesMirac = recipe.miracMeat > 0 || recipe.miracVegetable > 0 || recipe.miracSpice > 0;
     const usesBeast = recipe.beastMeat > 0 || recipe.beastVegetable > 0 || recipe.beastSpice > 0;
     const usesWitch = recipe.witchMeat > 0 || recipe.witchVegetable > 0 || recipe.witchSpice > 0;
+    const usesEden = recipe.edenMeat > 0 || recipe.edenVegetable > 0 || recipe.edenSpice > 0;
 
-    if (usesWitch) {
+    if (usesEden) {
+      // categorize eden (eden fresh produce) recipes
+      const hasMeat = recipe.edenMeat > 0;
+      const hasVeg = recipe.edenVegetable > 0;
+      const hasSpice = recipe.edenSpice > 0;
+
+      if (hasMeat && !hasVeg && !hasSpice) {
+        edenRecipes.meatOnly.push(id);
+      } else if (hasMeat && hasVeg && !hasSpice) {
+        edenRecipes.meatVeg.push(id);
+      } else if (hasMeat && hasVeg && hasSpice) {
+        edenRecipes.meatVegSpice.push(id);
+      }
+    } else if (usesWitch) {
       // Categorize witch (Witch Alchemy Store) recipes
       const hasMeat = recipe.witchMeat > 0;
       const hasVeg = recipe.witchVegetable > 0;
@@ -1007,6 +1113,7 @@ function buildRecipeManager(root) {
   const miracTotal = miracRecipes.meatOnly.length + miracRecipes.meatVeg.length + miracRecipes.meatVegSpice.length;
   const beastTotal = beastRecipes.meatOnly.length + beastRecipes.meatVeg.length + beastRecipes.meatVegSpice.length;
   const witchTotal = witchRecipes.meatOnly.length + witchRecipes.meatVeg.length + witchRecipes.meatVegSpice.length;
+  const edenTotal = edenRecipes.meatOnly.length + edenRecipes.meatVeg.length + edenRecipes.meatVegSpice.length;
 
   let html = '<div class="recipe-sections">';
 
@@ -1014,6 +1121,7 @@ function buildRecipeManager(root) {
   const miracCollapsed = getAccordionState('mirac-recipes') ? '' : ' collapsed';
   const beastCollapsed = getAccordionState('beast-recipes') ? '' : ' collapsed';
   const witchCollapsed = getAccordionState('witch-recipes') ? '' : ' collapsed';
+  const edenCollapsed = getAccordionState('eden-recipes') ? '' : ' collapsed';
   const rankingCollapsed = getAccordionState('optimal-ranking') ? '' : ' collapsed';
   
   // Clown recipes section (always unlocked)
@@ -1079,6 +1187,23 @@ function buildRecipeManager(root) {
           ${buildRecipeGroup('witch-meat-only', '🥩 Meat Only', witchRecipes.meatOnly, false, 'border-witch')}
           ${buildRecipeGroup('witch-meat-veg', '🥩🥬 Meat + Vegetable', witchRecipes.meatVeg, false, 'border-witch')}
           ${buildRecipeGroup('witch-meat-veg-spice', '🥩🥬🌶️ Meat + Vegetable + Spice', witchRecipes.meatVegSpice, false, 'border-witch')}
+        </div>
+      </div>
+    `;
+  }
+
+  // Eden Fresh Produce recipes section
+  if (isVendorUnlocked('eden') && edenTotal > 0) {
+    html += `
+      <div class="panel${edenCollapsed}" data-accordion-id="eden-recipes">
+        <div class="panel-header" onclick="toggleAccordion(this)">
+          <span class="panel-toggle">▼</span>
+          <h3 class="panel-title">😇 Eden Fresh Produce Recipes (${edenTotal})</h3>
+        </div>
+        <div class="panel-content">
+          ${buildRecipeGroup('eden-meat-only', '🥩 Meat Only', edenRecipes.meatOnly, false, 'border-eden')}
+          ${buildRecipeGroup('eden-meat-veg', '🥩🥬 Meat + Vegetable', edenRecipes.meatVeg, false, 'border-eden')}
+          ${buildRecipeGroup('eden-meat-veg-spice', '🥩🥬🌶️ Meat + Vegetable + Spice', edenRecipes.meatVegSpice, false, 'border-eden')}
         </div>
       </div>
     `;
@@ -1214,11 +1339,20 @@ function buildRecipeCards(recipeIds, isMirac, borderClass) {
     if (recipe.witchMeat > 0) {
       ingredientItems.push(`<span class="recipe-ingredient-item"><span class="ingredient-icon">🥩</span><span class="ingredient-amount">${recipe.witchMeat}</span></span>`);
     }
+    if (recipe.edenMeat > 0) {
+      ingredientItems.push(`<span class="recipe-ingredient-item"><span class="ingredient-icon">🥩</span><span class="ingredient-amount">${recipe.edenMeat}</span></span>`);
+    }
     if (recipe.witchVegetable > 0) {
       ingredientItems.push(`<span class="recipe-ingredient-item"><span class="ingredient-icon">🥬</span><span class="ingredient-amount">${recipe.witchVegetable}</span></span>`);
     }
+    if (recipe.edenVegetable > 0) {
+      ingredientItems.push(`<span class="recipe-ingredient-item"><span class="ingredient-icon">🥬</span><span class="ingredient-amount">${recipe.edenVegetable}</span></span>`);
+    }
     if (recipe.witchSpice > 0) {
       ingredientItems.push(`<span class="recipe-ingredient-item"><span class="ingredient-icon">🌶️</span><span class="ingredient-amount">${recipe.witchSpice}</span></span>`);
+    }
+    if (recipe.edenSpice > 0) {
+      ingredientItems.push(`<span class="recipe-ingredient-item"><span class="ingredient-icon">🌶️</span><span class="ingredient-amount">${recipe.edenSpice}</span></span>`);
     }
     const ingredientHtml = ingredientItems.join('');
     
@@ -1281,7 +1415,10 @@ function updateCurrentIngredients(root) {
     beastSpice: readOrKeep('current-beast-spice', 'beastSpice'),
     witchMeat: readOrKeep('current-witch-meat', 'witchMeat'),
     witchVegetable: readOrKeep('current-witch-vegetable', 'witchVegetable'),
-    witchSpice: readOrKeep('current-witch-spice', 'witchSpice')
+    witchSpice: readOrKeep('current-witch-spice', 'witchSpice'),
+    edenMeat: readOrKeep('current-eden-meat', 'edenMeat'),
+    edenVegetable: readOrKeep('current-eden-vegetable', 'edenVegetable'),
+    edenSpice: readOrKeep('current-eden-spice', 'edenSpice')
   };
 
   saveCookingToStorage();
@@ -1660,20 +1797,23 @@ function buildResultsDashboard(root) {
     { prefix: 'clown', label: '🤡 Clown', color: 'var(--vendor-clown-border, #1565c0)' },
     { prefix: 'mirac', label: '🌴 Miraculand', color: 'var(--vendor-mirac-border, #7b1fa2)' },
     { prefix: 'beast', label: "👹 Orc Hunter's Tribe", color: 'var(--vendor-beast-border, #c62828)' },
-    { prefix: 'witch', label: '🧙 Witch Alchemy', color: 'var(--vendor-witch-border, #2e7d32)' }
+    { prefix: 'witch', label: '🧙 Witch Alchemy', color: 'var(--vendor-witch-border, #2e7d32)' },
+    { prefix: 'eden', label: '😇 Eden Fresh Produce', color: 'var(--vendor-eden-border, #f9a825)' }
   ].filter(v => isVendorUnlocked(v.prefix));
 
   const inventoryFieldMap = {
     clown: { meat: 'clownMeat', veg: 'clownVegetable', spice: 'clownSpice' },
     mirac: { meat: 'miracMeat', veg: 'miracVegetable', spice: 'miracSpice' },
     beast: { meat: 'beastMeat', veg: 'beastVegetable', spice: 'beastSpice' },
-    witch: { meat: 'witchMeat', veg: 'witchVegetable', spice: 'witchSpice' }
+    witch: { meat: 'witchMeat', veg: 'witchVegetable', spice: 'witchSpice' },
+    eden: { meat: 'edenMeat', veg: 'edenVegetable', spice: 'edenSpice' }
   };
   const inventoryInputIdMap = {
     clown: { meat: 'current-clown-meat', veg: 'current-clown-vegetable', spice: 'current-clown-spice' },
     mirac: { meat: 'current-mirac-meat', veg: 'current-mirac-vegetable', spice: 'current-mirac-spice' },
     beast: { meat: 'current-beast-meat', veg: 'current-beast-vegetable', spice: 'current-beast-spice' },
-    witch: { meat: 'current-witch-meat', veg: 'current-witch-vegetable', spice: 'current-witch-spice' }
+    witch: { meat: 'current-witch-meat', veg: 'current-witch-vegetable', spice: 'current-witch-spice' },
+    eden: { meat: 'current-eden-meat', veg: 'current-eden-vegetable', spice: 'current-eden-spice' }
   };
 
   const inventoryRows = inventoryVendors.map(v => {
@@ -1752,7 +1892,8 @@ function buildResultsDashboard(root) {
     'clown-meat', 'clown-vegetable', 'clown-spice',
     'mirac-meat', 'mirac-vegetable', 'mirac-spice',
     'beast-meat', 'beast-vegetable', 'beast-spice',
-    'witch-meat', 'witch-vegetable', 'witch-spice'
+    'witch-meat', 'witch-vegetable', 'witch-spice',
+    'eden-meat', 'eden-vegetable', 'eden-spice'
   ].forEach(id => {
     const input = container.querySelector(`#current-${id}`);
     if (input) {
@@ -1873,6 +2014,14 @@ function updateShopState(root) {
   cookingState.shop.witchSpicePurchase.enabled = root.querySelector('#shop-witch-spice-enabled')?.checked ?? false;
   cookingState.shop.witchSpicePurchase.quantity = parseInt(root.querySelector('#shop-witch-spice-qty')?.value) || 0;
 
+  // eden vegetable purchase
+  cookingState.shop.edenVegetablePurchase.enabled = root.querySelector('#shop-eden-vegetable-enabled')?.checked ?? false;
+  cookingState.shop.edenVegetablePurchase.quantity = parseInt(root.querySelector('#shop-eden-vegetable-qty')?.value) || 0;
+
+  // eden spice purchase
+  cookingState.shop.edenSpicePurchase.enabled = root.querySelector('#shop-eden-spice-enabled')?.checked ?? false;
+  cookingState.shop.edenSpicePurchase.quantity = parseInt(root.querySelector('#shop-eden-spice-qty')?.value) || 0;
+
   // skill books purchase
   cookingState.shop.skillBooks.enabled = root.querySelector('#shop-skillbooks-enabled')?.checked ?? false;
   cookingState.shop.skillBooks.quantity = parseInt(root.querySelector('#shop-skillbooks-qty')?.value) || 0;
@@ -1915,7 +2064,7 @@ function calculatePhaseBasedSequence(ingredients, availableDishes) {
   // These recipes use vegetables, so we prioritize them to avoid wasting high-value veggies
   const vegetableDishes = availableDishes.filter(d => {
     const r = d.recipe;
-    return (r.clownVegetable > 0 || r.miracVegetable > 0 || r.beastVegetable > 0 || r.witchVegetable > 0);
+    return (r.clownVegetable > 0 || r.miracVegetable > 0 || r.beastVegetable > 0 || r.witchVegetable > 0 || r.edenVegetable > 0);
   }).sort((a, b) => b.goldPerOrder - a.goldPerOrder);
   
   for (const dish of vegetableDishes) {
@@ -1932,8 +2081,11 @@ function calculatePhaseBasedSequence(ingredients, availableDishes) {
     if (remaining.beastVegetable < recipe.beastVegetable) continue;
     if (remaining.beastSpice < recipe.beastSpice) continue;
     if (remaining.witchMeat < recipe.witchMeat) continue;
+    if (remaining.edenMeat < recipe.edenMeat) continue;
     if (remaining.witchVegetable < recipe.witchVegetable) continue;
+    if (remaining.edenVegetable < recipe.edenVegetable) continue;
     if (remaining.witchSpice < recipe.witchSpice) continue;
+    if (remaining.edenSpice < recipe.edenSpice) continue;
 
     // Calculate how many we can make
     const limits = [];
@@ -1947,8 +2099,11 @@ function calculatePhaseBasedSequence(ingredients, availableDishes) {
     if (recipe.beastVegetable > 0) limits.push(Math.floor(remaining.beastVegetable / recipe.beastVegetable));
     if (recipe.beastSpice > 0) limits.push(Math.floor(remaining.beastSpice / recipe.beastSpice));
     if (recipe.witchMeat > 0) limits.push(Math.floor(remaining.witchMeat / recipe.witchMeat));
+    if (recipe.edenMeat > 0) limits.push(Math.floor(remaining.edenMeat / recipe.edenMeat));
     if (recipe.witchVegetable > 0) limits.push(Math.floor(remaining.witchVegetable / recipe.witchVegetable));
+    if (recipe.edenVegetable > 0) limits.push(Math.floor(remaining.edenVegetable / recipe.edenVegetable));
     if (recipe.witchSpice > 0) limits.push(Math.floor(remaining.witchSpice / recipe.witchSpice));
+    if (recipe.edenSpice > 0) limits.push(Math.floor(remaining.edenSpice / recipe.edenSpice));
     
     const maxQuantity = limits.length > 0 ? Math.min(...limits) : 0;
     if (maxQuantity === 0) continue;
@@ -1968,8 +2123,11 @@ function calculatePhaseBasedSequence(ingredients, availableDishes) {
     if (recipe.beastVegetable > 0) limitDetails.push({ name: 'Vegetable', qty: remaining.beastVegetable / recipe.beastVegetable });
     if (recipe.beastSpice > 0) limitDetails.push({ name: 'Spice', qty: remaining.beastSpice / recipe.beastSpice });
     if (recipe.witchMeat > 0) limitDetails.push({ name: 'Meat', qty: remaining.witchMeat / recipe.witchMeat });
+    if (recipe.edenMeat > 0) limitDetails.push({ name: 'Meat', qty: remaining.edenMeat / recipe.edenMeat });
     if (recipe.witchVegetable > 0) limitDetails.push({ name: 'Vegetable', qty: remaining.witchVegetable / recipe.witchVegetable });
+    if (recipe.edenVegetable > 0) limitDetails.push({ name: 'Vegetable', qty: remaining.edenVegetable / recipe.edenVegetable });
     if (recipe.witchSpice > 0) limitDetails.push({ name: 'Spice', qty: remaining.witchSpice / recipe.witchSpice });
+    if (recipe.edenSpice > 0) limitDetails.push({ name: 'Spice', qty: remaining.edenSpice / recipe.edenSpice });
     
     if (limitDetails.length > 0) {
       limitDetails.sort((a, b) => a.qty - b.qty);
@@ -1999,17 +2157,20 @@ function calculatePhaseBasedSequence(ingredients, availableDishes) {
     remaining.beastVegetable -= maxQuantity * recipe.beastVegetable;
     remaining.beastSpice -= maxQuantity * recipe.beastSpice;
     remaining.witchMeat -= maxQuantity * recipe.witchMeat;
+    remaining.edenMeat -= maxQuantity * recipe.edenMeat;
     remaining.witchVegetable -= maxQuantity * recipe.witchVegetable;
+    remaining.edenVegetable -= maxQuantity * recipe.edenVegetable;
     remaining.witchSpice -= maxQuantity * recipe.witchSpice;
+    remaining.edenSpice -= maxQuantity * recipe.edenSpice;
   }
 
   // PHASE 2: Meat-only recipes (sorted by g/order)
   // These use excess meat that wasn't needed for vegetable recipes
   const meatOnlyDishes = availableDishes.filter(d => {
     const r = d.recipe;
-    const hasMeat = (r.clownMeat > 0 || r.miracMeat > 0 || r.beastMeat > 0 || r.witchMeat > 0);
-    const hasVeggie = (r.clownVegetable > 0 || r.miracVegetable > 0 || r.beastVegetable > 0 || r.witchVegetable > 0);
-    const hasSpice = (r.clownSpice > 0 || r.miracSpice > 0 || r.beastSpice > 0 || r.witchSpice > 0);
+    const hasMeat = (r.clownMeat > 0 || r.miracMeat > 0 || r.beastMeat > 0 || r.witchMeat > 0 || r.edenMeat > 0);
+    const hasVeggie = (r.clownVegetable > 0 || r.miracVegetable > 0 || r.beastVegetable > 0 || r.witchVegetable > 0 || r.edenVegetable > 0);
+    const hasSpice = (r.clownSpice > 0 || r.miracSpice > 0 || r.beastSpice > 0 || r.witchSpice > 0 || r.edenSpice > 0);
     return hasMeat && !hasVeggie && !hasSpice;
   }).sort((a, b) => b.goldPerOrder - a.goldPerOrder);
   
@@ -2021,6 +2182,7 @@ function calculatePhaseBasedSequence(ingredients, availableDishes) {
     if (remaining.miracMeat < recipe.miracMeat) continue;
     if (remaining.beastMeat < recipe.beastMeat) continue;
     if (remaining.witchMeat < recipe.witchMeat) continue;
+    if (remaining.edenMeat < recipe.edenMeat) continue;
 
     // Calculate how many we can make
     const limits = [];
@@ -2028,6 +2190,7 @@ function calculatePhaseBasedSequence(ingredients, availableDishes) {
     if (recipe.miracMeat > 0) limits.push(Math.floor(remaining.miracMeat / recipe.miracMeat));
     if (recipe.beastMeat > 0) limits.push(Math.floor(remaining.beastMeat / recipe.beastMeat));
     if (recipe.witchMeat > 0) limits.push(Math.floor(remaining.witchMeat / recipe.witchMeat));
+    if (recipe.edenMeat > 0) limits.push(Math.floor(remaining.edenMeat / recipe.edenMeat));
     
     const maxQuantity = limits.length > 0 ? Math.min(...limits) : 0;
     if (maxQuantity === 0) continue;
@@ -2051,6 +2214,7 @@ function calculatePhaseBasedSequence(ingredients, availableDishes) {
     remaining.miracMeat -= maxQuantity * recipe.miracMeat;
     remaining.beastMeat -= maxQuantity * recipe.beastMeat;
     remaining.witchMeat -= maxQuantity * recipe.witchMeat;
+    remaining.edenMeat -= maxQuantity * recipe.edenMeat;
   }
 
   // Ensure no negative values
@@ -2073,7 +2237,10 @@ function calculatePhaseBasedSequence(ingredients, availableDishes) {
     remaining.beastSpice * MEGA_STEW_VALUES.beastSpice +
     remaining.witchMeat * MEGA_STEW_VALUES.witchMeat +
     remaining.witchVegetable * MEGA_STEW_VALUES.witchVegetable +
-    remaining.witchSpice * MEGA_STEW_VALUES.witchSpice;
+    remaining.witchSpice * MEGA_STEW_VALUES.witchSpice +
+    remaining.edenMeat * MEGA_STEW_VALUES.edenMeat +
+    remaining.edenVegetable * MEGA_STEW_VALUES.edenVegetable +
+    remaining.edenSpice * MEGA_STEW_VALUES.edenSpice;
   
   return {
     sequence: productionSteps,
@@ -2093,6 +2260,7 @@ function recalculateCooking() {
   const mirac = cookingState.vendors.miraculand;
   const beast = cookingState.vendors.beast;
   const witch = cookingState.vendors.witch;
+  const eden = cookingState.vendors.eden;
 
   // calculate supply order costs per ingredient
   const supplyOrderCosts = {
@@ -2107,7 +2275,10 @@ function recalculateCooking() {
     beastSpice: beast.spiceEnabled && beast.spiceRate > 0 ? 1 / beast.spiceRate : Infinity,
     witchMeat: witch.meatEnabled && witch.meatRate > 0 ? 1 / witch.meatRate : Infinity,
     witchVegetable: witch.vegetableEnabled && witch.vegetableRate > 0 ? 1 / witch.vegetableRate : Infinity,
-    witchSpice: witch.spiceEnabled && witch.spiceRate > 0 ? 1 / witch.spiceRate : Infinity
+    witchSpice: witch.spiceEnabled && witch.spiceRate > 0 ? 1 / witch.spiceRate : Infinity,
+    edenMeat: eden.meatEnabled && eden.meatRate > 0 ? 1 / eden.meatRate : Infinity,
+    edenVegetable: eden.vegetableEnabled && eden.vegetableRate > 0 ? 1 / eden.vegetableRate : Infinity,
+    edenSpice: eden.spiceEnabled && eden.spiceRate > 0 ? 1 / eden.spiceRate : Infinity
   };
   
   // average gold per supply order for calculating ingredient values
@@ -2124,6 +2295,7 @@ function recalculateCooking() {
     const usesMirac = recipe.miracMeat > 0 || recipe.miracVegetable > 0 || recipe.miracSpice > 0;
     const usesBeast = recipe.beastMeat > 0 || recipe.beastVegetable > 0 || recipe.beastSpice > 0;
     const usesWitch = recipe.witchMeat > 0 || recipe.witchVegetable > 0 || recipe.witchSpice > 0;
+    const usesEden = recipe.edenMeat > 0 || recipe.edenVegetable > 0 || recipe.edenSpice > 0;
     
     // calculate supply orders needed for each ingredient
     let ordersNeeded = [];
@@ -2151,6 +2323,12 @@ function recalculateCooking() {
       if (recipe.witchMeat > 0) ordersNeeded.push({ type: 'Witch Meat', orders: recipe.witchMeat * supplyOrderCosts.witchMeat });
       if (recipe.witchVegetable > 0) ordersNeeded.push({ type: 'Witch Vegetable', orders: recipe.witchVegetable * supplyOrderCosts.witchVegetable });
       if (recipe.witchSpice > 0) ordersNeeded.push({ type: 'Witch Spice', orders: recipe.witchSpice * supplyOrderCosts.witchSpice });
+    }
+
+    if (usesEden) {
+      if (recipe.edenMeat > 0) ordersNeeded.push({ type: 'Eden Meat', orders: recipe.edenMeat * supplyOrderCosts.edenMeat });
+      if (recipe.edenVegetable > 0) ordersNeeded.push({ type: 'Eden Vegetable', orders: recipe.edenVegetable * supplyOrderCosts.edenVegetable });
+      if (recipe.edenSpice > 0) ordersNeeded.push({ type: 'Eden Spice', orders: recipe.edenSpice * supplyOrderCosts.edenSpice });
     }
 
     // find limiting ingredient (highest supply order cost)
@@ -2233,6 +2411,22 @@ function recalculateCooking() {
         excessWitchSpice * MEGA_STEW_VALUES.witchSpice;
     }
 
+    // 5. Calculate Eden Fresh Produce Byproducts (only if recipe uses Eden ingredients)
+    if (usesEden && (eden.meatEnabled || eden.vegetableEnabled || eden.spiceEnabled)) {
+      const expectedEdenMeat = totalOrders * eden.meatRate;
+      const expectedEdenVegetable = totalOrders * eden.vegetableRate;
+      const expectedEdenSpice = totalOrders * eden.spiceRate;
+
+      const excessEdenMeat = Math.max(0, expectedEdenMeat - recipe.edenMeat);
+      const excessEdenVegetable = Math.max(0, expectedEdenVegetable - recipe.edenVegetable);
+      const excessEdenSpice = Math.max(0, expectedEdenSpice - recipe.edenSpice);
+
+      byproductValue +=
+        excessEdenMeat * MEGA_STEW_VALUES.edenMeat +
+        excessEdenVegetable * MEGA_STEW_VALUES.edenVegetable +
+        excessEdenSpice * MEGA_STEW_VALUES.edenSpice;
+    }
+
     // calculate efficiency metrics
     const totalValue = price + byproductValue;
     const goldPerOrder = totalValue / totalOrders;
@@ -2246,13 +2440,13 @@ function recalculateCooking() {
       stars: state.stars,
       price,
       orders: totalOrders,
-      limiting: limitingIngredient.replace('Clown ', '').replace('Mirac ', '').replace('Beast ', '').replace('Witch ', ''),
+      limiting: limitingIngredient.replace('Clown ', '').replace('Mirac ', '').replace('Beast ', '').replace('Witch ', '').replace('Eden ', ''),
       byproductValue,
       totalValue,
       goldPerOrder,
       goldPerHour,
       dishesPerHour,
-      vendor: usesWitch ? 'Witch' : (usesBeast ? 'Orc' : (usesMirac ? 'Miraculand' : 'Clown'))
+      vendor: usesEden ? 'Eden' : usesWitch ? 'Witch' : (usesBeast ? 'Orc' : (usesMirac ? 'Miraculand' : 'Clown'))
     });
   }
   
@@ -2274,13 +2468,13 @@ function updateRankingTable(root, results) {
   if (!tbody) return;
   
   let html = '';
-  const vendorRowClass = { Clown: 'clown-row', Miraculand: 'mirac-row', Orc: 'beast-row', Witch: 'witch-row' };
+  const vendorRowClass = { Clown: 'clown-row', Miraculand: 'mirac-row', Orc: 'beast-row', Witch: 'witch-row', Eden: 'eden-row' };
   results.forEach((r, i) => {
     const rank = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1);
     const vendorClass = vendorRowClass[r.vendor] || '';
     
     // Get vendor icon
-    const vendorIcon = r.vendor === 'Clown' ? '🤡' : r.vendor === 'Miraculand' ? '🌴' : r.vendor === 'Witch' ? '🧙' : '👹';
+    const vendorIcon = r.vendor === 'Clown' ? '🤡' : r.vendor === 'Miraculand' ? '🌴' : r.vendor === 'Witch' ? '🧙' : r.vendor === 'Eden' ? '😇' : '👹';
     
     html += `
       <tr class="${vendorClass}">
@@ -2352,6 +2546,8 @@ function updateShopROI(root) {
   const beastSpiceResult = root.querySelector('#shop-beast-spice-result');
   const witchVegetableResult = root.querySelector('#shop-witch-vegetable-result');
   const witchSpiceResult = root.querySelector('#shop-witch-spice-result');
+  const edenVegetableResult = root.querySelector('#shop-eden-vegetable-result');
+  const edenSpiceResult = root.querySelector('#shop-eden-spice-result');
   if (supplyResult) supplyResult.innerHTML = '';
   if (vegetableResult) vegetableResult.innerHTML = '';
   if (spiceResult) spiceResult.innerHTML = '';
@@ -2361,6 +2557,8 @@ function updateShopROI(root) {
   if (beastSpiceResult) beastSpiceResult.innerHTML = '';
   if (witchVegetableResult) witchVegetableResult.innerHTML = '';
   if (witchSpiceResult) witchSpiceResult.innerHTML = '';
+  if (edenVegetableResult) edenVegetableResult.innerHTML = '';
+  if (edenSpiceResult) edenSpiceResult.innerHTML = '';
   
   // supply deals
   if (shop.supplyDeals.enabled && shop.supplyDeals.quantity > 0) {
@@ -2501,7 +2699,7 @@ function updateShopROI(root) {
     if (miracSpiceResult) miracSpiceResult.innerHTML = `<span class="${profitClass}">${profit >= 0 ? '+' : ''}${profit.toFixed(0).toLocaleString()}g (${roi}%)</span>`;
   }
   
-  // Orc (beast) & Witch purchases — same value model as the clown/mirac blocks
+  // Orc (beast), Witch & Eden purchases — same value model as the clown/mirac blocks
   // above: vegetables valued by supply-order savings, spice by Mega Stew value.
   const roiItem = (label, purchase, valueOf, resultEl) => {
     if (!purchase.enabled || purchase.quantity <= 0) return;
@@ -2535,6 +2733,10 @@ function updateShopROI(root) {
   roiItem('Witch Vegetables', shop.witchVegetablePurchase, (q) => q * witchVegOrderCost * topGoldPerOrder, witchVegetableResult);
   roiItem('Witch Spice', shop.witchSpicePurchase, (q) => q * MEGA_STEW_VALUES.witchSpice, witchSpiceResult);
 
+  const edenVegOrderCost = cookingState.vendors.eden.vegetableRate > 0 ? 1 / cookingState.vendors.eden.vegetableRate : 3.6;
+  roiItem('Eden Vegetables', shop.edenVegetablePurchase, (q) => q * edenVegOrderCost * topGoldPerOrder, edenVegetableResult);
+  roiItem('Eden Spice', shop.edenSpicePurchase, (q) => q * MEGA_STEW_VALUES.edenSpice, edenSpiceResult);
+
   // total
   if (totalCost > 0) {
     const totalROI = ((totalProfit / totalCost) * 100).toFixed(0);
@@ -2565,6 +2767,7 @@ function updateStrategySummary(root, results) {
   const mirac = cookingState.vendors.miraculand;
   const beast = cookingState.vendors.beast;
   const witch = cookingState.vendors.witch;
+  const eden = cookingState.vendors.eden;
 
   const baseOrdersPerHour = shop.supplyOrdersPerHour;
   const bonusOrders = shop.supplyDeals.enabled ? shop.supplyDeals.quantity * shop.supplyDeals.supplyOrdersEach : 0;
@@ -2592,7 +2795,10 @@ function updateStrategySummary(root, results) {
     beastSpice: 0,
     witchMeat: 0,
     witchVegetable: 0,
-    witchSpice: 0
+    witchSpice: 0,
+    edenMeat: 0,
+    edenVegetable: 0,
+    edenSpice: 0
   };
   const clownResult = calculatePhaseBasedSequence(clownIngredients, availableDishes);
   
@@ -2626,7 +2832,10 @@ function updateStrategySummary(root, results) {
     beastSpice: 0,
     witchMeat: 0,
     witchVegetable: 0,
-    witchSpice: 0
+    witchSpice: 0,
+    edenMeat: 0,
+    edenVegetable: 0,
+    edenSpice: 0
   };
   const miracResult = calculatePhaseBasedSequence(miracIngredients, availableDishes);
   
@@ -2660,7 +2869,10 @@ function updateStrategySummary(root, results) {
     beastSpice: dailyOrders * beast.spiceRate + (shop.beastSpicePurchase.enabled ? shop.beastSpicePurchase.quantity : 0),
     witchMeat: 0,
     witchVegetable: 0,
-    witchSpice: 0
+    witchSpice: 0,
+    edenMeat: 0,
+    edenVegetable: 0,
+    edenSpice: 0
   };
   const beastResult = calculatePhaseBasedSequence(beastIngredients, availableDishes);
 
@@ -2694,7 +2906,10 @@ function updateStrategySummary(root, results) {
     beastSpice: 0,
     witchMeat: dailyOrders * witch.meatRate,
     witchVegetable: dailyOrders * witch.vegetableRate + (shop.witchVegetablePurchase.enabled ? shop.witchVegetablePurchase.quantity : 0),
-    witchSpice: dailyOrders * witch.spiceRate + (shop.witchSpicePurchase.enabled ? shop.witchSpicePurchase.quantity : 0)
+    witchSpice: dailyOrders * witch.spiceRate + (shop.witchSpicePurchase.enabled ? shop.witchSpicePurchase.quantity : 0),
+    edenMeat: 0,
+    edenVegetable: 0,
+    edenSpice: 0
   };
   const witchResult = calculatePhaseBasedSequence(witchIngredients, availableDishes);
 
@@ -2715,12 +2930,50 @@ function updateStrategySummary(root, results) {
 
   const witchDailyGold = witchResult.totalGold + witchResult.stewValue - witchShopCosts;
 
-  // === DETERMINE OPTIMAL VENDOR (compare all four) ===
+  // === CALCULATE WITCH VENDOR SEQUENCE ===
+  const edenIngredients = {
+    clownMeat: 0,
+    clownVegetable: 0,
+    clownSpice: 0,
+    miracMeat: 0,
+    miracVegetable: 0,
+    miracSpice: 0,
+    beastMeat: 0,
+    beastVegetable: 0,
+    beastSpice: 0,
+    witchMeat: 0,
+    witchVegetable: 0,
+    witchSpice: 0,
+    edenMeat: dailyOrders * eden.meatRate,
+    edenVegetable: dailyOrders * eden.vegetableRate + (shop.edenVegetablePurchase.enabled ? shop.edenVegetablePurchase.quantity : 0),
+    edenSpice: dailyOrders * eden.spiceRate + (shop.edenSpicePurchase.enabled ? shop.edenSpicePurchase.quantity : 0)
+  };
+  const edenResult = calculatePhaseBasedSequence(edenIngredients, availableDishes);
+
+  // Calculate shop costs for Eden vendor
+  let edenShopCosts = 0;
+  if (shop.supplyDeals.enabled && shop.supplyDeals.quantity > 0) {
+    edenShopCosts += shop.supplyDeals.quantity * shop.supplyDeals.cost;
+  }
+  if (shop.skillBooks.enabled && shop.skillBooks.quantity > 0) {
+    edenShopCosts += shop.skillBooks.quantity * shop.skillBooks.cost;
+  }
+  if (shop.edenVegetablePurchase.enabled && shop.edenVegetablePurchase.quantity > 0) {
+    edenShopCosts += shop.edenVegetablePurchase.quantity * shop.edenVegetablePurchase.cost;
+  }
+  if (shop.edenSpicePurchase.enabled && shop.edenSpicePurchase.quantity > 0) {
+    edenShopCosts += shop.edenSpicePurchase.quantity * shop.edenSpicePurchase.cost;
+  }
+
+  const edenDailyGold = edenResult.totalGold + edenResult.stewValue - edenShopCosts;
+
+  // === DETERMINE OPTIMAL VENDOR (compare all five) ===
   const vendorGolds = [
     { name: 'Clown', gold: clownDailyGold, result: clownResult, emoji: '🤡' },
     { name: 'Miraculand', gold: miracDailyGold, result: miracResult, emoji: '🌴' },
     { name: 'Orc', gold: beastDailyGold, result: beastResult, emoji: '👹' },
-    { name: 'Witch', gold: witchDailyGold, result: witchResult, emoji: '🧙' }
+    { name: 'Witch', gold: witchDailyGold, result: witchResult, emoji: '🧙' },
+    { name: 'Eden', gold: edenDailyGold, result: edenResult, emoji: '😇' }
   ];
   
   // Sort by gold descending to find optimal
@@ -2812,7 +3065,10 @@ const INGREDIENT_RANGES = {
   beastSpice: { min: 120, max: 400, mid: 260 },
   witchMeat: { min: 20, max: 100, mid: 60.00 },
   witchVegetable: { min: 60, max: 300, mid: 180 },   // estimated
-  witchSpice: { min: 150, max: 500, mid: 325 }        // estimated
+  witchSpice: { min: 150, max: 500, mid: 325 },       // estimated
+  edenMeat: { min: 24, max: 120, mid: 72.00 },        // estimated (tier scaling)
+  edenVegetable: { min: 72, max: 360, mid: 216 },     // estimated
+  edenSpice: { min: 180, max: 600, mid: 390 }         // estimated
 };
 
 function updateStewCalculator(root) {
@@ -2920,7 +3176,7 @@ function updateStewCalculator(root) {
         </div>
 
         <!-- Witch Alchemy Store Vendor Row -->
-        <div class="ingredient-row-witch">
+        <div class="ingredient-row-witch" style="margin-bottom: 15px;">
           <div class="ingredient-row-label">🧙 Witch Alchemy Store <span style="font-size: 0.8em; color: #888; font-style: italic;">(veg/spice values estimated)</span></div>
           <div class="ingredient-row">
             <div class="card card-md ingredient-card border-witch" style="text-align: center;">
@@ -2944,6 +3200,36 @@ function updateStewCalculator(root) {
               <div style="font-size: 0.85em; color: #666;">
                 <div style="font-family: monospace; font-size: 0.9em; margin-bottom: 2px;">~150 - 500 gold</div>
                 <div>Est. Expected: 325.00</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Eden Fresh Produce Vendor Row -->
+        <div class="ingredient-row-eden">
+          <div class="ingredient-row-label">😇 Eden Fresh Produce <span style="font-size: 0.8em; color: #888; font-style: italic;">(values estimated)</span></div>
+          <div class="ingredient-row">
+            <div class="card card-md ingredient-card border-eden" style="text-align: center;">
+              <div style="font-weight: bold; margin-bottom: 4px;">🥩 Meat</div>
+              <div style="font-size: 0.85em; color: #666;">
+                <div style="font-family: monospace; font-size: 0.9em; margin-bottom: 2px;">~24 - 120 gold</div>
+                <div>Est. Expected: 72.00</div>
+              </div>
+            </div>
+
+            <div class="card card-md ingredient-card border-eden" style="text-align: center;">
+              <div style="font-weight: bold; margin-bottom: 4px;">🥬 Vegetable</div>
+              <div style="font-size: 0.85em; color: #666;">
+                <div style="font-family: monospace; font-size: 0.9em; margin-bottom: 2px;">~72 - 360 gold</div>
+                <div>Est. Expected: 216.00</div>
+              </div>
+            </div>
+
+            <div class="card card-md ingredient-card border-eden" style="text-align: center;">
+              <div style="font-weight: bold; margin-bottom: 4px;">🌶️ Spice</div>
+              <div style="font-size: 0.85em; color: #666;">
+                <div style="font-family: monospace; font-size: 0.9em; margin-bottom: 2px;">~180 - 600 gold</div>
+                <div>Est. Expected: 390.00</div>
               </div>
             </div>
           </div>
@@ -3048,7 +3334,10 @@ function calculateStewRanges(root) {
     beastSpice: parseInt(ingredientContainer.querySelector('#current-beast-spice')?.value) || 0,
     witchMeat: parseInt(ingredientContainer.querySelector('#current-witch-meat')?.value) || 0,
     witchVegetable: parseInt(ingredientContainer.querySelector('#current-witch-vegetable')?.value) || 0,
-    witchSpice: parseInt(ingredientContainer.querySelector('#current-witch-spice')?.value) || 0
+    witchSpice: parseInt(ingredientContainer.querySelector('#current-witch-spice')?.value) || 0,
+    edenMeat: parseInt(ingredientContainer.querySelector('#current-eden-meat')?.value) || 0,
+    edenVegetable: parseInt(ingredientContainer.querySelector('#current-eden-vegetable')?.value) || 0,
+    edenSpice: parseInt(ingredientContainer.querySelector('#current-eden-spice')?.value) || 0
   };
 
   const container = root.querySelector('#stew-calculator');
@@ -3397,10 +3686,20 @@ function refreshCookingUI(root) {
   if (witchVegetableEnabled) witchVegetableEnabled.checked = shop.witchVegetablePurchase.enabled;
   if (witchVegetableQty) witchVegetableQty.value = shop.witchVegetablePurchase.quantity;
 
+  const edenVegetableEnabled = root.querySelector('#shop-eden-vegetable-enabled');
+  const edenVegetableQty = root.querySelector('#shop-eden-vegetable-qty');
+  if (edenVegetableEnabled) edenVegetableEnabled.checked = shop.edenVegetablePurchase.enabled;
+  if (edenVegetableQty) edenVegetableQty.value = shop.edenVegetablePurchase.quantity;
+
   const witchSpiceEnabled = root.querySelector('#shop-witch-spice-enabled');
   const witchSpiceQty = root.querySelector('#shop-witch-spice-qty');
   if (witchSpiceEnabled) witchSpiceEnabled.checked = shop.witchSpicePurchase.enabled;
   if (witchSpiceQty) witchSpiceQty.value = shop.witchSpicePurchase.quantity;
+
+  const edenSpiceEnabled = root.querySelector('#shop-eden-spice-enabled');
+  const edenSpiceQty = root.querySelector('#shop-eden-spice-qty');
+  if (edenSpiceEnabled) edenSpiceEnabled.checked = shop.edenSpicePurchase.enabled;
+  if (edenSpiceQty) edenSpiceQty.value = shop.edenSpicePurchase.quantity;
 
   const skillBooksEnabled = root.querySelector('#shop-skillbooks-enabled');
   const skillBooksQty = root.querySelector('#shop-skillbooks-qty');
@@ -3441,7 +3740,10 @@ function refreshCookingUI(root) {
     'current-beast-spice': ing.beastSpice || 0,
     'current-witch-meat': ing.witchMeat || 0,
     'current-witch-vegetable': ing.witchVegetable || 0,
-    'current-witch-spice': ing.witchSpice || 0
+    'current-witch-spice': ing.witchSpice || 0,
+    'current-eden-meat': ing.edenMeat || 0,
+    'current-eden-vegetable': ing.edenVegetable || 0,
+    'current-eden-spice': ing.edenSpice || 0
   };
   
   for (const [inputId, value] of Object.entries(ingredientInputs)) {
@@ -3769,19 +4071,21 @@ function toggleShopRoiInfo() {
 
 // ============== RECIPE BATCH PLANNER ==============
 
-const BATCH_VENDOR_STATE_KEY = { clown: 'clown', mirac: 'miraculand', beast: 'beast', witch: 'witch' };
+const BATCH_VENDOR_STATE_KEY = { clown: 'clown', mirac: 'miraculand', beast: 'beast', witch: 'witch', eden: 'eden' };
 const BATCH_VENDOR_LABEL = {
   clown: '🤡 Clown',
   mirac: '🌴 Miraculand',
   beast: '👹 Orc Hunter\'s Tribe',
-  witch: '🧙 Witch Alchemy Store'
+  witch: '🧙 Witch Alchemy Store',
+  eden: '😇 Eden Fresh Produce'
 };
 const BATCH_TYPE_ICON = { Meat: '🥩', Vegetable: '🥬', Spice: '🌶️' };
 const BATCH_ALL_ING_KEYS = [
   'clownMeat', 'clownVegetable', 'clownSpice',
   'miracMeat', 'miracVegetable', 'miracSpice',
   'beastMeat', 'beastVegetable', 'beastSpice',
-  'witchMeat', 'witchVegetable', 'witchSpice'
+  'witchMeat', 'witchVegetable', 'witchSpice',
+  'edenMeat', 'edenVegetable', 'edenSpice'
 ];
 
 function getRecipeVendorPrefix(recipe) {
@@ -3789,6 +4093,7 @@ function getRecipeVendorPrefix(recipe) {
   if (recipe.miracMeat || recipe.miracVegetable || recipe.miracSpice) return 'mirac';
   if (recipe.beastMeat || recipe.beastVegetable || recipe.beastSpice) return 'beast';
   if (recipe.witchMeat || recipe.witchVegetable || recipe.witchSpice) return 'witch';
+  if (recipe.edenMeat || recipe.edenVegetable || recipe.edenSpice) return 'eden';
   return null;
 }
 
@@ -3801,7 +4106,8 @@ function computeVendorRatesPerHour(vendorPrefix) {
     clownMeat: 0, clownVegetable: 0, clownSpice: 0,
     miracMeat: 0, miracVegetable: 0, miracSpice: 0,
     beastMeat: 0, beastVegetable: 0, beastSpice: 0,
-    witchMeat: 0, witchVegetable: 0, witchSpice: 0
+    witchMeat: 0, witchVegetable: 0, witchSpice: 0,
+    edenMeat: 0, edenVegetable: 0, edenSpice: 0
   };
   const shop = cookingState.shop;
   const vendorKey = BATCH_VENDOR_STATE_KEY[vendorPrefix];
@@ -3823,7 +4129,8 @@ function computeVendorRatesPerHour(vendorPrefix) {
     clown: { veg: 'vegetablePurchase', spice: 'spicePurchase' },
     mirac: { veg: 'miracVegetablePurchase', spice: 'miracSpicePurchase' },
     beast: { veg: 'beastVegetablePurchase', spice: 'beastSpicePurchase' },
-    witch: { veg: 'witchVegetablePurchase', spice: 'witchSpicePurchase' }
+    witch: { veg: 'witchVegetablePurchase', spice: 'witchSpicePurchase' },
+    eden: { veg: 'edenVegetablePurchase', spice: 'edenSpicePurchase' }
   };
   const m = shopKeyMap[vendorPrefix];
   if (m) {
@@ -3918,7 +4225,7 @@ function buildBatchPlanner(root) {
   }
   const { recipeId, quantity } = cookingState.batchPlanner;
 
-  const vendorGroups = { clown: [], mirac: [], beast: [], witch: [] };
+  const vendorGroups = { clown: [], mirac: [], beast: [], witch: [], eden: [] };
   for (const id of RECIPE_ORDER) {
     const recipe = COOKING_RECIPES[id];
     if (!recipe) continue;
@@ -4051,7 +4358,8 @@ function updateBatchPlannerResults(root) {
     clownMeat: 0, clownVegetable: 0, clownSpice: 0,
     miracMeat: 0, miracVegetable: 0, miracSpice: 0,
     beastMeat: 0, beastVegetable: 0, beastSpice: 0,
-    witchMeat: 0, witchVegetable: 0, witchSpice: 0
+    witchMeat: 0, witchVegetable: 0, witchSpice: 0,
+    edenMeat: 0, edenVegetable: 0, edenSpice: 0
   };
   Object.assign(targetIngredients, plan.generated);
   // Deduct what the target recipe consumes.
@@ -4075,7 +4383,7 @@ function updateBatchPlannerResults(root) {
   const leftoverChips = Object.entries(residue)
     .filter(([, v]) => Math.round(v) > 0)
     .map(([k, v]) => {
-      const prefix = k.startsWith('clown') ? 'clown' : k.startsWith('mirac') ? 'mirac' : k.startsWith('beast') ? 'beast' : 'witch';
+      const prefix = k.startsWith('clown') ? 'clown' : k.startsWith('mirac') ? 'mirac' : k.startsWith('beast') ? 'beast' : k.startsWith('witch') ? 'witch' : 'eden';
       const type = k.replace(prefix, '');
       return `<span>${BATCH_TYPE_ICON[type]} ${type}: ${formatBatchNumber(v)}</span>`;
     }).join('');
@@ -4094,13 +4402,14 @@ function updateBatchPlannerResults(root) {
 
   // --- Optimal comparison: for the same time window, check each vendor independently. ---
   const optimalByVendor = [];
-  for (const prefix of ['clown', 'mirac', 'beast', 'witch']) {
+  for (const prefix of ['clown', 'mirac', 'beast', 'witch', 'eden']) {
     const rates = computeVendorRatesPerHour(prefix);
     const ing = {
       clownMeat: 0, clownVegetable: 0, clownSpice: 0,
       miracMeat: 0, miracVegetable: 0, miracSpice: 0,
       beastMeat: 0, beastVegetable: 0, beastSpice: 0,
-      witchMeat: 0, witchVegetable: 0, witchSpice: 0
+      witchMeat: 0, witchVegetable: 0, witchSpice: 0,
+      edenMeat: 0, edenVegetable: 0, edenSpice: 0
     };
     for (const k of BATCH_ALL_ING_KEYS) ing[k] = (rates[k] || 0) * plan.timeHours;
     const seq = calculatePhaseBasedSequence(ing, availableDishes);

@@ -111,6 +111,9 @@
   --vendor-witch-bg: #e8f5e9;
   --vendor-witch-color: #2e7d32;
   --vendor-witch-border: #2e7d32;
+  --vendor-eden-bg: #fff8e1;
+  --vendor-eden-color: #f57f17;
+  --vendor-eden-border: #f9a825;
   
   /* Chart Colors */
   --chart-blue: #3498db;
@@ -197,6 +200,9 @@
   --vendor-witch-bg: #1a3a1e;
   --vendor-witch-color: #66bb6a;
   --vendor-witch-border: #43a047;
+  --vendor-eden-bg: #3a3214;
+  --vendor-eden-color: #ffd54f;
+  --vendor-eden-border: #fbc02d;
 
   /* Chart Colors (slightly adjusted for dark bg) */
   --chart-blue: #64b5f6;
@@ -594,6 +600,9 @@ input:focus-visible {
 .border-witch { border-left: 4px solid var(--vendor-witch-border) !important; }
 .bg-witch     { background: linear-gradient(to bottom, var(--bg-card), var(--vendor-witch-bg)); }
 
+.border-eden { border-left: 4px solid var(--vendor-eden-border) !important; }
+.bg-eden     { background: linear-gradient(to bottom, var(--bg-card), var(--vendor-eden-bg)); }
+
 /* Ingredient Card Enhancements */
 .ingredient-card {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -623,6 +632,11 @@ input:focus-visible {
 .ingredient-card.border-witch {
   border-left-width: 5px;
   background: linear-gradient(135deg, var(--bg-card) 0%, var(--vendor-witch-bg) 100%);
+}
+
+.ingredient-card.border-eden {
+  border-left-width: 5px;
+  background: linear-gradient(135deg, var(--bg-card) 0%, var(--vendor-eden-bg) 100%);
 }
 
 /* Ingredient Row Containers */
@@ -661,6 +675,13 @@ input:focus-visible {
   border: 2px solid var(--vendor-witch-border);
 }
 
+.ingredient-row-eden {
+  padding: 15px;
+  background: var(--vendor-eden-bg);
+  border-radius: 12px;
+  border: 2px solid var(--vendor-eden-border);
+}
+
 .ingredient-row-label {
   font-weight: bold;
   font-size: 1.1em;
@@ -693,6 +714,10 @@ input:focus-visible {
 
 .ingredient-row-witch .ingredient-row-label::before {
   background: var(--vendor-witch-border);
+}
+
+.ingredient-row-eden .ingredient-row-label::before {
+  background: var(--vendor-eden-border);
 }
 
 /* Responsive ingredient rows - moved to consolidated media queries at end of file */
@@ -2510,6 +2535,7 @@ h1, h2 {
 #cooking-ranking-table tbody tr.mirac-row { box-shadow: inset 5px 0 0 var(--vendor-mirac-border); }
 #cooking-ranking-table tbody tr.beast-row { box-shadow: inset 5px 0 0 var(--vendor-beast-border); }
 #cooking-ranking-table tbody tr.witch-row { box-shadow: inset 5px 0 0 var(--vendor-witch-border); }
+#cooking-ranking-table tbody tr.eden-row { box-shadow: inset 5px 0 0 var(--vendor-eden-border); }
 
 /* Section Headers */
 .cooking-section {
