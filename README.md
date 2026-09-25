@@ -188,13 +188,9 @@ Contributions are welcome! To contribute:
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 📝 License
-
-This project is open source and available under the [MIT License](LICENSE).
-
 ## 🔗 Links
 
-- **Live Demo**: [https://snailcalc.com](https://snailcalc.com) (if hosted)
+- **Live Demo**: [https://snailcalc.com](https://snailcalc.com)
 - **Issues**: Report bugs or request features
 - **Analytics**: Powered by GoatCounter (privacy-friendly)
 
